@@ -1,9 +1,33 @@
 const express = require("express");
+const passport = require("passport");
 const userController = require("../controllers/userController");
+const { isLoggedIn, isNotLoggedIn } = require("../middlewares/authMiddleware");
 const userRouter = express.Router();
 
 // Kakao Login
-userRouter.post("/", userController.kakaoLogin);
+userRouter.get("/auth/kakao", passport.authenticate("kakao"));
+userRouter.get(
+  "/auth/kakao/callback",
+  passport.authenticate("kakao", {
+    failureRedirect: "/",
+  }),
+  (req, res) => {
+    res.send(req.user);
+    // res.redirect("/");
+  },
+);
+
+// Sign up
+userRouter.post("/signup", isNotLoggedIn, userController.signup);
+
+// Login
+userRouter.post("/login", isNotLoggedIn, userController.login);
+
+// Logout
+userRouter.post("/logout", isLoggedIn, userController.logout);
+
+// Get Profile
+// userRouter.get("/profile", isLoggedIn, userController.getProfile);
 
 // Read all users
 userRouter.get("/", userController.getAllUsers);

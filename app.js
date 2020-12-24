@@ -3,7 +3,15 @@ var express = require("express");
 var path = require("path");
 var cookieParser = require("cookie-parser");
 var logger = require("morgan");
+const session = require("express-session");
+const passport = require("passport");
+const SequelizeStore = require("connect-session-sequelize")(session.Store);
+
 const { sequelize } = require("./models");
+const passportEnv = require("./config/passportEnv");
+const passportConfig = require("./passport");
+
+passportConfig(passport);
 
 var indexRouter = require("./routes/index");
 
@@ -28,6 +36,16 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
+app.use(
+  session({
+    secret: passportEnv.sessionSecret,
+    saveUninitialized: true,
+    store: new SequelizeStore({ db: sequelize }),
+    resave: false,
+  }),
+);
+app.use(passport.initialize());
+app.use(passport.session());
 
 app.use("/motiiv/api/v1", indexRouter);
 

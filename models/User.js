@@ -2,18 +2,27 @@ module.exports = (sequelize, DataTypes) => {
   return sequelize.define(
     "User",
     {
+      email: {
+        type: DataTypes.STRING(50),
+        allowNull: true,
+        unique: true,
+      },
       username: {
         type: DataTypes.STRING(30),
         allowNull: false,
-        unique: true,
       },
       password: {
-        type: DataTypes.STRING(200),
-        allowNull: false,
+        type: DataTypes.STRING(100),
+        allowNull: true,
       },
-      salt: {
-        type: DataTypes.STRING(200),
+      provider: {
+        type: DataTypes.STRING(30),
         allowNull: false,
+        defaultValue: "local",
+      },
+      snsId: {
+        type: DataTypes.STRING(50),
+        allowNull: true,
       },
       profileImageUrl: {
         type: DataTypes.STRING(400),
