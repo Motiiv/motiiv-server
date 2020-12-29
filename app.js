@@ -17,8 +17,8 @@ passportConfig(passport);
 var indexRouter = require("./routes/index");
 
 sequelize
-  .sync({ alter: true, force: true })
-  // .sync({ alter: false })
+  // .sync({ alter: true, force: true })
+  .sync({ alter: false })
   .then(() => {
     console.log("✅ Connected to the database!");
   })
@@ -66,5 +66,8 @@ app.use(function (err, req, res, next) {
   res.status(err.status || 500);
   res.render("error");
 });
+
+// Trace warnings on node
+// process.on("warning", (e) => console.warn(e.stack));
 
 module.exports = app;
