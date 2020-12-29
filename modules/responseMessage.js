@@ -30,8 +30,7 @@ module.exports = {
   DELETE_USER_FAIL: "유저 삭제 실패",
 
   // 관리자
-  ALREADY_ADMIN: "이미 있는 관리자입니다",
-  ALREADY_ADMIN: "이미 있는 관리자입니다",
+  ALREADY_USERNAME_ADMIN: "해당 유저네임을 가진 관리자가 존재합니다.",
   CREATE_ADMIN_SUCCESS: "관리자 생성 성공",
   CREATE_ADMIN_FAIL: "관리자 생성 실패",
   GET_ALL_ADMINS_SUCCESS: "모든 관리자 조회 성공",
