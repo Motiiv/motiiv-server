@@ -1,4 +1,5 @@
-const { Video, Tag } = require("./index");
+const Video = require("./Video");
+const Tag = require("./Tag");
 
 module.exports = (sequelize, DataTypes) => {
   return sequelize.define(

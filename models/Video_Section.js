@@ -1,4 +1,6 @@
-const { Video, Section } = require("./index");
+// const { Video, Section } = require("./index");
+const Video = require("./Video");
+const Section = require("./Section");
 
 module.exports = (sequelize, DataTypes) => {
   return sequelize.define(
