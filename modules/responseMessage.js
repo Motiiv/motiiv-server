@@ -63,4 +63,12 @@ module.exports = {
 
   /* 서버에러 */
   INTERNAL_SERVER_ERROR: "서버 내부 오류",
+
+
+  /* Main_Video */
+  GET_ALL_POST_SUCCESS: "비디오 불러오기 성공",
+  GET_ALL_POST_FAIL: "비디오 불러오기 실패",
+
+
+
 };
