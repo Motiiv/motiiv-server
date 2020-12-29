@@ -6,6 +6,7 @@ const jwt = require("../middlewares/jwt");
 const responseMessage = require("../modules/responseMessage");
 const statusCode = require("../modules/statusCode");
 const util = require("../modules/util");
+const { encrypt } = require("../modules/crypto");
 
 module.exports = {
   createAdmin: async (req, res) => {
@@ -17,14 +18,14 @@ module.exports = {
     }
 
     try {
-      const usernameExists = await Admin.findOne({ where: username });
+      const usernameExists = await Admin.findOne({ where: { username } });
       if (usernameExists) {
         return res
           .status(statusCode.CONFLICT)
           .send(statusCode.CONFLICT, responseMessage.ALREADY_USERNAME_ADMIN);
       }
-      const { salt, hashed } = await encrpyt(password);
-      const admin = Admin.create({ username, password: hashed, salt });
+      const { salt, hashed } = await encrypt(password);
+      const admin = await Admin.create({ username, password: hashed, salt });
       console.log(admin);
       res
         .status(statusCode.OK)

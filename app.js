@@ -68,6 +68,6 @@ app.use(function (err, req, res, next) {
 });
 
 // Trace warnings on node
-process.on("warning", (e) => console.warn(e.stack));
+// process.on("warning", (e) => console.warn(e.stack));
 
 module.exports = app;

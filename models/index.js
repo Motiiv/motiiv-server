@@ -22,6 +22,7 @@ db.Video = require("./Video")(sequelize, Sequelize);
 db.Section = require("./Section")(sequelize, Sequelize);
 db.Tag = require("./Tag")(sequelize, Sequelize);
 db.Workspace = require("./Workspace")(sequelize, Sequelize);
+db.Admin = require("./Admin")(sequelize, Sequelize);
 
 db.Comment = require("./Comment")(sequelize, Sequelize);
 db.CommentLike = require("./CommentLike")(sequelize, Sequelize);
