@@ -1,8 +1,9 @@
 const express = require("express");
+const adminController = require("../controllers/adminController");
 const adminRouter = express.Router();
 
 // Create an Admin
-adminRouter.post("/");
+adminRouter.post("/", adminController.createAdmin);
 
 // Read all Admins
 adminRouter.get("/");
