@@ -1,8 +1,8 @@
 const passport = require("passport");
-const { User } = require("../models");
+const { User, Video } = require("../models");
 // const crypto = require("../modules/crypto");
 const bcrypt = require("bcrypt");
-const jwt = require("../modules/jwt");
+const jwt = require("../middlewares/jwt");
 const responseMessage = require("../modules/responseMessage");
 const statusCode = require("../modules/statusCode");
 const util = require("../modules/util");
@@ -71,44 +71,51 @@ module.exports = {
     req.session.destroy();
     res.redirect("/");
   },
-  // kakaoLogin: async (req, res) => {
-  //   const token = "dLx085xKRSNBOuqt-Ix412sSZrrfx-OQGzCVJgorDNQAAAF1-pnn2g";
-  //   const kaHeader = "Bearer " + token; // Bearer 다음에 공백 추가
-  //   const api_url = "https://kapi.kakao.com/v2/user/me";
-  //   const options = {
-  //     url: api_url,
-  //     headers: {
-  //       Authorization: kaHeader,
-  //     },
-  //   };
-  //   request.get(options, async (error, response, body) => {
-  //     if (!error && response.statusCode == 200) {
-  //       const data = JSON.parse(body);
-  //       const id = data.id;
-  //       const resultUser = await User.findOne({ userId: id });
-  //       if (resultUser) {
-  //         const webtoken = await jwt.sign(id);
-  //         res
-  //           .status(statusCode.OK)
-  //           .json(util.success(statusCode.OK, "성공", webtoken));
-  //       } else {
-  //         let user = new User();
-  //         user.userId = id;
-  //         user.username = data.properties.nickname;
-  //         const webtoken = await jwt.sign(id);
-  //         await user.save();
-  //         res
-  //           .status(statusCode.OK)
-  //           .json(util.success(statusCode.OK, "성공", webtoken));
-  //       }
-  //     } else {
-  //       res.status(500).json({
-  //         message: "Internal server error",
-  //         data: error,
-  //       });
-  //     }
-  //   });
-  // },
+
+  mypage: async (req, res, next) => {
+    const { id } = req.user;
+    try {
+      const myUploads = await Video.findAll({
+        where: { uploaderId: id },
+      });
+      const myComments = await Comments.findAll({
+        where: { UserId: id },
+      });
+      let videosWithMyComment = [];
+
+      let likedVideos = [];
+
+      const videoLike = await VideoLike.findAll({ where: { UserId: id } });
+
+      myComments.map(async (comment) => {
+        const video = await Video.findOne({ where: { id: comment.VideoId } });
+        videosWithMyComment.push(video);
+      });
+
+      videoLike.map(async (vl) => {
+        const video = await Video.findOne({ where: { id: vl.id } });
+        likedVideos.push(video);
+      });
+
+      res
+        .status(statusCode.OK)
+        .send(
+          statusCode.OK,
+          responseMessage.GET_MY_PAGE_SUCCESS,
+          myUploads,
+          videosWithMyComment,
+          likedVideos,
+        );
+    } catch (error) {
+      console.log(error);
+      res
+        .status(statusCode.INTERNAL_SERVER_ERROR)
+        .send(
+          statusCode.INTERNAL_SERVER_ERROR,
+          responseMessage.INTERNAL_SERVER_ERROR,
+        );
+    }
+  },
 
   getAllUsers: async (req, res) => {
     try {

@@ -1,5 +1,5 @@
 const util = require("../modules/util");
-const jwt = require("../modules/jwt");
+const jwt = require("./jwt");
 const statusCode = require("../modules/statusCode");
 const responseMessage = require("../modules/responseMessage");
 const { User } = require("../models");

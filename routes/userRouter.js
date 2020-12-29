@@ -18,16 +18,16 @@ userRouter.get(
 );
 
 // Sign up
-userRouter.post("/signup", isNotLoggedIn, userController.signup);
+// userRouter.post("/signup", isNotLoggedIn, userController.signup);
 
 // Login
-userRouter.post("/login", isNotLoggedIn, userController.login);
+// userRouter.post("/login", isNotLoggedIn, userController.login);
 
 // Logout
 userRouter.post("/logout", isLoggedIn, userController.logout);
 
-// Get Profile
-// userRouter.get("/profile", isLoggedIn, userController.getProfile);
+// Get Mypage
+userRouter.get("/mypage", isLoggedIn, userController.mypage);
 
 // Read all users
 userRouter.get("/", userController.getAllUsers);

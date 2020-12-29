@@ -3,6 +3,7 @@ var express = require("express");
 var path = require("path");
 var cookieParser = require("cookie-parser");
 var logger = require("morgan");
+const cors = require("cors");
 const session = require("express-session");
 const passport = require("passport");
 const SequelizeStore = require("connect-session-sequelize")(session.Store);
@@ -16,8 +17,8 @@ passportConfig(passport);
 var indexRouter = require("./routes/index");
 
 sequelize
-  // .sync({ alter: true, force: true })
-  .sync({ alter: false })
+  .sync({ alter: true, force: true })
+  // .sync({ alter: false })
   .then(() => {
     console.log("✅ Connected to the database!");
   })
@@ -26,6 +27,7 @@ sequelize
   });
 
 var app = express();
+app.use(cors());
 
 // view engine setup
 app.set("views", path.join(__dirname, "views"));
