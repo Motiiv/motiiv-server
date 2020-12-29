@@ -20,13 +20,15 @@ db.Sequelize = Sequelize;
 db.User = require("./User")(sequelize, Sequelize);
 db.Video = require("./Video")(sequelize, Sequelize);
 db.Section = require("./Section")(sequelize, Sequelize);
+db.Tag = require("./Tag")(sequelize, Sequelize);
+db.Workspace = require("./Workspace")(sequelize, Sequelize);
+db.Admin = require("./Admin")(sequelize, Sequelize);
+
 db.Comment = require("./Comment")(sequelize, Sequelize);
 db.CommentLike = require("./CommentLike")(sequelize, Sequelize);
 db.VideoLike = require("./VideoLike")(sequelize, Sequelize);
-db.Tag = require("./Tag")(sequelize, Sequelize);
 db.Video_Tag = require("./Video_Tag")(sequelize, Sequelize);
 db.Video_Section = require("./Video_Section")(sequelize, Sequelize);
-db.Workspace = require("./Workspace")(sequelize, Sequelize);
 
 // N : M    User : Video => VideoLike
 db.User.belongsToMany(db.Video, { through: "VideoLike", as: "LikedVideos" });
