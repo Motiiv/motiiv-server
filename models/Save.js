@@ -1,14 +1,14 @@
 const User = require("./User");
-const Comment = require("./Comment");
+const Video = require("./Video");
 
 module.exports = (sequelize, DataTypes) => {
   return sequelize.define(
-    "CommentLike",
+    "Save",
     {
-      CommentId: {
+      VideoId: {
         type: DataTypes.INTEGER,
         reference: {
-          model: Comment,
+          model: Video,
           key: "id",
         },
       },

@@ -16,15 +16,17 @@ passportConfig(passport);
 
 var indexRouter = require("./routes/index");
 
-sequelize
-  // .sync({ alter: true, force: true })
-  .sync({ alter: false })
-  .then(() => {
-    console.log("✅ Connected to the database!");
-  })
-  .catch((error) => {
-    console.log(error);
-  });
+sequelize.query("SET FOREIGN_KEY_CHECKS = 0").then(() =>
+  sequelize
+    // .sync({ alter: true, force: true })
+    .sync({ alter: false, force: false })
+    .then(() => {
+      console.log("✅ Connected to the database!");
+    })
+    .catch((error) => {
+      console.log(error);
+    }),
+);
 
 var app = express();
 app.use(cors());
