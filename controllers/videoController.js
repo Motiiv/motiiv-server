@@ -3,9 +3,6 @@ const ut = require('../modules/util');
 const rm = require('../modules/responseMessage');
 const sc = require('../modules/statusCode');
 const { Comment, CommentLike, Section, Tag, User, Video_Section, Video_Tag, Video, VideoLike, Workspace } = require('../models');
-const { success } = require('../modules/util');
-const { VERSION } = require('sequelize/types/lib/query-types');
-const { post } = require('../routes');
 const Op = sequelize.Op;
 
 module.exports = {
@@ -45,34 +42,86 @@ module.exports = {
     },
 
 
+    // 동영상 디테일 
+
     /*
-    exports.addComment = async (req, res, next) => {
-        const video = await Video.findByPk(req.params.id);
+    getDetail: async (req, res) => {
+        const id = req.params.videoId;
 
-        if (!video) {
-            return next({
-                message: `No video found for ID - ${req.params.id}`,
-                statusCode: 404,
-            });
+        if (!id) {
+            res.status(400).json({
+                message: "video id가 비어있습니다."
+            })
+            return
         }
-
-        const comment = await Comment.create({
-            text: req.body.text,
-            userId: req.user.id,
-            videoId: req.params.id,
-        });
-
-        const User = {
-            id: req.user.id,
-            avatar: req.user.avatar,
-            username: req.user.username,
-        };
-
-        comment.setDataValue("User", User);
-
-        res.status(200).json({ success: true, data: comment });
-    };
+        try {
+            const details = await Video.findOne({
+                where: {
+                    id,
+                },
+                attributes: ['title', 'description', 'videoUrl', 'viewCount', 'channelName', 'createdAt'],
+                include: [{
+                    model: Tag,
+                    as: 'TaggedVideos',
+                    attributes: ['name'],
+                    through: { attributes: [] }
+                }],
+            });
+            return res
+                .status(sc.OK)
+                .send(ut.success(sc.Ok, rm.GET_VIDEO_DETAIL_SUCCESS, details));
+        } catch (err) {
+            console.log(err);
+            return res
+                .status(sc.INTERNAL_SERVER_ERROR)
+                .send(ut.fail(sc.INTERNAL_SERVER_ERROR, rm.GET_VIDEO_DETAIL_FAIL));
+        }
+    },
     */
+
+    //좋아요 기능
+    createLike: async (req, res) => {
+        const video = req.params.videoId;
+        const user = req.body.userId;
+
+        try {
+            const like = await VideoLike.create({ VideoId: video, UserId: user });
+            return res
+                .status(sc.OK)
+                .send(ut.success(sc.OK, rm.POST_VIDEO_LIKE_SUCCESS, like));
+        } catch (err) {
+            console.log(err)
+            return res
+                .status(sc.INTERNAL_SERVER_ERROR)
+                .send(ut.fail(sc.INTERNAL_SERVER_ERROR, rm.POST_VIDEO_LIKE_FAIL));
+        }
+    },
+
+    //좋아요 취소
+    deleteLike: async (req, res) => {
+        const video = req.params.videoId;
+        const user = req.body.userId;
+        try {
+            await VideoLike.destroy({
+                where: {
+                    VideoId: video,
+                    UserId: user,
+                },
+            });
+            return res.status(sc.OK).send(ut.success(sc.OK, rm.DELETE_VIDEO_LIKE_SUCCESS));
+        } catch (err) {
+            console.log(err);
+            return res
+                .status(sc.INTERNAL_SERVER_ERROR)
+                .send(ut.fail(sc.INTERNAL_SERVER_ERROR, rm.DELETE_VIDEO_LIKE_FAIL));
+        }
+    },
+
+    // 동영상 저장
+
+
+    // 동영상 저장 취소 
+
 
 }
 

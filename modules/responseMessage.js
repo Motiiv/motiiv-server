@@ -51,10 +51,20 @@ module.exports = {
   INTERNAL_SERVER_ERROR: "서버 내부 오류",
 
 
-  /* Main_Video */
+  /* Video_main */
   GET_ALL_POST_SUCCESS: "비디오 불러오기 성공",
   GET_ALL_POST_FAIL: "비디오 불러오기 실패",
 
+
+  /* Video_detail */
+  GET_VIDEO_DETAIL_SUCCESS: "댓글 불러오기 성공",
+  GET_VIDEO_DETAIL_FAIL: "댓글 불러오기 실패",
+
+  /* 좋아요 */
+  POST_VIDEO_LIKE_SUCCESS: "댓글 좋아요 성공",
+  POST_VIDEO_LIKE_FAIL: "댓글 좋아요 실패",
+  DELETE_VIDEO_LIKE_SUCCESS: "댓글 좋아요 취소 성공",
+  DELETE_VIDEO_LIKE_FAIL: "댓글 좋아요 실패"
 
 
 };
