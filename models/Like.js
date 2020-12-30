@@ -3,7 +3,7 @@ const Video = require("./Video");
 
 module.exports = (sequelize, DataTypes) => {
   return sequelize.define(
-    "VideoLike",
+    "Like",
     {
       VideoId: {
         type: DataTypes.INTEGER,

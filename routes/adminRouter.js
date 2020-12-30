@@ -6,15 +6,18 @@ const adminRouter = express.Router();
 adminRouter.post("/", adminController.createAdmin);
 
 // Read all Admins
-adminRouter.get("/");
+adminRouter.get("/", adminController.getAllAdmins);
 
 // Read one Admin
-adminRouter.get("/:adminId");
+adminRouter.get("/:adminId", adminController.getOneAdmin);
 
-// Update Admin
-adminRouter.put("/:adminId");
+// Update Admin username
+adminRouter.put("/:adminId/username", adminController.updateAdminUsername);
+
+//Update Admin password
+adminRouter.put("/:adminId/password", adminController.updateAdminPassword);
 
 // Delete Admin
-adminRouter.delete("/:adminId");
+adminRouter.delete("/:adminId", adminController.deleteAdmin);
 
 module.exports = adminRouter;
