@@ -111,7 +111,9 @@ module.exports = {
                     UserId: user,
                 },
             });
-            return res.status(sc.OK).send(ut.success(sc.OK, rm.DELETE_VIDEO_LIKE_SUCCESS));
+            return res
+                .status(sc.OK)
+                .send(ut.success(sc.OK, rm.DELETE_VIDEO_LIKE_SUCCESS));
         } catch (err) {
             console.log(err);
             return res
@@ -121,7 +123,6 @@ module.exports = {
     },
 
     // 동영상 저장
-
     createSave: async (req, res) => {
         const video = req.params.videoId;
         const user = req.body.userId;
@@ -140,10 +141,29 @@ module.exports = {
                 .status(sc.INTERNAL_SERVER_ERROR)
                 .send(ut.fail(sc.INTERNAL_SERVER_ERROR, rm.POST_VIDEO_SAVE_FAIL));
         }
-    }
+    },
 
     // 동영상 저장 취소 
+    deleteSave: async (req, res) => {
+        const video = req.params.videoId;
+        const user = req.body.userId;
 
-
+        try {
+            await Save.destroy({
+                where: {
+                    VideoId: video,
+                    UserId: user
+                }
+            });
+            return res
+                .status(sc.INTERNAL_SERVER_ERROR)
+                .send(ut.success(sc.OK, rm.DELETE_VIDEO_SAVE_SUCCESS));
+        } catch (err) {
+            console.log(err);
+            return res
+                .status(sc.INTERNAL_SERVER_ERROR)
+                .send(ut.fail(sc.INTERNAL_SERVER_ERROR, rm.DELETE_VIDEO_SAVE_FAIL));
+        }
+    }
 }
 
