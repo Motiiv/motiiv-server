@@ -122,6 +122,25 @@ module.exports = {
 
     // 동영상 저장
 
+    createSave: async (req, res) => {
+        const video = req.params.videoId;
+        const user = req.body.userId;
+
+        try {
+            const save = await Save.create({ VideoId: video, UserId: user });
+
+            //중복 추가
+            return res
+                .status(sc.OK)
+                .send(ut.success(sc.OK, rm.POST_VIDEO_SAVE_SUCCESS, save));
+
+        } catch (err) {
+            console.log(err);
+            return res
+                .status(sc.INTERNAL_SERVER_ERROR)
+                .send(ut.fail(sc.INTERNAL_SERVER_ERROR, rm.POST_VIDEO_SAVE_FAIL));
+        }
+    }
 
     // 동영상 저장 취소 
 

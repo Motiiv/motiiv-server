@@ -64,7 +64,13 @@ module.exports = {
   POST_VIDEO_LIKE_SUCCESS: "댓글 좋아요 성공",
   POST_VIDEO_LIKE_FAIL: "댓글 좋아요 실패",
   DELETE_VIDEO_LIKE_SUCCESS: "댓글 좋아요 취소 성공",
-  DELETE_VIDEO_LIKE_FAIL: "댓글 좋아요 실패"
+  DELETE_VIDEO_LIKE_FAIL: "댓글 좋아요 실패",
+
+  /* 비디오 저장 */
+  POST_VIDEO_SAVE_SUCCESS: "비디오 저장 성공",
+  POST_VIDEO_SAVE_FAIL: "비디오 저장 실패",
+  DELETE_VIDEO_SAVE_SUCCESS: "비디오 저장 취소 성공",
+  DELETE_VIDEO_SAVE_FAIL: "비디오 저장 취소 실패"
 
 
 };
