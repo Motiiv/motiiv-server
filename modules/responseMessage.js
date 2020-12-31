@@ -37,9 +37,6 @@ module.exports = {
   GET_ALL_ADMINS_FAIL: "모든 관리자 조회 실패",
   GET_ONE_ADMIN_SUCCESS: "관리자 조회 성공",
   GET_ONE_ADMIN_FAIL: "관리자 조회 실패",
-  UPDATE_ADMIN_USERNAME_SUCCESS: "관리자 이름 변경 성공",
-  UPDATE_ADMIN_PASSWORD_SUCCESS: "관리자 비밀번호 변경 성공",
-  SAME_ADMIN_USERNAME: "기존 관리자 이름과 동일합니다",
   DELETE_ADMIN_SUCCESS: "관리자 삭제 성공",
   DELETE_ADMIN_FAIL: "관리자 삭제 실패",
 
@@ -67,10 +64,7 @@ module.exports = {
   POST_VIDEO_LIKE_SUCCESS: "댓글 좋아요 성공",
   POST_VIDEO_LIKE_FAIL: "댓글 좋아요 실패",
   DELETE_VIDEO_LIKE_SUCCESS: "댓글 좋아요 취소 성공",
-  DELETE_VIDEO_LIKE_FAIL: "댓글 좋아요 실패",
+  DELETE_VIDEO_LIKE_FAIL: "댓글 좋아요 실패"
 
 
-  /* Main_Video */
-  GET_ALL_POST_SUCCESS: "비디오 불러오기 성공",
-  GET_ALL_POST_FAIL: "비디오 불러오기 실패",
 };
