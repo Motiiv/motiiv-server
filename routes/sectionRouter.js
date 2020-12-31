@@ -1,23 +1,20 @@
 const express = require("express");
-const adminController = require("../controllers/adminController");
-const adminRouter = express.Router();
+const sectionController = require("../controllers/sectionController");
+const sectionRouter = express.Router();
 
-// Create an Admin
-adminRouter.post("/", adminController.createAdmin);
+// Create an Section
+sectionRouter.post("/", sectionController.createSection);
 
-// Read all Admins
-adminRouter.get("/", adminController.getAllAdmins);
+// Read all Sections
+sectionRouter.get("/", sectionController.getAllSections);
 
-// Read one Admin
-adminRouter.get("/:adminId", adminController.getOneAdmin);
+// Read one Section
+sectionRouter.get("/:sectionId", sectionController.getOneSection);
 
-// Update Admin username
-adminRouter.put("/:adminId/username", adminController.updateAdminUsername);
+// Update Section
+// sectionRouter.put("/:sectionId/username", sectionController.updateSectionUsername);
 
-//Update Admin password
-adminRouter.put("/:adminId/password", adminController.updateAdminPassword);
+// Delete Section
+sectionRouter.delete("/:sectionId", sectionController.deleteSection);
 
-// Delete Admin
-adminRouter.delete("/:adminId", adminController.deleteAdmin);
-
-module.exports = adminRouter;
+module.exports = sectionRouter;

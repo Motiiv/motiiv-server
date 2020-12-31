@@ -1,6 +1,7 @@
 module.exports = {
   NULL_VALUE: "필요한 값이 없습니다",
   OUT_OF_VALUE: "파라미터 값이 잘못되었습니다",
+  NO_AUTHORITY: "권한이 없습니다",
 
   // 로그인
   LOGIN_SUCCESS: "로그인 성공",
@@ -30,6 +31,7 @@ module.exports = {
   DELETE_USER_FAIL: "유저 삭제 실패",
 
   // 관리자
+  NOT_ADMIN: "해당 권한을 가진 관리자가 아닙니다.",
   ALREADY_USERNAME_ADMIN: "해당 유저네임을 가진 관리자가 존재합니다.",
   CREATE_ADMIN_SUCCESS: "관리자 생성 성공",
   CREATE_ADMIN_FAIL: "관리자 생성 실패",

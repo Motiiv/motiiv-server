@@ -1,5 +1,6 @@
 const express = require("express");
 const adminController = require("../controllers/adminController");
+const authMiddleware = require("../middlewares/authMiddleware");
 const adminRouter = express.Router();
 
 // Create an Admin
@@ -12,12 +13,24 @@ adminRouter.get("/", adminController.getAllAdmins);
 adminRouter.get("/:adminId", adminController.getOneAdmin);
 
 // Update Admin username
-adminRouter.put("/:adminId/username", adminController.updateAdminUsername);
+adminRouter.put(
+  "/:adminId/username",
+  authMiddleware.checkToken("admin"),
+  adminController.updateAdminUsername,
+);
 
 //Update Admin password
-adminRouter.put("/:adminId/password", adminController.updateAdminPassword);
+adminRouter.put(
+  "/:adminId/password",
+  authMiddleware.checkToken("admin"),
+  adminController.updateAdminPassword,
+);
 
 // Delete Admin
-adminRouter.delete("/:adminId", adminController.deleteAdmin);
+adminRouter.delete(
+  "/:adminId",
+  authMiddleware.checkToken("admin"),
+  adminController.deleteAdmin,
+);
 
 module.exports = adminRouter;
