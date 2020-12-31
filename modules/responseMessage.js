@@ -43,6 +43,17 @@ module.exports = {
   DELETE_ADMIN_SUCCESS: "관리자 삭제 성공",
   DELETE_ADMIN_FAIL: "관리자 삭제 실패",
 
+  // 섹션
+  CREATE_SECTION_SUCCESS: "섹션 생성 성공",
+  ALREADY_SECTION: "이미 있는 섹션입니다",
+  CREATE_SECTION_FAIL: "섹션 생성 실패",
+  GET_ALL_SECTIONS_SUCCESS: "모든 섹션 조회 성공",
+  GET_ALL_SECTIONS_FAIL: "모든 섹션 조회 실패",
+  GET_ONE_SECTION_SUCCESS: "섹션 조회 성공",
+  GET_ONE_SECTION_FAIL: "섹션 조회 실패",
+  DELETE_SECTION_SUCCESS: "섹션 삭제 성공",
+  DELETE_SECTION_FAIL: "섹션 삭제 실패",
+
   /* 토큰 */
   EMPTY_TOKEN: "토큰 값이 없습니다.",
   EXPIRED_TOKEN: "토큰 값이 만료되었습니다.",

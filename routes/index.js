@@ -5,6 +5,4 @@ router.use("/users", require("./userRouter"));
 router.use("/admin", require("./adminRouter"));
 router.use("/videos", require("./videoRouter"));
 
-// Admin routing
-
 module.exports = router;
