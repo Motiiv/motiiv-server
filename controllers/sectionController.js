@@ -1,4 +1,3 @@
-const passport = require("passport");
 const { Section, Video } = require("../models");
 // const crypto = require("../modules/crypto");
 const bcrypt = require("bcrypt");

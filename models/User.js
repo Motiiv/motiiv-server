@@ -21,15 +21,18 @@ module.exports = (sequelize, DataTypes) => {
       },
       name: {
         type: DataTypes.STRING(30),
-        allowNull: false,
+        allowNull: true,
       },
       job: {
         type: DataTypes.STRING(30),
-        allowNull: false,
+        allowNull: true,
       },
       socialType: {
         type: DataTypes.STRING(30),
         // allowNull: false,
+      },
+      snsId: {
+        type: DataTypes.STRING(100),
       },
     },
     {

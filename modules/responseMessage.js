@@ -4,7 +4,8 @@ module.exports = {
   NO_AUTHORITY: "권한이 없습니다",
 
   // 로그인
-  LOGIN_SUCCESS: "로그인 성공",
+  KAKAO_LOGIN_SUCCESS: "카카오 로그인 성공",
+  NAVER_LOGIN_SUCCESS: "네이버 로그인 성공",
   LOGIN_FAIL: "로그인 실패",
   NO_USER: "존재하지 않는 회원입니다.",
   MISS_MATCH_PW: "비밀번호가 맞지 않습니다.",
@@ -63,11 +64,9 @@ module.exports = {
   /* 서버에러 */
   INTERNAL_SERVER_ERROR: "서버 내부 오류",
 
-
   /* Video_main */
   GET_ALL_POST_SUCCESS: "비디오 불러오기 성공",
   GET_ALL_POST_FAIL: "비디오 불러오기 실패",
-
 
   /* Video_detail */
   GET_VIDEO_DETAIL_SUCCESS: "비디오 상세 불러오기 성공",
@@ -83,7 +82,5 @@ module.exports = {
   POST_VIDEO_SAVE_SUCCESS: "비디오 저장 성공",
   POST_VIDEO_SAVE_FAIL: "비디오 저장 실패",
   DELETE_VIDEO_SAVE_SUCCESS: "비디오 저장 취소 성공",
-  DELETE_VIDEO_SAVE_FAIL: "비디오 저장 취소 실패"
-
-
+  DELETE_VIDEO_SAVE_FAIL: "비디오 저장 취소 실패",
 };

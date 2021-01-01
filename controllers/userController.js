@@ -1,30 +1,89 @@
-const passport = require("passport");
 const { User, Video } = require("../models");
-// const crypto = require("../modules/crypto");
-const bcrypt = require("bcrypt");
 const jwt = require("../middlewares/jwt");
 const responseMessage = require("../modules/responseMessage");
 const statusCode = require("../modules/statusCode");
 const util = require("../modules/util");
+const axios = require("axios");
+const qs = require("qs");
+const {
+  KAKAO_ID,
+  KAKAO_SECRET,
+  KAKAO_REDIRECT_URI,
+} = require("../config/kakao");
 
-// TODO: populate rooms
+// TODO: populate Videos
+// TODO: Cleanup Response data
+// TODO: Distinguish unique fields
 module.exports = {
-  signup: async (req, res, next) => {
-    const { email, username, password } = req.body;
+  kakaoLogin: (req, res) => {
+    const kakaoAuthUrl = `https://kauth.kakao.com/oauth/authorize?client_id=${KAKAO_ID}&redirect_uri=${KAKAO_REDIRECT_URI}&response_type=code`;
+
+    return res.redirect(kakaoAuthUrl);
+  },
+  kakaoLoginCallback: async (req, res) => {
+    const { code } = req.query;
+    let tokenResponse;
     try {
-      const alreadyUser = await User.find({ where: { email } });
-      if (alreadyUser) {
-        return res
-          .status(statusCode.CONFLICT)
-          .send(util.fail(statusCode.CONFLICT, responseMessage.ALREADY_USER));
-      }
-      const hashedPassword = await bcrypt(password, 12);
-      const newUser = await User.create({
-        email,
-        username,
-        password: hashedPassword,
+      tokenResponse = await axios({
+        method: "POST",
+        url: "https://kauth.kakao.com/oauth/token",
+        headers: {
+          "content-type": "application/x-www-form-urlencoded",
+        },
+        data: qs.stringify({
+          grant_type: "authorization_code",
+          client_id: KAKAO_ID,
+          client_secret: KAKAO_SECRET,
+          redirect_uri: KAKAO_REDIRECT_URI,
+          code,
+        }),
       });
-      res
+    } catch (error) {
+      // TODO: Cleanup
+      console.log(error);
+      return res.json(error.data);
+    }
+    console.info("==== tokenResponse.data ====");
+    console.log(tokenResponse.data);
+
+    const { access_token } = tokenResponse.data;
+
+    let userResponse;
+    try {
+      userResponse = await axios({
+        method: "GET",
+        url: "https://kapi.kakao.com/v2/user/me",
+        headers: {
+          Authorization: `Bearer ${access_token}`,
+        },
+      });
+    } catch (error) {
+      // TODO: Cleanup
+      console.log(error);
+      return res.json(error.data);
+    }
+    console.info("==== userResponse.data ====");
+    const userData = userResponse.data;
+    console.log(userData);
+    const snsId = userData.id;
+    const resultUser = await User.findOne({
+      where: { snsId, socialType: "kakao" },
+    });
+    if (resultUser) {
+      const { accessToken } = await jwt.sign(resultUser);
+      return res.status(statusCode.OK).send(
+        util.success(statusCode.OK, responseMessage.KAKAO_LOGIN_SUCCESS, {
+          resultUser,
+          accessToken,
+        }),
+      );
+    } else {
+      const newUser = await User.create({
+        name: userData.kakao_account.profile.nickname,
+        snsId,
+        socialType: "kakao",
+      });
+      return res
         .status(statusCode.OK)
         .send(
           util.success(
@@ -33,37 +92,7 @@ module.exports = {
             newUser,
           ),
         );
-    } catch (error) {
-      console.log(error);
-      res
-        .status(statusCode.INTERNAL_SERVER_ERROR)
-        .send(
-          util.fail(
-            statusCode.INTERNAL_SERVER_ERROR,
-            responseMessage.INTERNAL_SERVER_ERROR,
-          ),
-        );
     }
-  },
-
-  login: async (req, res, next) => {
-    passport.authenticate("local", (authError, user, info) => {
-      if (authError) {
-        console.error(authError);
-        return next(authError);
-      }
-      if (!user) {
-        console.log("Login Error");
-        return res.redirect("/");
-      }
-      return req.login(user, (loginError) => {
-        if (loginError) {
-          console.error(loginError);
-          return next(loginError);
-        }
-        return res.redirect("/");
-      })(req, res, next);
-    });
   },
 
   logout: async (req, res, next) => {
@@ -120,7 +149,7 @@ module.exports = {
   getAllUsers: async (req, res) => {
     try {
       const users = await User.findAll({
-        attributes: ["id", "username"],
+        attributes: ["id", "name", "snsId", "socialType"],
       });
       if (!users) {
         return res

@@ -1,4 +1,3 @@
-// const { Video, Section } = require("./index");
 const Video = require("./Video");
 const Section = require("./Section");
 
