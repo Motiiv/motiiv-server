@@ -2,7 +2,12 @@ const express = require("express");
 const videoRouter = express.Router();
 const videoController = require('../controllers/videoController');
 
-videoRouter.get("/", videoController.readAllPost);
+
+//홈화면 비디오 불러오기
+videoRouter.get("/homeVideos", videoController.readHomevideos);
+
+//디테일뷰 정보 불러오기
+videoRouter.get("/:videoId", videoController.getDetail);
 
 //좋아요 추가
 videoRouter.post("/:videoId/createLike", videoController.createLike);

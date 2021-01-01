@@ -57,8 +57,8 @@ module.exports = {
 
 
   /* Video_detail */
-  GET_VIDEO_DETAIL_SUCCESS: "댓글 불러오기 성공",
-  GET_VIDEO_DETAIL_FAIL: "댓글 불러오기 실패",
+  GET_VIDEO_DETAIL_SUCCESS: "비디오 상세 불러오기 성공",
+  GET_VIDEO_DETAIL_FAIL: "비디오 상세불러오기 실패",
 
   /* 좋아요 */
   POST_VIDEO_LIKE_SUCCESS: "댓글 좋아요 성공",

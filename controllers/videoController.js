@@ -7,13 +7,13 @@ const Op = sequelize.Op;
 
 module.exports = {
 
-    readAllPost: async (req, res) => {
+    //홈화면 비디오 읽기
+    readHomevideos: async (req, res) => {
         const filters = req.query.filters;
         try {
             const video = await Video.findAll({
                 group: 'id',
-                attributes: ['id', 'videoUrl', 'title', 'description', 'thumbnailImageUrl', 'viewCount', 'videoLength', 'channelName',
-                    [sequelize, fn("COUNT", "LikedVideos.VideoLike.VideoId"), 'likeCnt']],
+                attributes: ['id', 'videoUrl', 'title', 'description', 'thumbnailImageUrl', 'viewCount', 'videoLength', 'channelName'],
                 include: [{
                     model: User,
                     as: 'VideoLikers',
@@ -21,15 +21,12 @@ module.exports = {
                     through: { attributes: [] }
                 }]
             });
-
+            // view Table. 타임스탬프 포함.
             return res
                 .status(sc.OK)
                 .send(
-                    ut(success(
-                        sc.OK,
-                        rm.GET_ALL_POST_SUCCESS,
-                        video
-                    )))
+                    ut.success(sc.OK, rm.GET_ALL_POST_SUCCESS, video
+                    ));
         } catch (err) {
             console.log(err);
             return res
@@ -43,17 +40,18 @@ module.exports = {
 
 
     // 동영상 디테일 
-
-    /*
     getDetail: async (req, res) => {
         const id = req.params.videoId;
 
+        //video id check
         if (!id) {
             res.status(400).json({
                 message: "video id가 비어있습니다."
             })
             return
         }
+
+        // get info from video
         try {
             const details = await Video.findOne({
                 where: {
@@ -63,13 +61,36 @@ module.exports = {
                 include: [{
                     model: Tag,
                     as: 'TaggedVideos',
-                    attributes: ['name'],
+                    attributes: ['id', 'name'],
                     through: { attributes: [] }
                 }],
             });
+            let cnt = details.viewCount + 1;
+
+            await Video.update({
+                viewCount: cnt
+            }, { where: { id } })
+            //업데이트문써서 조회수 추가
+
+            //유사 동영상 추천
+            const taggedVideos = details.dataValues.TaggedVideos;
+            const tagId = taggedVideos.map(item => item.dataValues.id);
+            // recommand similary videos
+            // where로 비슷한 태그 불러오기 
+            const recommand = Video.findAll({
+                include: [{
+                    model: Tag,
+                    as: 'TagggedVideos',
+                    attributes: ['id'],
+                    through: { attributes: [] }
+                }],
+
+            })
+
             return res
                 .status(sc.OK)
                 .send(ut.success(sc.Ok, rm.GET_VIDEO_DETAIL_SUCCESS, details));
+
         } catch (err) {
             console.log(err);
             return res
@@ -77,7 +98,7 @@ module.exports = {
                 .send(ut.fail(sc.INTERNAL_SERVER_ERROR, rm.GET_VIDEO_DETAIL_FAIL));
         }
     },
-    */
+
 
     //좋아요 기능
     createLike: async (req, res) => {

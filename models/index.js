@@ -29,6 +29,10 @@ db.Like = require("./Like")(sequelize, Sequelize);
 db.Video_Tag = require("./Video_Tag")(sequelize, Sequelize);
 db.Video_Section = require("./Video_Section")(sequelize, Sequelize);
 
+// N : M    User : Video => View
+db.User.belongsToMany(db.Video, { through: "View", as: "VideoViewer" });
+db.Video.belongsToMany(db.User, { through: "View", as: "VideoViewed" });
+
 // N : M    User : Video => Like
 db.User.belongsToMany(db.Video, { through: "Like", as: "LikedVideos" });
 db.Video.belongsToMany(db.User, { through: "Like", as: "VideoLikers" });
