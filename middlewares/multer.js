@@ -4,7 +4,7 @@ const aws = require("aws-sdk");
 aws.config.loadFromPath(__dirname + "/../config/s3.json");
 
 const s3 = new aws.S3();
-const multerVideo = multer({
+const multerProfileImage = multer({
   storage: multerS3({
     s3,
     bucket: "sopt-27-wooyeong",
@@ -12,7 +12,7 @@ const multerVideo = multer({
     key: function (req, file, cb) {
       cb(
         null,
-        "motiiv/videos/" +
+        "motiiv/user/profileImage/" +
           Date.now() +
           "." +
           file.originalname.split(".").pop(),
@@ -22,5 +22,6 @@ const multerVideo = multer({
 });
 
 module.exports = {
-  uploadVideo: multerVideo.single("videoFile"),
+  uploadProfileImage: multerProfileImage.single("imageFile"),
+  // uploadVideo: multerVideo.single("videoFile"),
 };

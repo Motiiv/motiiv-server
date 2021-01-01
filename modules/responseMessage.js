@@ -29,7 +29,7 @@ module.exports = {
   GET_ONE_USER_SUCCESS: "유저 조회 성공",
   GET_ONE_USER_FAIL: "유저 조회 실패",
   DELETE_USER_SUCCESS: "유저 삭제 성공",
-  DELETE_USER_FAIL: "유저 삭제 실패",
+  DELETE_USER_FAIL: "해당 아이디를 가진 유저가 없습니다.",
 
   // 관리자
   NOT_ADMIN: "해당 권한을 가진 관리자가 아닙니다.",
@@ -41,7 +41,7 @@ module.exports = {
   GET_ONE_ADMIN_SUCCESS: "관리자 조회 성공",
   GET_ONE_ADMIN_FAIL: "관리자 조회 실패",
   DELETE_ADMIN_SUCCESS: "관리자 삭제 성공",
-  DELETE_ADMIN_FAIL: "관리자 삭제 실패",
+  DELETE_ADMIN_FAIL: "해당 아이디를 가진 관리자가 없습니다.",
 
   // 섹션
   CREATE_SECTION_SUCCESS: "섹션 생성 성공",

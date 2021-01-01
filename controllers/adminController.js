@@ -1,4 +1,3 @@
-const passport = require("passport");
 const { Admin, Video } = require("../models");
 // const crypto = require("../modules/crypto");
 const bcrypt = require("bcrypt");
@@ -242,7 +241,7 @@ module.exports = {
           .send(
             util.fail(
               statusCode.BAD_REQUEST,
-              responseMessage.GET_ONE_ADMIN_FAIL,
+              responseMessage.DELETE_ADMIN_FAIL,
             ),
           );
       }
