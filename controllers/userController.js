@@ -1,4 +1,4 @@
-const { User, Video } = require("../models");
+const { User, Video, Workspace } = require("../models");
 const jwt = require("../middlewares/jwt");
 const responseMessage = require("../modules/responseMessage");
 const statusCode = require("../modules/statusCode");

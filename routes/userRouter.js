@@ -1,7 +1,6 @@
 const express = require("express");
 const userController = require("../controllers/userController");
 const authMiddleware = require("../middlewares/authMiddleware");
-const { isLoggedIn, isNotLoggedIn } = require("../middlewares/authMiddleware");
 const multer = require("../middlewares/multer");
 const userRouter = express.Router();
 
@@ -14,10 +13,7 @@ userRouter.get("/auth/naver", userController.naverLogin);
 userRouter.get("/auth/naver/callback", userController.naverLoginCallback);
 
 // logout
-userRouter.post("/logout", isLoggedIn, userController.logout);
-
-// Get Mypage
-userRouter.get("/mypage", isLoggedIn, userController.mypage);
+// userRouter.post("/logout", isLoggedIn, userController.logout);
 
 // Read all users
 userRouter.get("/", userController.getAllUsers);

@@ -31,6 +31,15 @@ module.exports = {
   DELETE_USER_SUCCESS: "유저 삭제 성공",
   DELETE_USER_FAIL: "해당 아이디를 가진 유저가 없습니다.",
 
+  // 워크스페이스
+  CREATE_WORKSPACE_SUCCESS: "워크스페이스 생성 성공",
+  GET_ONE_WORKSPACE_SUCCESS: "워크스페이스 조회 성공",
+  GET_ONE_WORKSPACE_FAIL: "워크스페이스 조회 실패",
+  GET_ALL_WORKSPACES_SUCCESS: "해당 유저의 모든 워크스페이스 조회 성공",
+  UPDATE_WORKSPACE_SUCCESS: "워크스페이스 수정 성공",
+  DELETE_WORKSPACE_SUCCESS: "워크스페이스 삭제 성공",
+  INVALID_URL: "URL 값이 잘못되었습니다.",
+
   // 관리자
   NOT_ADMIN: "해당 권한을 가진 관리자가 아닙니다.",
   ALREADY_USERNAME_ADMIN: "해당 유저네임을 가진 관리자가 존재합니다.",

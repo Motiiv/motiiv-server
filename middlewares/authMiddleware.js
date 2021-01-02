@@ -14,7 +14,6 @@ module.exports = {
   checkToken: (role) => {
     return async (req, res, next) => {
       const token = req.headers.jwt;
-      console.log(token);
 
       if (!token) {
         return res
@@ -69,21 +68,21 @@ module.exports = {
     };
   },
 
-  isLoggedIn: (req, res, next) => {
-    if (req.isAuthenticated()) {
-      next();
-    } else {
-      res
-        .status(statusCode.FORBIDDEN)
-        .send(util.fail(statusCode.FORBIDDEN, responseMessage.LOGIN_REQUIRED));
-    }
-  },
+  // isLoggedIn: (req, res, next) => {
+  //   if (req.isAuthenticated()) {
+  //     next();
+  //   } else {
+  //     res
+  //       .status(statusCode.FORBIDDEN)
+  //       .send(util.fail(statusCode.FORBIDDEN, responseMessage.LOGIN_REQUIRED));
+  //   }
+  // },
 
-  isNotLoggedIn: (req, res, next) => {
-    if (!req.isAuthenticated()) {
-      next();
-    } else {
-      res.redirect("/");
-    }
-  },
+  // isNotLoggedIn: (req, res, next) => {
+  //   if (!req.isAuthenticated()) {
+  //     next();
+  //   } else {
+  //     res.redirect("/");
+  //   }
+  // },
 };
