@@ -83,7 +83,11 @@ module.exports = {
   POST_VIDEO_SAVE_SUCCESS: "비디오 저장 성공",
   POST_VIDEO_SAVE_FAIL: "비디오 저장 실패",
   DELETE_VIDEO_SAVE_SUCCESS: "비디오 저장 취소 성공",
-  DELETE_VIDEO_SAVE_FAIL: "비디오 저장 취소 실패"
+  DELETE_VIDEO_SAVE_FAIL: "비디오 저장 취소 실패",
+
+  /* 배너 불러오기 */
+  GET_HOME_BANNER_SUCCES: "배너 불러오기 성공",
+  GET_HOME_BANNER_FAIL: "배너 불러오기 실패"
 
 
 };

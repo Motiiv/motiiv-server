@@ -104,7 +104,7 @@ module.exports = {
             return res
                 .status(sc.OK)
                 .send(
-                    ut.success(sc.OK, rm.GET_ALL_POST_SUCCESS, { topTens, mostViewVideo, mostLikeVideo }
+                    ut.success(sc.OK, rm.GET_HOME_BANNER_SUCCES, { topTens, mostViewVideo, mostLikeVideo }
                     ));
         } catch (err) {
             console.log(err);
@@ -112,7 +112,7 @@ module.exports = {
                 .status(sc.INTERNAL_SERVER_ERROR).
                 send(ut.fail(
                     sc.INTERNAL_SERVER_ERROR,
-                    rm.GET_ALL_POST_FAIL
+                    rm.GET_HOME_BANNER_FAIL
                 ));
         }
     },
