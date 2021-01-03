@@ -4,30 +4,107 @@ const rm = require('../modules/responseMessage');
 const sc = require('../modules/statusCode');
 const { Section, Tag, User, Video_Section, Video_Tag, Video, Like, Save, Workspace, View } = require('../models');
 const { Sequelize } = require('sequelize');
+const { STRING } = require('sequelize');
 const Op = sequelize.Op;
 
 module.exports = {
 
     //홈화면 비디오 읽기
-    readHomevideos: async (req, res) => {
-        const filters = req.query.filters;
+    bannerVideos: async (req, res) => {
+        const video = req.query.filters;
         try {
-
+            // 전체 비디오 불러오기
             const video = await Video.findAll({
                 group: 'id',
-                attributes: ['id', 'videoUrl', 'title', 'description', 'thumbnailImageUrl', 'viewCount', 'videoLength', 'channelName'],
-                include: [{
-                    model: User,
-                    as: 'VideoLikers',
-                    attributes: [],
-                    through: { attributes: [] }
-                }]
+                attributes: ['id', 'videoUrl', 'title', 'description', 'thumbnailImageUrl', 'viewCount', 'videoLength', 'channelName',
+                    [sequelize.fn('date_format', sequelize.col('createdAt'), '%Y-%m-%d'), 'createdAt']
+                ],
+
             });
+
+            //Top10 동영상 
+            const topTen = video.map(item => item.dataValues).sort((a, b) => b.viewCount - a.viewCount);
+            topTens = topTen.slice(0, 10);
+
+
+            //어제 날짜 포맷 변경 함수
+            function getFormatDate(date) {
+                var year = date.getFullYear();              //yyyy
+                var month = (1 + date.getMonth());          //M
+                month = month >= 10 ? month : '0' + month;  //month 두자리로 저장
+                var day = date.getDate();                   //d
+                day = day >= 10 ? day : '0' + day;          //day 두자리로 저장
+                return year + '-' + month + '-' + day;       //'-' 추가하여 yyyy-mm-dd 형태 생성 가능
+            }
+            const yesterday = (d => new Date(d.setDate(d.getDate() - 1)))(new Date);
+            const today = (d => new Date(d.setDate(d.getDate())))(new Date);
+
+
+            /* 배너 동영상 */
+
+            // 어제 조회수가 가장 높았던 동영상 => View에서 어제 동영상 목록 가져오기 => 동영상 갯수가 가장 많은것 순서대로 sort
+
+            const mostView = await View.findAll({
+                group: ['VideoId'],
+                where: {
+                    createdAt: {
+                        [Op.and]: [{ [Op.lte]: today }, { [Op.gte]: yesterday }],
+                    }
+                },
+                attributes: ['VideoId', [sequelize.fn('Count', 'VideoId'), 'viewCnt']],
+                order: [[sequelize.literal('viewCnt'), 'DESC']],
+                limit: 1
+            });
+            const mostViewId = mostView.map(item => item.dataValues.VideoId);
+
+            // 어제 조회수가 가장 높았던 영상 추출
+            const mostViewVideo = await Video.findOne({
+                where: { id: mostViewId },
+                attributes: ['id', 'videoUrl', 'title', 'description', 'thumbnailImageUrl', 'videoLength'],
+                include: [{
+                    model: Tag,
+                    as: 'TaggedVideos',
+                    attributes: ['id', 'name'],
+                    through: { attributes: [] },
+                }],
+
+            });
+
+
+            // 어제 좋아요가 가장 높았던 영상   
+            const mostLike = await Like.findAll({
+                group: ['VideoId'],
+                where: {
+                    createdAt: {
+                        [Op.and]: [{ [Op.lte]: today }, { [Op.gte]: yesterday }],
+                    }
+                },
+                attributes: ['VideoId', [sequelize.fn('Count', 'VideoId'), 'likeCnt']],
+                order: [[sequelize.literal('likeCnt'), 'DESC']],
+                limit: 1
+            });
+            const mostLikeId = mostLike.map(item => item.dataValues.VideoId);
+            console.log(mostLikeId);
+
+            const mostLikeVideo = await Video.findOne({
+                where: { id: mostLikeId },
+                attributes: ['id', 'videoUrl', 'title', 'description', 'thumbnailImageUrl', 'videoLength'],
+                include: [{
+                    model: Tag,
+                    as: 'TaggedVideos',
+                    attributes: ['id', 'name'],
+                    through: { attributes: [] },
+                }],
+            });
+
+            // 좋아요와 조회수 값이 일치하는 경우도 처리해야함 
+
+
 
             return res
                 .status(sc.OK)
                 .send(
-                    ut.success(sc.OK, rm.GET_ALL_POST_SUCCESS, video
+                    ut.success(sc.OK, rm.GET_ALL_POST_SUCCESS, { topTens, mostViewVideo, mostLikeVideo }
                     ));
         } catch (err) {
             console.log(err);
@@ -155,6 +232,7 @@ module.exports = {
                     attributes: ['id', 'title', 'videoUrl', 'thumbnailImageUrl'],
                     order: sequelize.literal('rand()'), limit: (4 - recommandsLength)
                 });
+                //여기서도 동영상 수가 적으면 이미 본 영상에서 가져와야 하는 로직 추가
                 recommandVideos.push(...otherVideos);
             }
 
@@ -248,7 +326,7 @@ module.exports = {
                 }
             });
             return res
-                .status(sc.INTERNAL_SERVER_ERROR)
+                .status(sc.Ok)
                 .send(ut.success(sc.OK, rm.DELETE_VIDEO_SAVE_SUCCESS));
         } catch (err) {
             console.log(err);

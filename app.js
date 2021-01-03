@@ -18,7 +18,7 @@ var indexRouter = require("./routes/index");
 
 sequelize.query("SET FOREIGN_KEY_CHECKS = 0").then(() =>
   sequelize
-    // .sync({ alter: true, force: true })
+    //.sync({ alter: true, force: true })
     .sync({ alter: false, force: false })
     .then(() => {
       console.log("✅ Connected to the database!");
