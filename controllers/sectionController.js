@@ -34,7 +34,7 @@ module.exports = {
         .send(
           util.success(
             statusCode.OK,
-            responseMessage.CREATE_ADMIN_SUCCESS,
+            responseMessage.CREATE_SECTION_SUCCESS,
             section,
           ),
         );
@@ -51,16 +51,16 @@ module.exports = {
     }
   },
 
-  getAllAdmins: async (req, res) => {
+  getAllSections: async (req, res) => {
     try {
-      const admins = await Admin.findAll();
+      const sections = await Section.findAll();
       res
         .status(statusCode.OK)
         .send(
           util.success(
             statusCode.OK,
-            responseMessage.GET_ALL_ADMINS_SUCCESS,
-            admins,
+            responseMessage.GET_ALL_SECTIONS_SUCCESS,
+            sections,
           ),
         );
     } catch (error) {
@@ -76,73 +76,74 @@ module.exports = {
     }
   },
 
-  getOneAdmin: async (req, res) => {
-    const { adminId } = req.params;
-    if (!adminId) {
+  getOneSection: async (req, res) => {
+    const { sectionId } = req.params;
+    try {
+      const section = await Section.findOne({ where: { id: sectionId } });
+      res
+        .status(statusCode.OK)
+        .send(
+          util.success(
+            statusCode.OK,
+            responseMessage.GET_ONE_SECTION_SUCCESS,
+            section,
+          ),
+        );
+    } catch (error) {
+      console.log(error);
+      res
+        .status(statusCode.INTERNAL_SERVER_ERROR)
+        .send(
+          util.fail(
+            statusCode.INTERNAL_SERVER_ERROR,
+            responseMessage.INTERNAL_SERVER_ERROR,
+          ),
+        );
+    }
+  },
+
+  updateSection: async (req, res) => {
+    const { sectionId } = req.params;
+    const { newTitle, newSubtitle } = req.body;
+    if (!newTitle) {
       return res
         .status(statusCode.BAD_REQUEST)
         .send(util.fail(statusCode.BAD_REQUEST, responseMessage.NULL_VALUE));
     }
     try {
-      const admin = await Admin.findOne({ where: { id: adminId } });
-      res
-        .status(statusCode.OK)
-        .send(
-          util.success(
-            statusCode.OK,
-            responseMessage.GET_ONE_ADMIN_SUCCESS,
-            admin,
-          ),
-        );
-    } catch (error) {
-      console.log(error);
-      res
-        .status(statusCode.INTERNAL_SERVER_ERROR)
-        .send(
-          util.fail(
-            statusCode.INTERNAL_SERVER_ERROR,
-            responseMessage.INTERNAL_SERVER_ERROR,
-          ),
-        );
-    }
-  },
-
-  updateAdminUsername: async (req, res) => {
-    const { adminId } = req.params;
-    const { newUsername } = req.body;
-    try {
-      const admin = await Admin.findOne({
-        where: { id: adminId },
+      const section = await Section.findOne({
+        where: { id: sectionId },
       });
-      if (admin.username === newUsername) {
+      if (section.title === newTitle) {
         return res
           .status(statusCode.CONFLICT)
           .send(
-            util.fail(statusCode.CONFLICT, responseMessage.SAME_ADMIN_USERNAME),
+            util.fail(statusCode.CONFLICT, responseMessage.SAME_SECTION_TITLE),
           );
       }
-      const usernameExists = await Admin.findOne({
-        where: { username: newUsername },
+      const sectionNameExists = await Section.findOne({
+        where: { title: newTitle },
       });
-      if (usernameExists) {
+      if (sectionNameExists) {
         return res
           .status(statusCode.CONFLICT)
           .send(
             util.fail(
               statusCode.CONFLICT,
-              responseMessage.ALREADY_USERNAME_ADMIN,
+              responseMessage.ALREADY_SECTION_TITLE,
             ),
           );
       }
-      admin.username = newUsername;
-      await admin.save();
+      section.title = newTitle;
+      section.subtitle = newSubtitle || section.subtitle;
+      await section.save();
       res
         .status(statusCode.OK)
         .send(
           util.success(
             statusCode.OK,
             responseMessage.UPDATE_ADMIN_USERNAME_SUCCESS,
-            admin,
+            section,
           ),
         );
     } catch (error) {
@@ -158,27 +159,24 @@ module.exports = {
     }
   },
 
-  deleteAdmin: async (req, res) => {
-    const { adminId } = req.params;
+  deleteSection: async (req, res) => {
+    const { sectionId } = req.params;
     try {
-      const admin = await Admin.findOne(
-        { where: { id: adminId } },
-        { attributes: ["id", "username"] },
-      );
-      if (!admin) {
+      const section = await Section.findOne({ where: { id: sectionId } });
+      if (!section) {
         return res
           .status(statusCode.BAD_REQUEST)
           .send(
             util.fail(
               statusCode.BAD_REQUEST,
-              responseMessage.GET_ONE_ADMIN_FAIL,
+              responseMessage.GET_ONE_SECTION_FAIL,
             ),
           );
       }
-      await admin.destroy({ where: { id: adminId } });
+      await section.destroy();
       res.status(statusCode.OK).send(
-        util.success(statusCode.OK, responseMessage.DELETE_ADMIN_SUCCESS, {
-          deletedAdmin: admin,
+        util.success(statusCode.OK, responseMessage.DELETE_SECTION_SUCCESS, {
+          deletedSection: section,
         }),
       );
     } catch (error) {

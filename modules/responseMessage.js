@@ -62,6 +62,9 @@ module.exports = {
   GET_ALL_SECTIONS_FAIL: "모든 섹션 조회 실패",
   GET_ONE_SECTION_SUCCESS: "섹션 조회 성공",
   GET_ONE_SECTION_FAIL: "섹션 조회 실패",
+  UPDATE_SECTION_SUCCESS: "섹션 수정 성공",
+  SAME_SECTION_TITLE: "기존 제목과 동일합니다.",
+  ALREADY_SECTION_TITLE: "해당 제목을 가진 섹션이 존재합니다",
   DELETE_SECTION_SUCCESS: "섹션 삭제 성공",
   DELETE_SECTION_FAIL: "섹션 삭제 실패",
 
