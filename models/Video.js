@@ -4,7 +4,7 @@ module.exports = (sequelize, DataTypes) => {
     {
       videoUrl: {
         type: DataTypes.STRING(400),
-        allowNull: false,
+        allowNull: true,
       },
       title: {
         type: DataTypes.STRING(30),
@@ -12,22 +12,22 @@ module.exports = (sequelize, DataTypes) => {
       },
       description: {
         type: DataTypes.TEXT,
-        allowNull: false,
+        allowNull: true,
       },
       thumbnailImageUrl: {
         type: DataTypes.STRING(100),
-        allowNull: false,
+        allowNull: true,
       },
       viewCount: {
         type: DataTypes.INTEGER,
       },
       videoLength: {
         type: DataTypes.INTEGER,
-        allowNull: false,
+        allowNull: true,
       },
       channelName: {
         type: DataTypes.STRING(100),
-        allowNull: false,
+        allowNull: true,
       },
     },
     {

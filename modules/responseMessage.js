@@ -68,6 +68,14 @@ module.exports = {
   DELETE_SECTION_SUCCESS: "섹션 삭제 성공",
   DELETE_SECTION_FAIL: "섹션 삭제 실패",
 
+  // 섹션 & 비디오
+  GET_ONE_VIDEO_FAIL: "비디오 조회 실패",
+  ADD_VIDEO_TO_SECTION_SUCCESS: "해당 섹션에 해당 영상 추가 성공",
+  REMOVE_VIDEO_FROM_SECTION_SUCCESS: "해당 섹션에서 해당 영상 삭제 성공",
+  GET_VIDEOS_OF_SECTION_SUCCESS: "해당 섹션의 영상 조회 성공",
+  DUPLICATE_VIDEO_IN_THE_SECTION: "이 섹션에 해당 영상이 이미 있습니다",
+  NO_SUCH_VIDEO_IN_THE_SECTION: "이 섹션에 해당 영상이 없습니다",
+
   /* 토큰 */
   EMPTY_TOKEN: "토큰 값이 없습니다.",
   EXPIRED_TOKEN: "토큰 값이 만료되었습니다.",

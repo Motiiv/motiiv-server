@@ -38,4 +38,14 @@ sectionRouter.delete(
   sectionController.deleteSection,
 );
 
+// TODO: checkAdmin
+// Add Video to a Section
+sectionRouter.post("/:sectionId/video", sectionController.addVideoToSection);
+
+// Remove Video from a Section
+sectionRouter.delete(
+  "/:sectionId/video",
+  sectionController.removeVideoFromSection,
+);
+
 module.exports = sectionRouter;
