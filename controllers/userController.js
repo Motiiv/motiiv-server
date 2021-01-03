@@ -1,4 +1,11 @@
-const { User, Video, Workspace } = require("../models");
+const {
+  User,
+  Video,
+  Workspace,
+  Keyword,
+  User_Keyword,
+  Job,
+} = require("../models");
 const jwt = require("../middlewares/jwt");
 const responseMessage = require("../modules/responseMessage");
 const statusCode = require("../modules/statusCode");
@@ -177,68 +184,129 @@ module.exports = {
     }
   },
 
-  logout: async (req, res, next) => {
-    req.logout();
-    req.session.destroy();
-    res.redirect("/");
-  },
-
-  mypage: async (req, res, next) => {
-    const { id } = req.user;
+  // TODO: Cleanup
+  selectJobAndKeywords: async (req, res) => {
+    const { id: UserId } = req.user;
+    console.log(UserId);
+    const { jobName, keywordValues } = req.body;
+    if (!jobName || !keywordValues) {
+      return res
+        .status(statusCode.BAD_REQUEST)
+        .send(util.fail(statusCode.BAD_REQUEST, responseMessage.NULL_VALUE));
+    }
     try {
-      const myUploads = await Video.findAll({
-        where: { uploaderId: id },
-      });
-      const myComments = await Comments.findAll({
-        where: { UserId: id },
-      });
-      let videosWithMyComment = [];
-
-      let likedVideos = [];
-
-      const videoLike = await VideoLike.findAll({ where: { UserId: id } });
-
-      myComments.map(async (comment) => {
-        const video = await Video.findOne({ where: { id: comment.VideoId } });
-        videosWithMyComment.push(video);
-      });
-
-      videoLike.map(async (vl) => {
-        const video = await Video.findOne({ where: { id: vl.id } });
-        likedVideos.push(video);
+      for (i = 0; i < keywordValues.length; i++) {
+        const keyword = await Keyword.findOne({
+          where: { name: keywordValues[i] },
+        });
+        if (!keyword) {
+          return res
+            .status(statusCode.BAD_REQUEST)
+            .send(
+              util.fail(
+                statusCode.BAD_REQUEST,
+                responseMessage.NO_SUCH_KEYWORD,
+              ),
+            );
+        }
+        await User_Keyword.create({ UserId, KeywordId: keyword.id });
+      }
+      const job = await Job.findOne({ where: { name: jobName } });
+      job.UserId = UserId;
+      await job.save();
+      const user = await User.findOne({
+        where: { id: UserId },
+        attributes: ["id", "name", "profileImageUrl", "socialType", "snsId"],
+        include: [
+          {
+            model: Keyword,
+            as: "UserKeywords",
+            through: { attributes: [] },
+          },
+          {
+            model: Job,
+            attributes: ["id", "name"],
+          },
+        ],
       });
 
       res
         .status(statusCode.OK)
         .send(
-          statusCode.OK,
-          responseMessage.GET_MY_PAGE_SUCCESS,
-          myUploads,
-          videosWithMyComment,
-          likedVideos,
+          util.success(
+            statusCode.OK,
+            responseMessage.SELECT_JOB_AND_KEYWORDS_SUCCESS,
+            user,
+          ),
         );
     } catch (error) {
       console.log(error);
       res
         .status(statusCode.INTERNAL_SERVER_ERROR)
         .send(
-          statusCode.INTERNAL_SERVER_ERROR,
-          responseMessage.INTERNAL_SERVER_ERROR,
+          util.fail(
+            statusCode.INTERNAL_SERVER_ERROR,
+            responseMessage.INTERNAL_SERVER_ERROR,
+          ),
         );
     }
   },
 
+  logout: async (req, res, next) => {
+    req.logout();
+    req.session.destroy();
+    res.redirect("/");
+  },
+
+  // mypage: async (req, res, next) => {
+  //   const { id } = req.user;
+  //   try {
+  //     const myUploads = await Video.findAll({
+  //       where: { uploaderId: id },
+  //     });
+  //     const myComments = await Comments.findAll({
+  //       where: { UserId: id },
+  //     });
+  //     let videosWithMyComment = [];
+
+  //     let likedVideos = [];
+
+  //     const videoLike = await VideoLike.findAll({ where: { UserId: id } });
+
+  //     myComments.map(async (comment) => {
+  //       const video = await Video.findOne({ where: { id: comment.VideoId } });
+  //       videosWithMyComment.push(video);
+  //     });
+
+  //     videoLike.map(async (vl) => {
+  //       const video = await Video.findOne({ where: { id: vl.id } });
+  //       likedVideos.push(video);
+  //     });
+
+  //     res
+  //       .status(statusCode.OK)
+  //       .send(
+  //         statusCode.OK,
+  //         responseMessage.GET_MY_PAGE_SUCCESS,
+  //         myUploads,
+  //         videosWithMyComment,
+  //         likedVideos,
+  //       );
+  //   } catch (error) {
+  //     console.log(error);
+  //     res
+  //       .status(statusCode.INTERNAL_SERVER_ERROR)
+  //       .send(
+  //         statusCode.INTERNAL_SERVER_ERROR,
+  //         responseMessage.INTERNAL_SERVER_ERROR,
+  //       );
+  //   }
+  // },
+
   getAllUsers: async (req, res) => {
     try {
       const users = await User.findAll({
-        attributes: [
-          "id",
-          "name",
-          "profileImageUrl",
-          "job",
-          "socialType",
-          "snsId",
-        ],
+        attributes: ["id", "name", "profileImageUrl", "socialType", "snsId"],
       });
       if (!users) {
         return res
@@ -278,14 +346,8 @@ module.exports = {
     try {
       const user = await User.findOne({
         where: { id: userId },
-        attributes: [
-          "id",
-          "name",
-          "profileImageUrl",
-          "job",
-          "socialType",
-          "snsId",
-        ],
+        attributes: ["id", "name", "profileImageUrl", "socialType", "snsId"],
+        include: [{ model: Job, attributes: ["id", "name"] }],
       });
       if (!user) {
         return res
@@ -373,22 +435,23 @@ module.exports = {
   deleteUser: async (req, res) => {
     const { userId } = req.params;
     try {
-      const user = User.findOne({ where: { id: userId } });
-      if (!user) {
-      }
-      const deleted = await User.destroy({
+      const user = await User.findOne({
         where: { id: userId },
+        attributes: ["id", "name", "profileImageUrl", "socialType", "snsId"],
       });
-      if (!deleted) {
+      console.log(user);
+      if (!user) {
         return res
-          .status(statusCode.BAD_REQUEST)
-          .send(
-            util.fail(statusCode.BAD_REQUEST, responseMessage.DELETE_USER_FAIL),
-          );
+          .status(statusCode.NOT_FOUND)
+          .send(util.fail(statusCode.NOT_FOUND, responseMessage.NO_USER));
       }
-      res
-        .status(statusCode.OK)
-        .send(util.success(statusCode.OK, responseMessage.DELETE_USER_SUCCESS));
+      const { createdAt, updatedAt, ...deletedUser } = user.dataValues;
+      await user.destroy();
+      res.status(statusCode.OK).send(
+        util.success(statusCode.OK, responseMessage.DELETE_USER_SUCCESS, {
+          deletedUser,
+        }),
+      );
     } catch (error) {
       console.log(error);
       res

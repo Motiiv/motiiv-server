@@ -30,6 +30,8 @@ module.exports = {
   GET_ONE_USER_FAIL: "유저 조회 실패",
   DELETE_USER_SUCCESS: "유저 삭제 성공",
   DELETE_USER_FAIL: "해당 아이디를 가진 유저가 없습니다.",
+  SELECT_JOB_AND_KEYWORDS_SUCCESS: "직군과 키워드 추가 성공",
+  NO_SUCH_KEYWORD: "해당 키워드가 없습니다",
 
   // 워크스페이스
   CREATE_WORKSPACE_SUCCESS: "워크스페이스 생성 성공",

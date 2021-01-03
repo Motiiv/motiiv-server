@@ -23,10 +23,10 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.STRING(400),
         allowNull: true,
       },
-      job: {
-        type: DataTypes.STRING(30),
-        allowNull: true,
-      },
+      // job: {
+      //   type: DataTypes.STRING(30),
+      //   allowNull: true,
+      // },
       socialType: {
         type: DataTypes.STRING(30),
         // allowNull: false,

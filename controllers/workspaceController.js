@@ -122,6 +122,16 @@ module.exports = {
     const { id: UserId } = req.user;
     const { workspaceId } = req.params;
     const { newName, newUrl } = req.body;
+    let hostname;
+    try {
+      hostname = new URL(newUrl).hostname;
+    } catch (error) {
+      console.log(error);
+      return res
+        .status(statusCode.BAD_REQUEST)
+        .send(util.fail(statusCode.BAD_REQUEST, responseMessage.INVALID_URL));
+    }
+    const { url: logoUrl } = await LogoScrape.getLogo(hostname);
 
     if (!newName || !newUrl) {
       return res
@@ -145,6 +155,9 @@ module.exports = {
       }
       workspace.name = newName;
       workspace.url = newUrl;
+      if (logoUrl){
+        workspace.logoUrl = logoUrl
+      }
       await workspace.save();
       const { createdAt, updatedAt, ...workspaceData } = workspace.dataValues;
       res

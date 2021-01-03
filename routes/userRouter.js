@@ -15,6 +15,13 @@ userRouter.get("/auth/naver/callback", userController.naverLoginCallback);
 // logout
 // userRouter.post("/logout", isLoggedIn, userController.logout);
 
+// Select Job and Keywords
+userRouter.post(
+  "/addInfo",
+  authMiddleware.checkToken("user"),
+  userController.selectJobAndKeywords,
+);
+
 // Read all users
 userRouter.get("/", userController.getAllUsers);
 
