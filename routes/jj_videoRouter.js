@@ -1,6 +1,7 @@
 const express = require("express");
 const jj_videoRouter = express.Router();
 const videoController = require("../controllers/jj_videoController");
+const authMiddleware = require("../middlewares/authMiddleware");
 
 //홈화면 비디오 불러오기
 jj_videoRouter.get("/", videoController.bannerVideos);
@@ -9,7 +10,11 @@ jj_videoRouter.get("/", videoController.bannerVideos);
 jj_videoRouter.get("/:videoId", videoController.getDetail);
 
 //좋아요 추가
-jj_videoRouter.post("/:videoId/createLike", videoController.createLike);
+jj_videoRouter.post(
+  "/:videoId/createLike",
+  authMiddleware.checkToken("user"),
+  videoController.createLike,
+);
 
 //좋아요 취소
 jj_videoRouter.delete("/:videoId/deleteLike", videoController.deleteLike);
