@@ -31,6 +31,8 @@ db.Job = require("./Job")(sequelize, Sequelize);
 // Junction Tables
 db.Save = require("./Save")(sequelize, Sequelize);
 db.Like = require("./Like")(sequelize, Sequelize);
+db.View = require("./View")(sequelize, Sequelize);
+
 db.Video_Tag = require("./Video_Tag")(sequelize, Sequelize);
 db.Video_Section = require("./Video_Section")(sequelize, Sequelize);
 db.User_Keyword = require("./User_Keyword")(sequelize, Sequelize);
