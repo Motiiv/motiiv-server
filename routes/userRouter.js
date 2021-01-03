@@ -1,33 +1,26 @@
 const express = require("express");
-const passport = require("passport");
 const userController = require("../controllers/userController");
-const { isLoggedIn, isNotLoggedIn } = require("../middlewares/authMiddleware");
+const authMiddleware = require("../middlewares/authMiddleware");
+const multer = require("../middlewares/multer");
 const userRouter = express.Router();
 
 // Kakao Login
-userRouter.get("/auth/kakao", passport.authenticate("kakao"));
-userRouter.get(
-  "/auth/kakao/callback",
-  passport.authenticate("kakao", {
-    failureRedirect: "/",
-  }),
-  (req, res) => {
-    res.send(req.user);
-    // res.redirect("/");
-  },
+userRouter.get("/auth/kakao", userController.kakaoLogin);
+userRouter.get("/auth/kakao/callback", userController.kakaoLoginCallback);
+
+// Naver Login
+userRouter.get("/auth/naver", userController.naverLogin);
+userRouter.get("/auth/naver/callback", userController.naverLoginCallback);
+
+// logout
+// userRouter.post("/logout", isLoggedIn, userController.logout);
+
+// Select Job and Keywords
+userRouter.post(
+  "/addInfo",
+  authMiddleware.checkToken("user"),
+  userController.selectJobAndKeywords,
 );
-
-// Sign up
-// userRouter.post("/signup", isNotLoggedIn, userController.signup);
-
-// Login
-// userRouter.post("/login", isNotLoggedIn, userController.login);
-
-// Logout
-userRouter.post("/logout", isLoggedIn, userController.logout);
-
-// Get Mypage
-userRouter.get("/mypage", isLoggedIn, userController.mypage);
 
 // Read all users
 userRouter.get("/", userController.getAllUsers);
@@ -36,9 +29,19 @@ userRouter.get("/", userController.getAllUsers);
 userRouter.get("/:userId", userController.getOneUser);
 
 // Update a user
-userRouter.put("/:userId", userController.updateUser);
+userRouter.put(
+  "/:userId",
+  authMiddleware.checkToken("user"),
+  multer.uploadProfileImage,
+  userController.updateUser,
+);
 
 // Delete a user
-userRouter.delete("/:userId", userController.deleteUser);
+// TODO: Who has authority to delete a user?
+userRouter.delete(
+  "/:userId",
+  // authMiddleware.checkToken("user"),
+  userController.deleteUser,
+);
 
 module.exports = userRouter;

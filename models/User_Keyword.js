@@ -1,28 +1,27 @@
-const Video = require("./Video");
-const Section = require("./Section");
+const User = require("./User");
+const Keyword = require("./Keyword");
 
 module.exports = (sequelize, DataTypes) => {
   return sequelize.define(
-    "Video_Section",
+    "User_Keyword",
     {
-      VideoId: {
+      UserId: {
         type: DataTypes.INTEGER,
         reference: {
-          model: Video,
+          model: User,
           key: "id",
         },
       },
-      SectionId: {
+      KeywordId: {
         type: DataTypes.INTEGER,
         reference: {
-          model: Section,
+          model: Keyword,
           key: "id",
         },
       },
     },
     {
       freezeTableName: true,
-      timestamps: true,
     },
   );
 };

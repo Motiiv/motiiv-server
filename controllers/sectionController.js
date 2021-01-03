@@ -1,4 +1,3 @@
-const passport = require("passport");
 const { Section, Video } = require("../models");
 // const crypto = require("../modules/crypto");
 const bcrypt = require("bcrypt");
@@ -6,8 +5,6 @@ const jwt = require("../middlewares/jwt");
 const responseMessage = require("../modules/responseMessage");
 const statusCode = require("../modules/statusCode");
 const util = require("../modules/util");
-const { encrypt } = require("../modules/crypto");
-const crypto = require("../modules/crypto");
 
 module.exports = {
   // TODO: JWT TOKEN

@@ -17,18 +17,25 @@ if (config.use_env_variable) {
 
 db.sequelize = sequelize;
 db.Sequelize = Sequelize;
+
+// Standalone Tables
 db.User = require("./User")(sequelize, Sequelize);
 db.Video = require("./Video")(sequelize, Sequelize);
 db.Section = require("./Section")(sequelize, Sequelize);
 db.Tag = require("./Tag")(sequelize, Sequelize);
 db.Workspace = require("./Workspace")(sequelize, Sequelize);
 db.Admin = require("./Admin")(sequelize, Sequelize);
+db.Keyword = require("./Keyword")(sequelize, Sequelize);
+db.Job = require("./Job")(sequelize, Sequelize);
+
+// Junction Tables
 db.Save = require("./Save")(sequelize, Sequelize);
 db.Like = require("./Like")(sequelize, Sequelize);
 db.View = require("./View")(sequelize, Sequelize);
 
 db.Video_Tag = require("./Video_Tag")(sequelize, Sequelize);
 db.Video_Section = require("./Video_Section")(sequelize, Sequelize);
+db.User_Keyword = require("./User_Keyword")(sequelize, Sequelize);
 
 // N : M    User : Video => View
 db.User.belongsToMany(db.Video, { through: "View", as: "VideoViewer" });
@@ -45,6 +52,20 @@ db.Video.belongsToMany(db.User, { through: "Save", as: "VideoSavers" });
 // 1 : N    User : Workspace
 db.User.hasMany(db.Workspace, { onDelete: "cascade" });
 db.Workspace.belongsTo(db.User);
+
+// N : M    User : Keyword
+db.User.belongsToMany(db.Keyword, {
+  through: "User_Keyword",
+  as: "UserKeywords",
+});
+db.Keyword.belongsToMany(db.User, {
+  through: "User_Keyword",
+  as: "KeywordUsers",
+});
+
+// 1 : 1    User : Job
+db.User.hasOne(db.Job);
+db.Job.belongsTo(db.User);
 
 // N : M    Video : Tag => Video_Tag
 db.Video.belongsToMany(db.Tag, { through: "Video_Tag", as: "TaggedVideos" });

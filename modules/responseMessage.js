@@ -4,7 +4,8 @@ module.exports = {
   NO_AUTHORITY: "권한이 없습니다",
 
   // 로그인
-  LOGIN_SUCCESS: "로그인 성공",
+  KAKAO_LOGIN_SUCCESS: "카카오 로그인 성공",
+  NAVER_LOGIN_SUCCESS: "네이버 로그인 성공",
   LOGIN_FAIL: "로그인 실패",
   NO_USER: "존재하지 않는 회원입니다.",
   MISS_MATCH_PW: "비밀번호가 맞지 않습니다.",
@@ -28,7 +29,18 @@ module.exports = {
   GET_ONE_USER_SUCCESS: "유저 조회 성공",
   GET_ONE_USER_FAIL: "유저 조회 실패",
   DELETE_USER_SUCCESS: "유저 삭제 성공",
-  DELETE_USER_FAIL: "유저 삭제 실패",
+  DELETE_USER_FAIL: "해당 아이디를 가진 유저가 없습니다.",
+  SELECT_JOB_AND_KEYWORDS_SUCCESS: "직군과 키워드 추가 성공",
+  NO_SUCH_KEYWORD: "해당 키워드가 없습니다",
+
+  // 워크스페이스
+  CREATE_WORKSPACE_SUCCESS: "워크스페이스 생성 성공",
+  GET_ONE_WORKSPACE_SUCCESS: "워크스페이스 조회 성공",
+  GET_ONE_WORKSPACE_FAIL: "워크스페이스 조회 실패",
+  GET_ALL_WORKSPACES_SUCCESS: "해당 유저의 모든 워크스페이스 조회 성공",
+  UPDATE_WORKSPACE_SUCCESS: "워크스페이스 수정 성공",
+  DELETE_WORKSPACE_SUCCESS: "워크스페이스 삭제 성공",
+  INVALID_URL: "URL 값이 잘못되었습니다.",
 
   // 관리자
   NOT_ADMIN: "해당 권한을 가진 관리자가 아닙니다.",
@@ -40,7 +52,7 @@ module.exports = {
   GET_ONE_ADMIN_SUCCESS: "관리자 조회 성공",
   GET_ONE_ADMIN_FAIL: "관리자 조회 실패",
   DELETE_ADMIN_SUCCESS: "관리자 삭제 성공",
-  DELETE_ADMIN_FAIL: "관리자 삭제 실패",
+  DELETE_ADMIN_FAIL: "해당 아이디를 가진 관리자가 없습니다.",
 
   // 섹션
   CREATE_SECTION_SUCCESS: "섹션 생성 성공",
@@ -63,11 +75,9 @@ module.exports = {
   /* 서버에러 */
   INTERNAL_SERVER_ERROR: "서버 내부 오류",
 
-
   /* Video_main */
   GET_ALL_POST_SUCCESS: "비디오 불러오기 성공",
   GET_ALL_POST_FAIL: "비디오 불러오기 실패",
-
 
   /* Video_detail */
   GET_VIDEO_DETAIL_SUCCESS: "비디오 상세 불러오기 성공",
