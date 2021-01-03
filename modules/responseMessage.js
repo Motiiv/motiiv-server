@@ -97,7 +97,10 @@ module.exports = {
 
   /* 배너 불러오기 */
   GET_HOME_BANNER_SUCCES: "배너 불러오기 성공",
-  GET_HOME_BANNER_FAIL: "배너 불러오기 실패"
+  GET_HOME_BANNER_FAIL: "배너 불러오기 실패",
 
+  /* 비디오 포스트 */
+  POST_VIDEO_SUCCESS: "비디오 업로드 성공",
+  POST_VIDEO_FAIL: "비디오 업로드 실패"
 
 };
