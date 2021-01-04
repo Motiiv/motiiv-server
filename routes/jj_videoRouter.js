@@ -6,9 +6,11 @@ const authMiddleware = require("../middlewares/authMiddleware");
 //비디오 업로드 
 jj_videoRouter.post("/postVideo", videoController.postVideo);
 
-
-//홈화면 비디오 불러오기
+//홈화면 배너 불러오기
 jj_videoRouter.get("/getBanners", videoController.bannerVideos);
+
+//홈화면 추천 영상 불러오기
+jj_videoRouter.get("/getRecommand", videoController.recommanVideos);
 
 //디테일뷰 정보 불러오기
 jj_videoRouter.get("/:videoId", authMiddleware.checkToken("user"), videoController.getDetail);

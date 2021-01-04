@@ -117,6 +117,10 @@ module.exports = {
 
   /* 비디오 포스트 */
   POST_VIDEO_SUCCESS: "비디오 업로드 성공",
-  POST_VIDEO_FAIL: "비디오 업로드 실패"
+  POST_VIDEO_FAIL: "비디오 업로드 실패",
+
+  /* 추천 영상 불러오기(홈) */
+  GET_VIDEO_RECOMMAND_SUCCESS: "추천 영상 불러오기 성공",
+  GET_VIDEO_RECOMMAND_FAIL: "추천 영상 불러오기 실패"
 
 };

@@ -13,6 +13,8 @@ const {
   Save,
   Workspace,
   View,
+  Job,
+  User_Keyword
 } = require("../models");
 const { Sequelize } = require("sequelize");
 const { STRING } = require("sequelize");
@@ -36,7 +38,7 @@ module.exports = {
       const redunCheckTag = await Tag.findAll({
         where: {
           name: {
-            [Op.not]: [tagOne, tagTwo, tagThree]
+            [Op.or]: [tagOne, tagTwo, tagThree]
           }
         }
       });
@@ -74,7 +76,8 @@ module.exports = {
         })
         notExistTagId.push(createTag.id);
       }
-
+      console.log("존재하지 않은 태그 목록 태그 목록");
+      console.log(notExistTagId);
 
       //모든 태그 합치기
       alreadyTagId.push(notExistTagId);
@@ -97,7 +100,6 @@ module.exports = {
         TagId: alreadyTagId
       })
 
-
       //비디오에 해당되는 태그 추가하기
       return res
         .status(sc.OK)
@@ -109,6 +111,121 @@ module.exports = {
         .send(ut.fail(sc.INTERNAL_SERVER_ERROR, rm.POST_VIDEO_FAIL));
     }
   },
+
+
+  // 2군 세션 추천하기 (관심사 / 직군 기반)
+  recommanVideos: async (req, res) => {
+    const user = req.body.userId;
+
+    try {
+      // 사용자 관심사 불러오기
+      const userInterst = await User_Keyword.findAll({
+        where: {
+          UserId: user
+        },
+        attributes: ["keywordId"]
+      });
+      //사용자 관심사 id값 불러오기 
+      const userInterestId = userInterst.map((item) => item.dataValues.keywordId);
+
+      //관심사 id가 가진 태그 불러오기
+
+      const getTags = await Tag.findAll({
+        where: {
+          keywordId: {
+            [Op.and]: [
+              { [Op.in]: userInterestId }
+            ],
+          }
+        },
+        attributes: ["id"]
+      });
+      const getTagsId = getTags.map((item) => item.dataValues.id);
+
+      // 해당 id와 유사한 영상 추천하기 
+      /*
+        case1(제외): 이미 시청한 영상인 경우 제외
+        case2(추가): 관련있는 동영상 불러오기
+        case3(예외): 불러온 동영상 갯수가 4개 미만일 경우(4개 기준은 기획과 논의 필요)
+      */
+
+      // 사용자가 이미 시청한 영상
+      const alreadyWatched = await View.findAll({
+        where: {
+          UserId: user,
+        },
+        attributes: ["VideoId"],
+      });
+      const alreadyWatchedId = alreadyWatched.map((item) => item.dataValues.VideoId)
+      console.log(alreadyWatchedId);
+
+      // 유사 태그 동영상 불러오기
+      const similarTag = await Video_Tag.findAll({
+        where: {
+          TagId: getTagsId,
+        },
+        attributes: [sequelize.fn("DISTINCT", "Video_Tag.VideoId"), "VideoId"],
+        order: sequelize.literal("rand()"),
+        limit: 5,
+      });
+      const similarTags = similarTag.map((item) => item.dataValues.VideoId);
+
+      console.log("비슷한 태그의 비디오들");
+      console.log(similarTags);
+
+
+      // Case1,2를 제외한 추천 영상 불러오기 (제외:현재 동영상, 이미 본 영상, 추가: 유사 태그)
+      const recommandVideos = await Video.findAll({
+        where: {
+          id: {
+            [Op.and]: [
+              { [Op.in]: similarTags },
+              { [Op.notIn]: alreadyWatchedId },
+            ],
+          },
+        },
+        attributes: ["id", "title", "videoUrl", "thumbnailImageUrl"],
+        order: sequelize.literal("rand()"),
+      });
+      const recommands = recommandVideos.map((item) => item.dataValues.id);
+      console.log(recommands);
+
+      recommandsLength = recommands.length;
+
+      if (recommandsLength < 4) {
+        const otherVideos = await Video.findAll({
+          where: {
+            id: {
+              [Op.and]: [
+                { [Op.notIn]: alreadyWatchedId },
+                { [Op.notIn]: recommands },
+              ],
+            },
+          },
+          attributes: ["id", "title", "videoUrl", "thumbnailImageUrl"],
+          order: sequelize.literal("rand()"),
+          limit: 4 - recommandsLength,
+        });
+        //여기서도 동영상 수가 적으면 이미 본 영상에서 가져와야 하는 로직 추가
+        recommandVideos.push(...otherVideos);
+      }
+
+      return res
+        .status(sc.OK)
+        .send(ut.success(sc.OK, rm.GET_VIDEO_RECOMMAND_SUCCESS, recommandVideos));
+
+    } catch (err) {
+      console.log(err);
+      return res
+        .status(sc.INTERNAL_SERVER_ERROR)
+        .send(ut.fail(sc.INTERNAL_SERVER_ERROR, rm.GET_VIDEO_RECOMMAND_FAIL));
+    }
+
+
+  },
+
+
+
 
   //홈화면 비디오 읽기
   bannerVideos: async (req, res) => {
