@@ -32,19 +32,21 @@ module.exports = {
         videoLength,
       });
 
-      //태그 중복 검사 
+      //태그 유효성 검사
       const redunCheckTag = await Tag.findAll({
         where: {
           name: {
-            [Op.or]: [tagOne, tagTwo, tagThree]
+            [Op.not]: [tagOne, tagTwo, tagThree]
           }
         }
-      })
-      /*
+      });
+
       //이미 존재하는 태그 분류하기
       const alreadyTagName = redunCheckTag.map((item) => item.dataValues.name);
       const alreadyTagId = redunCheckTag.map((item) => item.dataValues.id);
-
+      console.log("이미 존재하는 태그 목록");
+      console.log(alreadyTagId.length);
+      console.log(alreadyTagId);
       //존재하지 않는 태그 테이블에 생성하기
       const notExistTagName = [];
       const notExistTagId = [];
@@ -73,20 +75,30 @@ module.exports = {
         notExistTagId.push(createTag.id);
       }
 
+
       //모든 태그 합치기
       alreadyTagId.push(notExistTagId);
+      console.log(alreadyTagId);
 
-      const postVideoTag = await Video_Tag.create({
+      const postVideoTagOne = await Video_Tag.create({
+        VideoId: video.id,
+        TagId: alreadyTagId[0]
+      });
+      const postVideoTagTwo = await Video_Tag.create({
+        VideoId: video.id,
+        TagId: alreadyTagId[1]
+      });
+      const postVideoTagThree = await Video_Tag.create({
+        VideoId: video.id,
+        TagId: alreadyTagId[2]
+      });
+      const postVideoTage = await Video_Tag.create({
         VideoId: video.id,
         TagId: alreadyTagId
       })
-      console.log(postVideoTag);
-      */
+
+
       //비디오에 해당되는 태그 추가하기
-
-      const arr = [1, 2, 3];
-      console.log(arr[1]);
-
       return res
         .status(sc.OK)
         .send(ut.success(sc.OK, rm.POST_VIDEO_SUCCESS, video));
@@ -231,7 +243,10 @@ module.exports = {
     }
   },
 
+  getUseRecommandVideos: async (req, res) => {
+    const id = req.body.userId;
 
+  },
 
 
 

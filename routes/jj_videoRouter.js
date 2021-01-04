@@ -4,7 +4,7 @@ const videoController = require("../controllers/jj_videoController");
 const authMiddleware = require("../middlewares/authMiddleware");
 
 //비디오 업로드 
-jj_videoRouter.get("/postVideo", videoController.postVideo);
+jj_videoRouter.post("/postVideo", videoController.postVideo);
 
 
 //홈화면 비디오 불러오기

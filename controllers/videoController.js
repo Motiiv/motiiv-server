@@ -8,6 +8,8 @@ const { STRING } = require('sequelize');
 const Op = sequelize.Op;
 
 module.exports = {
+  
+
 
     //홈화면 비디오 읽기
     bannerVideos: async (req, res) => {
