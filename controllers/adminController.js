@@ -202,8 +202,6 @@ module.exports = {
 
   deleteAdmin: async (req, res) => {
     const { admin } = req;
-    const { adminId } = req.params;
-
     try {
       const {
         password,
