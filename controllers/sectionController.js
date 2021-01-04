@@ -1,4 +1,4 @@
-const { Section, Video } = require("../models");
+const { Section, Video, Video_Section } = require("../models");
 // const crypto = require("../modules/crypto");
 const bcrypt = require("bcrypt");
 const jwt = require("../middlewares/jwt");
@@ -8,9 +8,9 @@ const util = require("../modules/util");
 
 module.exports = {
   // TODO: JWT TOKEN
-  // TODO: Clean up response data
   // TODO: Limit number of videos in each section
   // TODO: Sorting options
+  // TODO: Check if createdAt is required
   createSection: async (req, res) => {
     const { title, subtitle } = req.body;
     if (!title || !subtitle) {
@@ -29,12 +29,98 @@ module.exports = {
           );
       }
       const section = await Section.create({ title, subtitle });
+
+      const { createdAt, updatedAt, ...sectionData } = section.dataValues;
+
       res
         .status(statusCode.OK)
         .send(
           util.success(
             statusCode.OK,
-            responseMessage.CREATE_ADMIN_SUCCESS,
+            responseMessage.CREATE_SECTION_SUCCESS,
+            sectionData,
+          ),
+        );
+    } catch (error) {
+      console.log(error);
+      res
+        .status(statusCode.INTERNAL_SERVER_ERROR)
+        .send(
+          util.fail(
+            statusCode.INTERNAL_SERVER_ERROR,
+            responseMessage.INTERNAL_SERVER_ERROR,
+          ),
+        );
+    }
+  },
+
+  getAllSections: async (req, res) => {
+    try {
+      const sections = await Section.findAll({
+        attributes: ["id", "title", "subtitle"],
+      });
+      res
+        .status(statusCode.OK)
+        .send(
+          util.success(
+            statusCode.OK,
+            responseMessage.GET_ALL_SECTIONS_SUCCESS,
+            sections,
+          ),
+        );
+    } catch (error) {
+      console.log(error);
+      res
+        .status(statusCode.INTERNAL_SERVER_ERROR)
+        .send(
+          util.fail(
+            statusCode.INTERNAL_SERVER_ERROR,
+            responseMessage.INTERNAL_SERVER_ERROR,
+          ),
+        );
+    }
+  },
+
+  getOneSection: async (req, res) => {
+    const { sectionId } = req.params;
+    try {
+      const section = await Section.findOne({
+        where: { id: sectionId },
+        attributes: ["id", "title", "subtitle"],
+        include: [
+          {
+            model: Video,
+            as: "SectionVideos",
+            attributes: [
+              "id",
+              "title",
+              "description",
+              "channelName",
+              "videoUrl",
+              "viewCount",
+              "videoLength",
+              "createdAt",
+            ],
+            through: { attributes: [] },
+          },
+        ],
+      });
+      if (!section) {
+        return res
+          .status(statusCode.NOT_FOUND)
+          .send(
+            util.fail(
+              statusCode.NOT_FOUND,
+              responseMessage.GET_ONE_SECTION_FAIL,
+            ),
+          );
+      }
+      res
+        .status(statusCode.OK)
+        .send(
+          util.success(
+            statusCode.OK,
+            responseMessage.GET_ONE_SECTION_SUCCESS,
             section,
           ),
         );
@@ -51,98 +137,59 @@ module.exports = {
     }
   },
 
-  getAllAdmins: async (req, res) => {
-    try {
-      const admins = await Admin.findAll();
-      res
-        .status(statusCode.OK)
-        .send(
-          util.success(
-            statusCode.OK,
-            responseMessage.GET_ALL_ADMINS_SUCCESS,
-            admins,
-          ),
-        );
-    } catch (error) {
-      console.log(error);
-      res
-        .status(statusCode.INTERNAL_SERVER_ERROR)
-        .send(
-          util.fail(
-            statusCode.INTERNAL_SERVER_ERROR,
-            responseMessage.INTERNAL_SERVER_ERROR,
-          ),
-        );
-    }
-  },
-
-  getOneAdmin: async (req, res) => {
-    const { adminId } = req.params;
-    if (!adminId) {
+  updateSection: async (req, res) => {
+    const { sectionId } = req.params;
+    const { newTitle, newSubtitle } = req.body;
+    if (!newTitle) {
       return res
         .status(statusCode.BAD_REQUEST)
         .send(util.fail(statusCode.BAD_REQUEST, responseMessage.NULL_VALUE));
     }
     try {
-      const admin = await Admin.findOne({ where: { id: adminId } });
-      res
-        .status(statusCode.OK)
-        .send(
-          util.success(
-            statusCode.OK,
-            responseMessage.GET_ONE_ADMIN_SUCCESS,
-            admin,
-          ),
-        );
-    } catch (error) {
-      console.log(error);
-      res
-        .status(statusCode.INTERNAL_SERVER_ERROR)
-        .send(
-          util.fail(
-            statusCode.INTERNAL_SERVER_ERROR,
-            responseMessage.INTERNAL_SERVER_ERROR,
-          ),
-        );
-    }
-  },
-
-  updateAdminUsername: async (req, res) => {
-    const { adminId } = req.params;
-    const { newUsername } = req.body;
-    try {
-      const admin = await Admin.findOne({
-        where: { id: adminId },
+      const section = await Section.findOne({
+        where: { id: sectionId },
       });
-      if (admin.username === newUsername) {
+      if (!section) {
+        return res
+          .status(statusCode.NOT_FOUND)
+          .send(
+            util.fail(
+              statusCode.NOT_FOUND,
+              responseMessage.GET_ONE_SECTION_FAIL,
+            ),
+          );
+      }
+      if (section.title === newTitle) {
         return res
           .status(statusCode.CONFLICT)
           .send(
-            util.fail(statusCode.CONFLICT, responseMessage.SAME_ADMIN_USERNAME),
+            util.fail(statusCode.CONFLICT, responseMessage.SAME_SECTION_TITLE),
           );
       }
-      const usernameExists = await Admin.findOne({
-        where: { username: newUsername },
+      const sectionNameExists = await Section.findOne({
+        where: { title: newTitle },
       });
-      if (usernameExists) {
+      if (sectionNameExists) {
         return res
           .status(statusCode.CONFLICT)
           .send(
             util.fail(
               statusCode.CONFLICT,
-              responseMessage.ALREADY_USERNAME_ADMIN,
+              responseMessage.ALREADY_SECTION_TITLE,
             ),
           );
       }
-      admin.username = newUsername;
-      await admin.save();
+      section.title = newTitle;
+      section.subtitle = newSubtitle || section.subtitle;
+      await section.save();
+      const { createdAt, updatedAt, ...sectionData } = section.dataValues;
       res
         .status(statusCode.OK)
         .send(
           util.success(
             statusCode.OK,
             responseMessage.UPDATE_ADMIN_USERNAME_SUCCESS,
-            admin,
+            sectionData,
           ),
         );
     } catch (error) {
@@ -158,29 +205,147 @@ module.exports = {
     }
   },
 
-  deleteAdmin: async (req, res) => {
-    const { adminId } = req.params;
+  deleteSection: async (req, res) => {
+    const { sectionId } = req.params;
     try {
-      const admin = await Admin.findOne(
-        { where: { id: adminId } },
-        { attributes: ["id", "username"] },
-      );
-      if (!admin) {
+      const section = await Section.findOne({ where: { id: sectionId } });
+      if (!section) {
         return res
           .status(statusCode.BAD_REQUEST)
           .send(
             util.fail(
               statusCode.BAD_REQUEST,
-              responseMessage.GET_ONE_ADMIN_FAIL,
+              responseMessage.GET_ONE_SECTION_FAIL,
             ),
           );
       }
-      await admin.destroy({ where: { id: adminId } });
+      await section.destroy();
+      const { createdAt, updatedAt, ...sectionData } = section.dataValues;
       res.status(statusCode.OK).send(
-        util.success(statusCode.OK, responseMessage.DELETE_ADMIN_SUCCESS, {
-          deletedAdmin: admin,
+        util.success(statusCode.OK, responseMessage.DELETE_SECTION_SUCCESS, {
+          deletedSection: sectionData,
         }),
       );
+    } catch (error) {
+      console.log(error);
+      res
+        .status(statusCode.INTERNAL_SERVER_ERROR)
+        .send(
+          util.fail(
+            statusCode.INTERNAL_SERVER_ERROR,
+            responseMessage.INTERNAL_SERVER_ERROR,
+          ),
+        );
+    }
+  },
+
+  addVideoToSection: async (req, res) => {
+    const { sectionId } = req.params;
+    const { videoId } = req.body;
+
+    try {
+      const video = await Video.findOne({ where: { id: videoId } });
+      if (!video) {
+        return res
+          .status(statusCode.NOT_FOUND)
+          .send(
+            util.fail(statusCode.NOT_FOUND, responseMessage.GET_ONE_VIDEO_FAIL),
+          );
+      }
+      const section = await Section.findOne({ where: { id: sectionId } });
+      if (!section) {
+        return res
+          .status(statusCode.BAD_REQUEST)
+          .send(
+            util.fail(
+              statusCode.BAD_REQUEST,
+              responseMessage.GET_ONE_SECTION_FAIL,
+            ),
+          );
+      }
+      const [_, created] = await Video_Section.findOrCreate({
+        where: { VideoId: videoId, SectionId: sectionId },
+      });
+      if (!created) {
+        return res
+          .status(statusCode.CONFLICT)
+          .send(
+            util.fail(
+              statusCode.CONFLICT,
+              responseMessage.DUPLICATE_VIDEO_IN_THE_SECTION,
+            ),
+          );
+      }
+
+      const { createdAt, updatedAt, ...addedVideo } = video.dataValues;
+      res
+        .status(statusCode.OK)
+        .send(
+          util.success(
+            statusCode.OK,
+            responseMessage.ADD_VIDEO_TO_SECTION_SUCCESS,
+            addedVideo,
+          ),
+        );
+    } catch (error) {
+      console.log(error);
+      res
+        .status(statusCode.INTERNAL_SERVER_ERROR)
+        .send(
+          util.fail(
+            statusCode.INTERNAL_SERVER_ERROR,
+            responseMessage.INTERNAL_SERVER_ERROR,
+          ),
+        );
+    }
+  },
+  removeVideoFromSection: async (req, res) => {
+    const { sectionId } = req.params;
+    const { videoId } = req.body;
+    try {
+      const video = await Video.findOne({ where: { id: videoId } });
+      if (!video) {
+        return res
+          .status(statusCode.NOT_FOUND)
+          .send(
+            util.fail(statusCode.NOT_FOUND, responseMessage.GET_ONE_VIDEO_FAIL),
+          );
+      }
+      const section = await Section.findOne({ where: { id: sectionId } });
+      if (!section) {
+        return res
+          .status(statusCode.BAD_REQUEST)
+          .send(
+            util.fail(
+              statusCode.BAD_REQUEST,
+              responseMessage.GET_ONE_SECTION_FAIL,
+            ),
+          );
+      }
+      const sectionVideo = await Video_Section.findOne({
+        where: { SectionId: sectionId, VideoId: videoId },
+      });
+      if (!sectionVideo) {
+        return res
+          .status(statusCode.NOT_FOUND)
+          .send(
+            util.fail(
+              statusCode.NOT_FOUND,
+              responseMessage.NO_SUCH_VIDEO_IN_THE_SECTION,
+            ),
+          );
+      }
+      await sectionVideo.destroy();
+      const { createdAt, updatedAt, ...removedVideo } = video.dataValues;
+      res
+        .status(statusCode.OK)
+        .send(
+          util.success(
+            statusCode.OK,
+            responseMessage.REMOVE_VIDEO_FROM_SECTION_SUCCESS,
+            { removedVideo },
+          ),
+        );
     } catch (error) {
       console.log(error);
       res

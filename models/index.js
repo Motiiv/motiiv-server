@@ -74,11 +74,15 @@ db.Tag.belongsToMany(db.Video, { through: "Video_Tag", as: "VideoTags" });
 // N : M    Video : Section => Video_Section
 db.Video.belongsToMany(db.Section, {
   through: "Video_Section",
-  as: "SectionVideos",
+  as: "VideoSections",
 });
 db.Section.belongsToMany(db.Video, {
   through: "Video_Section",
-  as: "VideoSections",
+  as: "SectionVideos",
 });
+
+// 1 : N    Keyword : Tag
+db.Keyword.hasMany(db.Tag, { onDelete: "SET NULL" });
+db.Tag.belongsTo(db.Keyword);
 
 module.exports = db;

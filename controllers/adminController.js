@@ -52,6 +52,8 @@ module.exports = {
     }
   },
 
+  // TODO: Login URI
+
   getAllAdmins: async (req, res) => {
     try {
       const admins = await Admin.findAll({ attributes: ["id", "username"] });
@@ -107,33 +109,22 @@ module.exports = {
   },
 
   updateAdminUsername: async (req, res) => {
-    const { id: loggedInAdminId } = req.admin;
-    const { adminId } = req.params;
+    const { admin } = req;
     const { newUsername } = req.body;
+    if (!newUsername) {
+      return res
+        .status(statusCode.BAD_REQUEST)
+        .send(util.fail(statusCode.BAD_REQUEST, responseMessage.NULL_VALUE));
+    }
     try {
-      const admin = await Admin.findOne({
-        where: { id: adminId },
-      });
-      if (!admin) {
-        return res
-          .status(statusCode.BAD_REQUEST)
-          .send(
-            util.fail(
-              statusCode.BAD_REQUEST,
-              responseMessage.GET_ONE_ADMIN_FAIL,
-            ),
-          );
-      }
-      if (+loggedInAdminId !== +adminId) {
-        return res
-          .status(statusCode.FORBIDDEN)
-          .send(util.fail(statusCode.FORBIDDEN, responseMessage.NO_AUTHORITY));
-      }
       if (admin.username === newUsername) {
         return res
           .status(statusCode.CONFLICT)
           .send(
-            util.fail(statusCode.CONFLICT, responseMessage.SAME_ADMIN_USERNAME),
+            util.fail(
+              statusCode.CONFLICT,
+              responseMessage.SAME_ADMIN_USERNAME_AS_BEFORE,
+            ),
           );
       }
 
@@ -158,7 +149,7 @@ module.exports = {
           util.success(
             statusCode.OK,
             responseMessage.UPDATE_ADMIN_USERNAME_SUCCESS,
-            { id: admin.id, newUsername: admin.username },
+            { id: admin.id, username: admin.username },
           ),
         );
     } catch (error) {
@@ -175,8 +166,7 @@ module.exports = {
   },
 
   updateAdminPassword: async (req, res) => {
-    const { id: loggedInAdminId } = req.admin;
-    const { adminId } = req.params;
+    const { admin } = req;
     const { newPassword } = req.body;
     if (!newPassword) {
       return res
@@ -184,22 +174,6 @@ module.exports = {
         .send(util.fail(statusCode.BAD_REQUEST, responseMessage.NULL_VALUE));
     }
     try {
-      const admin = await Admin.findOne({ where: { id: adminId } });
-      if (!admin) {
-        return res
-          .status(statusCode.BAD_REQUEST)
-          .send(
-            util.fail(
-              statusCode.BAD_REQUEST,
-              responseMessage.GET_ONE_ADMIN_FAIL,
-            ),
-          );
-      }
-      if (+loggedInAdminId !== +adminId) {
-        return res
-          .status(statusCode.FORBIDDEN)
-          .send(util.fail(statusCode.FORBIDDEN, responseMessage.NO_AUTHORITY));
-      }
       const { salt, hashed } = await crypto.encrypt(newPassword);
       admin.password = hashed;
       admin.salt = salt;
@@ -227,30 +201,8 @@ module.exports = {
   },
 
   deleteAdmin: async (req, res) => {
-    const { id: loggedInAdminId } = req.admin;
-    const { adminId } = req.params;
-
+    const { admin } = req;
     try {
-      const admin = await Admin.findOne(
-        { where: { id: adminId } },
-        { attributes: ["id", "username"] },
-      );
-      if (!admin) {
-        return res
-          .status(statusCode.BAD_REQUEST)
-          .send(
-            util.fail(
-              statusCode.BAD_REQUEST,
-              responseMessage.DELETE_ADMIN_FAIL,
-            ),
-          );
-      }
-      if (+loggedInAdminId !== +adminId) {
-        return res
-          .status(statusCode.FORBIDDEN)
-          .send(util.fail(statusCode.FORBIDDEN, responseMessage.NO_AUTHORITY));
-      }
-      await admin.destroy({ where: { id: adminId } });
       const {
         password,
         salt,
@@ -258,6 +210,7 @@ module.exports = {
         updatedAt,
         ...deletedAdmin
       } = admin.dataValues;
+      await admin.destroy({ where: { id: adminId } });
       res
         .status(statusCode.OK)
         .send(

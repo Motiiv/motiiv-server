@@ -9,26 +9,26 @@ adminRouter.post("/", adminController.createAdmin);
 // Read all Admins
 adminRouter.get("/", adminController.getAllAdmins);
 
-// Read one Admin
-adminRouter.get("/:adminId", adminController.getOneAdmin);
-
 // Update Admin username
 adminRouter.put(
-  "/:adminId/username",
+  "/username",
   authMiddleware.checkToken("admin"),
   adminController.updateAdminUsername,
 );
 
 //Update Admin password
 adminRouter.put(
-  "/:adminId/password",
+  "/password",
   authMiddleware.checkToken("admin"),
   adminController.updateAdminPassword,
 );
 
+// Read one Admin
+adminRouter.get("/:adminId", adminController.getOneAdmin);
+
 // Delete Admin
 adminRouter.delete(
-  "/:adminId",
+  "/",
   authMiddleware.checkToken("admin"),
   adminController.deleteAdmin,
 );

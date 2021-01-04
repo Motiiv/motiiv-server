@@ -1,20 +1,51 @@
 const express = require("express");
 const sectionController = require("../controllers/sectionController");
+const authMiddleware = require("../middlewares/authMiddleware");
 const sectionRouter = express.Router();
 
 // Create an Section
-sectionRouter.post("/", sectionController.createSection);
+sectionRouter.post(
+  "/",
+  authMiddleware.checkToken("admin"),
+  sectionController.createSection,
+);
 
 // Read all Sections
-sectionRouter.get("/", sectionController.getAllSections);
+sectionRouter.get(
+  "/",
+  authMiddleware.checkToken("admin"),
+  sectionController.getAllSections,
+);
 
 // Read one Section
-sectionRouter.get("/:sectionId", sectionController.getOneSection);
+sectionRouter.get(
+  "/:sectionId",
+  authMiddleware.checkToken("admin"),
+  sectionController.getOneSection,
+);
 
 // Update Section
-// sectionRouter.put("/:sectionId/username", sectionController.updateSectionUsername);
+sectionRouter.put(
+  "/:sectionId",
+  authMiddleware.checkToken("admin"),
+  sectionController.updateSection,
+);
 
 // Delete Section
-sectionRouter.delete("/:sectionId", sectionController.deleteSection);
+sectionRouter.delete(
+  "/:sectionId",
+  authMiddleware.checkToken("admin"),
+  sectionController.deleteSection,
+);
+
+// TODO: checkAdmin
+// Add Video to a Section
+sectionRouter.post("/:sectionId/video", sectionController.addVideoToSection);
+
+// Remove Video from a Section
+sectionRouter.delete(
+  "/:sectionId/video",
+  sectionController.removeVideoFromSection,
+);
 
 module.exports = sectionRouter;
