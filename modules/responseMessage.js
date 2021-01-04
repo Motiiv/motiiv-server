@@ -43,8 +43,9 @@ module.exports = {
   INVALID_URL: "URL 값이 잘못되었습니다.",
 
   // 관리자
-  NOT_ADMIN: "해당 권한을 가진 관리자가 아닙니다.",
-  ALREADY_USERNAME_ADMIN: "해당 유저네임을 가진 관리자가 존재합니다.",
+  NOT_ADMIN: "관리자가 아닙니다.",
+  SAME_ADMIN_USERNAME_AS_BEFORE: "기존 이름과 동일합니다",
+  ALREADY_USERNAME_ADMIN: "해당 이름을 가진 관리자가 존재합니다.",
   CREATE_ADMIN_SUCCESS: "관리자 생성 성공",
   CREATE_ADMIN_FAIL: "관리자 생성 실패",
   GET_ALL_ADMINS_SUCCESS: "모든 관리자 조회 성공",
@@ -52,6 +53,8 @@ module.exports = {
   GET_ONE_ADMIN_SUCCESS: "관리자 조회 성공",
   GET_ONE_ADMIN_FAIL: "관리자 조회 실패",
   DELETE_ADMIN_SUCCESS: "관리자 삭제 성공",
+  UPDATE_ADMIN_USERNAME_SUCCESS: "관리자 이름 변경 성공",
+  UPDATE_ADMIN_PASSWORD_SUCCESS: "관리자 비밀번호 변경 성공",
   DELETE_ADMIN_FAIL: "해당 아이디를 가진 관리자가 없습니다.",
 
   // 섹션
