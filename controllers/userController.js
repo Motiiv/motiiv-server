@@ -188,17 +188,26 @@ module.exports = {
   selectJobAndKeywords: async (req, res) => {
     const { id: UserId } = req.user;
     console.log(UserId);
-    const { jobName, keywordValues } = req.body;
-    if (!jobName || !keywordValues) {
+    const { jobName, keywordNames } = req.body;
+    if (!jobName || !keywordNames) {
       return res
         .status(statusCode.BAD_REQUEST)
         .send(util.fail(statusCode.BAD_REQUEST, responseMessage.NULL_VALUE));
     }
     try {
-      for (i = 0; i < keywordValues.length; i++) {
+      for (i = 0; i < keywordNames.length; i++) {
         const keyword = await Keyword.findOne({
-          where: { name: keywordValues[i] },
+          where: { name: keywordNames[i] },
         });
+        const job = await Job.findOne({ where: { name: jobName } });
+        if (!job) {
+          return res
+            .status(statusCode.BAD_REQUEST)
+            .send(
+              util.fail(statusCode.BAD_REQUEST, responseMessage.NO_SUCH_JOB),
+            );
+        }
+        job.UserId = UserId;
         if (!keyword) {
           return res
             .status(statusCode.BAD_REQUEST)
@@ -209,10 +218,20 @@ module.exports = {
               ),
             );
         }
-        await User_Keyword.create({ UserId, KeywordId: keyword.id });
+        const [_, created] = await User_Keyword.findOrCreate({
+          where: { UserId, KeywordId: keyword.id },
+        });
+        if (!created) {
+          return res
+            .status(statusCode.CONFLICT)
+            .send(
+              util.fail(
+                statusCode.CONFLICT,
+                responseMessage.ALREADY_ADDED_KEYWORD,
+              ),
+            );
+        }
       }
-      const job = await Job.findOne({ where: { name: jobName } });
-      job.UserId = UserId;
       await job.save();
       const user = await User.findOne({
         where: { id: UserId },
@@ -221,6 +240,7 @@ module.exports = {
           {
             model: Keyword,
             as: "UserKeywords",
+            attributes: ["id", "name"],
             through: { attributes: [] },
           },
           {
@@ -258,66 +278,11 @@ module.exports = {
     res.redirect("/");
   },
 
-  // mypage: async (req, res, next) => {
-  //   const { id } = req.user;
-  //   try {
-  //     const myUploads = await Video.findAll({
-  //       where: { uploaderId: id },
-  //     });
-  //     const myComments = await Comments.findAll({
-  //       where: { UserId: id },
-  //     });
-  //     let videosWithMyComment = [];
-
-  //     let likedVideos = [];
-
-  //     const videoLike = await VideoLike.findAll({ where: { UserId: id } });
-
-  //     myComments.map(async (comment) => {
-  //       const video = await Video.findOne({ where: { id: comment.VideoId } });
-  //       videosWithMyComment.push(video);
-  //     });
-
-  //     videoLike.map(async (vl) => {
-  //       const video = await Video.findOne({ where: { id: vl.id } });
-  //       likedVideos.push(video);
-  //     });
-
-  //     res
-  //       .status(statusCode.OK)
-  //       .send(
-  //         statusCode.OK,
-  //         responseMessage.GET_MY_PAGE_SUCCESS,
-  //         myUploads,
-  //         videosWithMyComment,
-  //         likedVideos,
-  //       );
-  //   } catch (error) {
-  //     console.log(error);
-  //     res
-  //       .status(statusCode.INTERNAL_SERVER_ERROR)
-  //       .send(
-  //         statusCode.INTERNAL_SERVER_ERROR,
-  //         responseMessage.INTERNAL_SERVER_ERROR,
-  //       );
-  //   }
-  // },
-
   getAllUsers: async (req, res) => {
     try {
       const users = await User.findAll({
         attributes: ["id", "name", "profileImageUrl", "socialType", "snsId"],
       });
-      if (!users) {
-        return res
-          .status(statusCode.BAD_REQUEST)
-          .send(
-            util.fail(
-              statusCode.BAD_REQUEST,
-              responseMessage.GET_ALL_USERS_FAIL,
-            ),
-          );
-      }
       res
         .status(statusCode.OK)
         .send(
@@ -347,7 +312,10 @@ module.exports = {
       const user = await User.findOne({
         where: { id: userId },
         attributes: ["id", "name", "profileImageUrl", "socialType", "snsId"],
-        include: [{ model: Job, attributes: ["id", "name"] }],
+        include: [
+          { model: Job, attributes: ["id", "name"] },
+          { model: Keyword, as: "UserKeywords", through },
+        ],
       });
       if (!user) {
         return res
@@ -383,30 +351,12 @@ module.exports = {
   },
 
   updateUser: async (req, res) => {
-    const { id: loggedInUserId } = req.user;
-    const { name } = req.body;
-    const { userId } = req.params;
-
-    if (!loggedInUserId) {
-      return res
-        .status(statusCode.BAD_REQUEST)
-        .send(statusCode.BAD_REQUEST, responseMessage.LOGIN_REQUIRED);
-    }
-    if (+loggedInUserId !== +userId) {
-      return res
-        .status(statusCode.FORBIDDEN)
-        .send(util.fail(statusCode.FORBIDDEN, responseMessage.NO_AUTHORITY));
-    }
+    const { user } = req;
+    const { newName } = req.body;
     try {
-      const user = await User.findOne({ where: { id: userId } });
-      if (!user) {
-        return res
-          .status(statusCode.BAD_REQUEST)
-          .send(util.fail(statusCode.BAD_REQUEST, responseMessage.NO_USER));
-      }
       const profileImageUrl = req.file?.location || user.profileImageUrl;
       await user.update({
-        name,
+        name: newName,
         profileImageUrl,
       });
       const { createdAt, updatedAt, ...userInfo } = user.dataValues;

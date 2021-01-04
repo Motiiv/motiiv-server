@@ -81,4 +81,8 @@ db.Section.belongsToMany(db.Video, {
   as: "SectionVideos",
 });
 
+// 1 : N    Keyword : Tag
+db.Keyword.hasMany(db.Tag, { onDelete: "SET NULL" });
+db.Tag.belongsTo(db.Keyword);
+
 module.exports = db;
