@@ -22,7 +22,7 @@ workspaceRouter.get(
 workspaceRouter.get(
   "/:workspaceId",
   authMiddleware.checkToken("user"),
-  workspaceController.getWorkspace,
+  workspaceController.getOneWorkspace,
 );
 
 // Update Workspace

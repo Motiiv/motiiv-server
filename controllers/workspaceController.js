@@ -3,33 +3,29 @@ const responseMessage = require("../modules/responseMessage");
 const statusCode = require("../modules/statusCode");
 const util = require("../modules/util");
 const { LogoScrape } = require("logo-scrape");
+const axios = require("axios");
 
 module.exports = {
   createWorkspace: async (req, res) => {
-    const { id: userId } = req.user;
+    const { user } = req;
     const { name, url } = req.body;
-    let hostname;
+    if (!name || !url) {
+      return res
+        .status(statusCode.BAD_REQUEST)
+        .send(util.fail(statusCode.BAD_REQUEST, responseMessage.NULL_VALUE));
+    }
+    let logoUrl;
     try {
-      hostname = new URL(url).hostname;
+      const hostname = new URL(url).hostname;
+      const { url } = await LogoScrape.getLogo(hostname);
+      logoUrl = url;
     } catch (error) {
       console.log(error);
       return res
         .status(statusCode.BAD_REQUEST)
         .send(util.fail(statusCode.BAD_REQUEST, responseMessage.INVALID_URL));
     }
-    const { url: logoUrl } = await LogoScrape.getLogo(hostname);
     try {
-      const user = await User.findOne({ where: { id: userId } });
-      if (!user) {
-        return res
-          .status(statusCode.NOT_FOUND)
-          .send(
-            util.fail(
-              statusCode.NOT_FOUND,
-              responseMessage.GET_ONE_USER_SUCCESS,
-            ),
-          );
-      }
       const workspace = await Workspace.create({ name, url });
       if (logoUrl) {
         workspace.logoUrl = logoUrl;
@@ -64,7 +60,7 @@ module.exports = {
     try {
       const workspaces = await Workspace.findAll({
         where: { UserId },
-        attributes: ["id", "name", "url", "logoUrl", "UserId"],
+        attributes: ["id", "name", "url", "logoUrl"],
       });
       res
         .status(statusCode.OK)
@@ -88,14 +84,24 @@ module.exports = {
     }
   },
 
-  getWorkspace: async (req, res) => {
+  getOneWorkspace: async (req, res) => {
     const { id: UserId } = req.user;
     const { workspaceId } = req.params;
     try {
       const workspace = await Workspace.findOne({
         where: { id: workspaceId, UserId },
-        attributes: ["id", "name", "url", "logoUrl", "UserId"],
+        attributes: ["id", "name", "url", "logoUrl"],
       });
+      if (!workspace) {
+        return res
+          .status(statusCode.NOT_FOUND)
+          .send(
+            util.fail(
+              statusCode.NOT_FOUND,
+              responseMessage.GET_ONE_WORKSPACE_FAIL,
+            ),
+          );
+      }
       res
         .status(statusCode.OK)
         .send(
@@ -119,29 +125,41 @@ module.exports = {
   },
 
   updateWorkspace: async (req, res) => {
+    const defaultWorkspaceLogoUrl =
+      "https://sopt-27-wooyeong.s3.ap-northeast-2.amazonaws.com/motiiv/user/workspace/favicon_new.png";
     const { id: UserId } = req.user;
     const { workspaceId } = req.params;
     const { newName, newUrl } = req.body;
-    let hostname;
-    try {
-      hostname = new URL(newUrl).hostname;
-    } catch (error) {
-      console.log(error);
-      return res
-        .status(statusCode.BAD_REQUEST)
-        .send(util.fail(statusCode.BAD_REQUEST, responseMessage.INVALID_URL));
-    }
-    const { url: logoUrl } = await LogoScrape.getLogo(hostname);
+    let newLogoUrl;
 
-    if (!newName || !newUrl) {
-      return res
-        .status(statusCode.BAD_REQUEST)
-        .send(util.success(statusCode.BAD_REQUEST, responseMessage.NULL_VALUE));
+    if (newUrl) {
+      try {
+        new URL(newUrl).hostname;
+      } catch (error) {
+        console.log(error);
+        return res
+          .status(statusCode.BAD_REQUEST)
+          .send(util.fail(statusCode.BAD_REQUEST, responseMessage.INVALID_URL));
+      }
+      const urlData = await LogoScrape.getLogo(newUrl);
+      if (urlData) {
+        try {
+          await axios({
+            method: "GET",
+            url: urlData.url,
+          });
+          newLogoUrl = urlData.url;
+        } catch (error) {
+          console.log(error);
+          newLogoUrl = defaultWorkspaceLogoUrl;
+        }
+      }
     }
 
     try {
       const workspace = await Workspace.findOne({
         where: { id: workspaceId, UserId },
+        attributes: { exclude: ["UserId"] },
       });
       if (!workspace) {
         return res
@@ -153,11 +171,9 @@ module.exports = {
             ),
           );
       }
-      workspace.name = newName;
-      workspace.url = newUrl;
-      if (logoUrl) {
-        workspace.logoUrl = logoUrl;
-      }
+      workspace.name = newName || workspace.name;
+      workspace.url = newUrl || workspace.url;
+      workspace.logoUrl = newLogoUrl || defaultWorkspaceLogoUrl;
       await workspace.save();
       const { createdAt, updatedAt, ...workspaceData } = workspace.dataValues;
       res
@@ -185,17 +201,10 @@ module.exports = {
   deleteWorkspace: async (req, res) => {
     const { id: UserId } = req.user;
     const { workspaceId } = req.params;
-
-    if (!UserId) {
-      return res
-        .status(statusCode.UNAUTHORIZED)
-        .send(
-          util.fail(statusCode.UNAUTHORIZED, responseMessage.LOGIN_REQUIRED),
-        );
-    }
     try {
       const workspace = await Workspace.findOne({
         where: { id: workspaceId, UserId },
+        attributes: { exclude: ["UserId"] },
       });
       if (!workspace) {
         return res
