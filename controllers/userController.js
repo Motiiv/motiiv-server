@@ -186,28 +186,22 @@ module.exports = {
 
   // TODO: Cleanup
   selectJobAndKeywords: async (req, res) => {
+    const { user: userWithoutJobAndKeywords } = req;
     const { id: UserId } = req.user;
-    console.log(UserId);
     const { jobName, keywordNames } = req.body;
     if (!jobName || !keywordNames) {
       return res
         .status(statusCode.BAD_REQUEST)
         .send(util.fail(statusCode.BAD_REQUEST, responseMessage.NULL_VALUE));
     }
+    // Some workaround to properly display updated user info T_T
     try {
-      for (i = 0; i < keywordNames.length; i++) {
+      const keywordIds = [];
+      const UserKeywords = [];
+      for (let i = 0; i < keywordNames.length; i++) {
         const keyword = await Keyword.findOne({
           where: { name: keywordNames[i] },
         });
-        const job = await Job.findOne({ where: { name: jobName } });
-        if (!job) {
-          return res
-            .status(statusCode.BAD_REQUEST)
-            .send(
-              util.fail(statusCode.BAD_REQUEST, responseMessage.NO_SUCH_JOB),
-            );
-        }
-        job.UserId = UserId;
         if (!keyword) {
           return res
             .status(statusCode.BAD_REQUEST)
@@ -218,37 +212,53 @@ module.exports = {
               ),
             );
         }
-        const [_, created] = await User_Keyword.findOrCreate({
-          where: { UserId, KeywordId: keyword.id },
-        });
-        if (!created) {
-          return res
-            .status(statusCode.CONFLICT)
-            .send(
-              util.fail(
-                statusCode.CONFLICT,
-                responseMessage.ALREADY_ADDED_KEYWORD,
-              ),
-            );
-        }
+        keywordIds.push(keyword.id);
+        const {
+          createdAt: _,
+          updatedAt: __,
+          ...UserKeywordInfo
+        } = keyword.dataValues;
+        UserKeywords.push(UserKeywordInfo);
       }
-      await job.save();
-      const user = await User.findOne({
-        where: { id: UserId },
-        attributes: ["id", "name", "profileImageUrl", "socialType", "snsId"],
-        include: [
-          {
-            model: Keyword,
-            as: "UserKeywords",
-            attributes: ["id", "name"],
-            through: { attributes: [] },
-          },
-          {
-            model: Job,
-            attributes: ["id", "name"],
-          },
-        ],
+      const job = await Job.findOne({ where: { name: jobName } });
+      if (!job) {
+        return res
+          .status(statusCode.BAD_REQUEST)
+          .send(util.fail(statusCode.BAD_REQUEST, responseMessage.NO_SUCH_JOB));
+      }
+      await User_Keyword.destroy({ where: { UserId } });
+      keywordIds.map(async (KeywordId) => {
+        await User_Keyword.create({ UserId, KeywordId });
       });
+      userWithoutJobAndKeywords.JobId = job.id;
+      await userWithoutJobAndKeywords.save();
+
+      const {
+        createdAt: __,
+        updatedAt: ___,
+        JobId,
+        ...updatedUser
+      } = userWithoutJobAndKeywords.dataValues;
+      const { createdAt, updatedAt, ...jobInfo } = job.dataValues;
+      updatedUser.UserKeywords = UserKeywords;
+      updatedUser.Job = jobInfo;
+
+      // const user = await User.findOne({
+      //   where: { id: UserId },
+      //   attributes: ["id", "name", "profileImageUrl", "socialType", "snsId"],
+      //   include: [
+      //     {
+      //       model: Job,
+      //       attributes: ["id", "name"],
+      //     },
+      //     {
+      //       model: Keyword,
+      //       as: "UserKeywords",
+      //       attributes: ["id", "name"],
+      //       through: { attributes: [] },
+      //     },
+      //   ],
+      // });
 
       res
         .status(statusCode.OK)
@@ -256,7 +266,7 @@ module.exports = {
           util.success(
             statusCode.OK,
             responseMessage.SELECT_JOB_AND_KEYWORDS_SUCCESS,
-            user,
+            updatedUser,
           ),
         );
     } catch (error) {
@@ -276,6 +286,32 @@ module.exports = {
     req.logout();
     req.session.destroy();
     res.redirect("/");
+  },
+
+  getUserProfile: async (req, res) => {
+    const { id: userId } = req.user;
+    const profile = await User.findOne({
+      where: { id: userId },
+      attributes: { exclude: ["createdAt", "updatedAt", "JobId"] },
+      include: [
+        { model: Job, attributes: { exclude: ["createdAt", "updatedAt"] } },
+        {
+          model: Keyword,
+          as: "UserKeywords",
+          attributes: { exclude: ["createdAt", "updatedAt"] },
+          through: { attributes: [] },
+        },
+      ],
+    });
+    res
+      .status(statusCode.OK)
+      .send(
+        util.success(
+          statusCode.OK,
+          responseMessage.GET_USER_PROFILE_SUCCESS,
+          profile,
+        ),
+      );
   },
 
   getAllUsers: async (req, res) => {
@@ -357,21 +393,72 @@ module.exports = {
 
   updateUser: async (req, res) => {
     const { user } = req;
-    const { newName } = req.body;
+    const { newName, newJobName, newKeywordNames } = req.body;
     try {
+      const keywordIds = [];
+      if (newKeywordNames) {
+        for (let i = 0; i < newKeywordNames.length; i++) {
+          console.log(newKeywordNames[i]);
+          const keyword = await Keyword.findOne({
+            where: { name: newKeywordNames[i] },
+          });
+          if (!keyword) {
+            return res
+              .status(statusCode.BAD_REQUEST)
+              .send(
+                util.fail(
+                  statusCode.BAD_REQUEST,
+                  responseMessage.NO_SUCH_KEYWORD,
+                ),
+              );
+          }
+          keywordIds.push(keyword.id);
+        }
+      }
+      let job;
+      if (newJobName) {
+        job = await Job.findOne({ where: { name: newJobName } });
+        if (!job) {
+          return res
+            .status(statusCode.BAD_REQUEST)
+            .send(
+              util.fail(statusCode.BAD_REQUEST, responseMessage.NO_SUCH_JOB),
+            );
+        }
+      }
+      if (newKeywordNames) {
+        await User_Keyword.destroy({ where: { UserId: user.id } });
+        keywordIds.map(async (KeywordId) => {
+          await User_Keyword.create({ UserId: user.id, KeywordId });
+        });
+      }
       const profileImageUrl = req.file?.location || user.profileImageUrl;
-      await user.update({
-        name: newName,
-        profileImageUrl,
+      user.JobId = job?.id;
+      user.name = newName;
+      user.profileImageUrl = profileImageUrl;
+      await user.save();
+
+      const updatedUser = await User.findOne({
+        where: { id: user.id },
+        attributes: { exclude: ["createdAt", "updatedAt", "JobId"] },
+        include: [
+          { model: Job, attributes: { exclude: ["createdAt", "updatedAt"] } },
+          {
+            model: Keyword,
+            as: "UserKeywords",
+            attributes: { exclude: ["createdAt", "updatedAt"] },
+            through: { attributes: [] },
+          },
+        ],
       });
-      const { createdAt, updatedAt, ...userInfo } = user.dataValues;
+      // const { JobId,createdAt, updatedAt, ...userInfo } = user.dataValues;
       return res
         .status(statusCode.OK)
         .send(
           util.success(
             statusCode.OK,
             responseMessage.UPDATE_USER_SUCCESS,
-            userInfo,
+            updatedUser,
           ),
         );
     } catch (error) {

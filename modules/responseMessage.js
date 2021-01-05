@@ -28,6 +28,7 @@ module.exports = {
   GET_ALL_USERS_FAIL: "모든 유저 조회 실패",
   GET_ONE_USER_SUCCESS: "유저 조회 성공",
   GET_ONE_USER_FAIL: "유저 조회 실패",
+  GET_USER_PROFILE_SUCCESS: "유저 프로필 조회 성공",
   DELETE_USER_SUCCESS: "유저 삭제 성공",
   DELETE_USER_FAIL: "해당 아이디를 가진 유저가 없습니다.",
   SELECT_JOB_AND_KEYWORDS_SUCCESS: "직군과 관심사 추가 성공",

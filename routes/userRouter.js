@@ -22,6 +22,12 @@ userRouter.post(
   userController.selectJobAndKeywords,
 );
 
+userRouter.get(
+  "/profile",
+  authMiddleware.checkToken("user"),
+  userController.getUserProfile,
+);
+
 // Read all users
 userRouter.get("/", userController.getAllUsers);
 
