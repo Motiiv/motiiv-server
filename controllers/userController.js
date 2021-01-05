@@ -314,7 +314,12 @@ module.exports = {
         attributes: ["id", "name", "profileImageUrl", "socialType", "snsId"],
         include: [
           { model: Job, attributes: ["id", "name"] },
-          { model: Keyword, as: "UserKeywords", through },
+          {
+            model: Keyword,
+            as: "UserKeywords",
+            attributes: ["id", "name"],
+            through: { attributes: [] },
+          },
         ],
       });
       if (!user) {
@@ -376,20 +381,46 @@ module.exports = {
         .send(
           util.fail(
             statusCode.INTERNAL_SERVER_ERROR,
-            responseMessage.UPDATE_USER_FAIL,
+            responseMessage.INTERNAL_SERVER_ERROR,
           ),
         );
     }
   },
 
   deleteUser: async (req, res) => {
+    const { user } = req;
+    try {
+      const { createdAt, updatedAt, ...deletedUser } = user.dataValues;
+      user.destroy();
+      res
+        .status(statusCode.OK)
+        .send(
+          util.success(
+            statusCode.OK,
+            responseMessage.DELETE_USER_SUCCESS,
+            deletedUser,
+          ),
+        );
+    } catch (error) {
+      console.log(error);
+      res
+        .status(statusCode.INTERNAL_SERVER_ERROR)
+        .send(
+          util.fail(
+            statusCode.INTERNAL_SERVER_ERROR,
+            responseMessage.INTERNAL_SERVER_ERROR,
+          ),
+        );
+    }
+  },
+
+  deleteSpecificUser: async (req, res) => {
     const { userId } = req.params;
     try {
       const user = await User.findOne({
         where: { id: userId },
         attributes: ["id", "name", "profileImageUrl", "socialType", "snsId"],
       });
-      console.log(user);
       if (!user) {
         return res
           .status(statusCode.NOT_FOUND)

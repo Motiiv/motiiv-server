@@ -30,10 +30,16 @@ userRouter.get("/:userId", userController.getOneUser);
 
 // Update a user
 userRouter.put(
-  "/:userId",
+  "/",
   authMiddleware.checkToken("user"),
   multer.uploadProfileImage,
   userController.updateUser,
+);
+
+userRouter.delete(
+  "/",
+  authMiddleware.checkToken("user"),
+  userController.deleteUser,
 );
 
 // Delete a user
@@ -41,7 +47,7 @@ userRouter.put(
 userRouter.delete(
   "/:userId",
   // authMiddleware.checkToken("user"),
-  userController.deleteUser,
+  userController.deleteSpecificUser,
 );
 
 module.exports = userRouter;

@@ -155,8 +155,8 @@ module.exports = {
       }
       workspace.name = newName;
       workspace.url = newUrl;
-      if (logoUrl){
-        workspace.logoUrl = logoUrl
+      if (logoUrl) {
+        workspace.logoUrl = logoUrl;
       }
       await workspace.save();
       const { createdAt, updatedAt, ...workspaceData } = workspace.dataValues;
