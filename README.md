@@ -1,12 +1,12 @@
 ## Dependencies Module
 
-![image](/Users/koooo/dev/SOPT/motiiv-server/dependencies-module.png)
+![image](./dependencies-module.png)
 
 
 
 ## ERD
 
-![image](/Users/koooo/dev/SOPT/motiiv-server/MOTIIV_ERD.png)
+![image](./MOTIIV_ERD.png)
 
 
 
