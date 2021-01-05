@@ -140,7 +140,7 @@ module.exports = {
   updateSection: async (req, res) => {
     const { sectionId } = req.params;
     const { newTitle, newSubtitle } = req.body;
-    if (!newTitle) {
+    if (!newTitle || !newSubtitle) {
       return res
         .status(statusCode.BAD_REQUEST)
         .send(util.fail(statusCode.BAD_REQUEST, responseMessage.NULL_VALUE));
@@ -188,7 +188,7 @@ module.exports = {
         .send(
           util.success(
             statusCode.OK,
-            responseMessage.UPDATE_ADMIN_USERNAME_SUCCESS,
+            responseMessage.UPDATE_SECTION_SUCCESS,
             sectionData,
           ),
         );
@@ -242,7 +242,11 @@ module.exports = {
   addVideoToSection: async (req, res) => {
     const { sectionId } = req.params;
     const { videoId } = req.body;
-
+    if (!videoId) {
+      return res
+        .status(statusCode.BAD_REQUEST)
+        .send(util.fail(statusCode.BAD_REQUEST, responseMessage.NULL_VALUE));
+    }
     try {
       const video = await Video.findOne({ where: { id: videoId } });
       if (!video) {
@@ -302,6 +306,11 @@ module.exports = {
   removeVideoFromSection: async (req, res) => {
     const { sectionId } = req.params;
     const { videoId } = req.body;
+    if (!videoId) {
+      return res
+        .status(statusCode.BAD_REQUEST)
+        .send(util.fail(statusCode.BAD_REQUEST, responseMessage.NULL_VALUE));
+    }
     try {
       const video = await Video.findOne({ where: { id: videoId } });
       if (!video) {
