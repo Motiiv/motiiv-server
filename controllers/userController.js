@@ -282,6 +282,7 @@ module.exports = {
     }
   },
 
+  // TODO: LOGOUT
   logout: async (req, res, next) => {
     req.logout();
     req.session.destroy();
