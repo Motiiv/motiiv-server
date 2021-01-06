@@ -18,7 +18,7 @@ videoRouter.get("/:videoId", videoController.getDetail);
 //좋아요 추가
 videoRouter.post(
   "/:videoId/createLike",
-  authMiddleware.checkToken("admin"),
+  authMiddleware.checkToken("user"),
   videoController.createLike,
 );
 
