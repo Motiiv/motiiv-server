@@ -435,7 +435,7 @@ module.exports = {
       }
       const profileImageUrl =
         (req.file && req.file.location) || user.profileImageUrl;
-      user.JobId = job?.id;
+      user.JobId = job && job.id;
       user.name = newName;
       user.profileImageUrl = profileImageUrl;
       await user.save();
