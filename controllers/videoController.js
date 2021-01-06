@@ -195,7 +195,7 @@ module.exports = {
             ],
           },
         },
-        attributes: ["id", "title", "videoUrl", "thumbnailImageUrl"],
+        attributes: ["id", "title", "videoLength", "thumbnailImageUrl", "viewCount", "channelName"],
         order: sequelize.literal("rand()"),
       });
       const recommands = recommandVideos.map((item) => item.dataValues.id);
@@ -213,7 +213,7 @@ module.exports = {
               ],
             },
           },
-          attributes: ["id", "title", "videoUrl", "thumbnailImageUrl"],
+          attributes: ["id", "title", "videoLength", "thumbnailImageUrl", "viewCount", "channelName"],
           order: sequelize.literal("rand()"),
           limit: 4 - recommandsLength,
         });
@@ -222,17 +222,21 @@ module.exports = {
       };
 
 
-      /* 3군 어드민이 설정한 세션 불러오기
-      1. 세션 admincheck를 통한 설정한 세션 id 저장
-      2. Video_Section에서 해당 id값을 가진 VideoId값 불러오기
-      3. 해당 아이디를 가진 비디오 영상 목록 불러오기
-      */
+      // 3군 어드민이 설정한 세션 불러오기
+
+      const checkHomeSection = await Section.findAll({
+        where: { adminCheck: 1 },
+        include: [{
+          model: Video, as: "SectionVideos", attributes: ["id", "title", "videoLength", "thumbnailImageUrl", "viewCount", "channelName"]
+          , through: { attributes: [] }
+        }]
+      });
 
 
 
       return res
         .status(sc.OK)
-        .send(ut.success(sc.OK, rm.GET_VIDEO_RECOMMAND_SUCCESS, { jobVideos, recommandVideos }));
+        .send(ut.success(sc.OK, rm.GET_VIDEO_RECOMMAND_SUCCESS, { jobVideos, recommandVideos, checkHomeSection }));
 
     } catch (err) {
       console.log(err);
@@ -251,7 +255,6 @@ module.exports = {
       const video = await Video.findAll({
         attributes: [
           "id",
-          "videoUrl",
           "title",
           "description",
           "thumbnailImageUrl",
@@ -314,7 +317,6 @@ module.exports = {
         where: { id: mostViewId },
         attributes: [
           "id",
-          "videoUrl",
           "title",
           "description",
           "thumbnailImageUrl",
@@ -349,7 +351,6 @@ module.exports = {
         where: { id: mostLikeId },
         attributes: [
           "id",
-          "videoUrl",
           "title",
           "description",
           "thumbnailImageUrl",
