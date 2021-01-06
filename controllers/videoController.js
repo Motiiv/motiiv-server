@@ -100,6 +100,59 @@ module.exports = {
       });
       const getTagsId = getTags.map((item) => item.dataValues.id);
 
+
+      // 2-1군: 직군 태그를 포함한 영상 불러오기 
+      /*
+        1. user 직군 불러오기
+        2. 해당 직군의 태그 id값 검색
+        3. 해당 태그를 가진 비디오 검색
+        4. 영상 랜덤하게 리턴
+      */
+
+      // 1. 사용자 관심 직군 찾기
+      const userJob = await User.findOne({
+        where: { id: user }
+      });
+      const userJobId = userJob.JobId;
+      console.log("job ID");
+      console.log(userJobId);
+
+      // 2. 직군의 이름 찾기
+      const findJobName = await Job.findOne({
+        where: { id: userJobId },
+        attributes: ["name"]
+      });
+      const jobName = findJobName.dataValues.name;
+      console.log(jobName);
+
+      // 3. 직군의 TagId값 찾기
+      const jobTag = await Tag.findOne({
+        where: { name: jobName }
+      });
+      const jobTagId = jobTag.dataValues.id;
+      console.log(jobTagId);
+
+      // 4. 해당 태그를 가진 비디오 id찾기
+      const tagedVideos = await Video_Tag.findAll({
+        where: { TagId: jobTagId }
+      });
+      const tagedVideosId = tagedVideos.map((item) => item.dataValues.VideoId);
+      console.log(tagedVideosId);
+
+      const jobVideos = await Video.findAll({
+        where: { id: tagedVideosId },
+        attributes: ["id", "title", "videoLength", "thumbnailImageUrl", "viewCount", "channelName"],
+        include: [
+          {
+            model: Tag,
+            as: "TaggedVideos",
+            attributes: ["id", "name"],
+            through: { attributes: [] },
+          }
+        ],
+      });
+
+
       // 2-2군: 사용자 관심사 기반 유사한 영상 추천하기 
       /*
         case1(제외): 이미 시청한 영상인 경우 제외
@@ -124,7 +177,7 @@ module.exports = {
         },
         attributes: [sequelize.fn("DISTINCT", "Video_Tag.VideoId"), "VideoId"],
         order: sequelize.literal("rand()"),
-        limit: 5,
+        limit: 8,
       });
       const similarTags = similarTag.map((item) => item.dataValues.VideoId);
 
@@ -168,9 +221,18 @@ module.exports = {
         recommandVideos.push(...otherVideos);
       };
 
+
+      /* 3군 어드민이 설정한 세션 불러오기
+      1. 세션 admincheck를 통한 설정한 세션 id 저장
+      2. Video_Section에서 해당 id값을 가진 VideoId값 불러오기
+      3. 해당 아이디를 가진 비디오 영상 목록 불러오기
+      */
+
+
+
       return res
         .status(sc.OK)
-        .send(ut.success(sc.OK, rm.GET_VIDEO_RECOMMAND_SUCCESS, recommandVideos));
+        .send(ut.success(sc.OK, rm.GET_VIDEO_RECOMMAND_SUCCESS, { jobVideos, recommandVideos }));
 
     } catch (err) {
       console.log(err);
