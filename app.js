@@ -8,6 +8,7 @@ const cors = require("cors");
 const { sequelize } = require("./models");
 
 var indexRouter = require("./routes/index");
+const kakao = require("./config/kakao");
 
 sequelize.query("SET FOREIGN_KEY_CHECKS = 0").then(() =>
   sequelize

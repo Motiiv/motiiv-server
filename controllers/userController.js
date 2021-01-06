@@ -24,6 +24,11 @@ const {
   NAVER_REDIRECT_URI,
 } = require("../config/naver");
 
+const BASE_URL =
+  process.env.NODE_ENV === "production"
+    ? "http://52.78.212.95:3004/motiiv/api/v1"
+    : "http://127.0.0.1:3004/motiiv/api/v1";
+
 // TODO: populate Videos
 module.exports = {
   kakaoLogin: (req, res) => {
@@ -73,14 +78,19 @@ module.exports = {
       return res.json(error.data);
     }
     console.info("==== userResponse.data ====");
-    const userData = userResponse.data;
+    console.log(userResponse.data);
+    const userData = userResponse.data.properties;
     const snsId = userData.id;
-    const resultUser = await User.findOne({
+    const socialInfo = qs.stringify({
+      username: userData.profile_image,
+    });
+    const alreadyUser = await User.findOne({
       where: { snsId, socialType: "kakao" },
     });
-    if (resultUser) {
-      const { accessToken } = await jwt.sign(resultUser);
-      const { createdAt, updatedAt, ...userInfo } = resultUser.dataValues;
+    if (alreadyUser) {
+      const { accessToken } = await jwt.sign(alreadyUser);
+      const { createdAt, updatedAt, ...userInfo } = alreadyUser.dataValues;
+      return res.set("jwt", accessToken).redirect(`${BASE_URL}/users/profile`);
       return res.status(statusCode.OK).send(
         util.success(statusCode.OK, responseMessage.KAKAO_LOGIN_SUCCESS, {
           ...userInfo,
@@ -89,13 +99,15 @@ module.exports = {
       );
     } else {
       const newUser = await User.create({
-        name: userData.properties.nickname,
+        username: userData.properties.nickname,
         snsId,
         socialType: "kakao",
         profileImageUrl: userData.properties.profile_image,
       });
       const { accessToken } = await jwt.sign(newUser);
       const { createdAt, updatedAt, ...userInfo } = newUser.dataValues;
+      return res.set("jwt", accessToken).redirect(`${BASE_URL}/users/profile`);
+
       return res.status(statusCode.OK).send(
         util.success(statusCode.OK, responseMessage.CREATE_USER_SUCCESS, {
           ...userInfo,
@@ -154,12 +166,12 @@ module.exports = {
     console.info("==== userResponse.data ====");
     const userData = userResponse.data;
     const snsId = userData.response.id;
-    const resultUser = await User.findOne({
+    const alreadyUser = await User.findOne({
       where: { snsId, socialType: "naver" },
     });
-    if (resultUser) {
-      const { accessToken } = await jwt.sign(resultUser);
-      const { createdAt, updatedAt, ...userInfo } = resultUser.dataValues;
+    if (alreadyUser) {
+      const { accessToken } = await jwt.sign(alreadyUser);
+      const { createdAt, updatedAt, ...userInfo } = alreadyUser.dataValues;
       return res.status(statusCode.OK).send(
         util.success(statusCode.OK, responseMessage.NAVER_LOGIN_SUCCESS, {
           ...userInfo,
@@ -168,7 +180,7 @@ module.exports = {
       );
     } else {
       const newUser = await User.create({
-        name: userData.response.name,
+        username: userData.response.name,
         snsId,
         socialType: "naver",
         profileImageUrl: userData.response.profile_image,
