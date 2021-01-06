@@ -219,7 +219,7 @@ module.exports = {
       if (alreadyUser) {
         const { accessToken } = await jwt.sign(alreadyUser);
         return res
-          .cookie("jwt", accessToken, { httpOnly: true })
+          .cookie("userToken", accessToken, { httpOnly: true })
           .status(statusCode.OK)
           .send(
             util.success(
@@ -290,7 +290,7 @@ module.exports = {
         ],
       });
       return res
-        .cookie("jwt", accessToken, { httpOnly: true })
+        .cookie("userToken", accessToken, { httpOnly: true })
         .status(statusCode.OK)
         .send(
           util.success(
@@ -410,7 +410,7 @@ module.exports = {
   },
 
   logout: async (req, res, next) => {
-    req.clearCookie("jwt").end();
+    res.clearCookie("userToken").end();
   },
 
   getUserProfile: async (req, res) => {
