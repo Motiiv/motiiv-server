@@ -111,4 +111,17 @@ module.exports = {
   POST_VIDEO_SAVE_FAIL: "비디오 저장 실패",
   DELETE_VIDEO_SAVE_SUCCESS: "비디오 저장 취소 성공",
   DELETE_VIDEO_SAVE_FAIL: "비디오 저장 취소 실패",
+
+  /* 배너 불러오기 */
+  GET_HOME_BANNER_SUCCES: "배너 불러오기 성공",
+  GET_HOME_BANNER_FAIL: "배너 불러오기 실패",
+
+  /* 비디오 포스트 */
+  POST_VIDEO_SUCCESS: "비디오 업로드 성공",
+  POST_VIDEO_FAIL: "비디오 업로드 실패",
+
+  /* 추천 영상 불러오기(홈) */
+  GET_VIDEO_RECOMMAND_SUCCESS: "추천 영상 불러오기 성공",
+  GET_VIDEO_RECOMMAND_FAIL: "추천 영상 불러오기 실패"
+
 };

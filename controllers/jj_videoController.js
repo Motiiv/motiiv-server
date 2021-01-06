@@ -13,19 +13,180 @@ const {
   Save,
   Workspace,
   View,
+  Job,
+  User_Keyword
 } = require("../models");
 const { Sequelize } = require("sequelize");
 const { STRING } = require("sequelize");
 const Op = sequelize.Op;
 
 module.exports = {
+  //비디오 추가하기
+  postVideo: async (req, res) => {
+    const { user, videoUrl, title, description, thumbnailImageUrl, channelName, videoLength, tagOne, tagTwo, tagThree } = req.body;
+    try {
+      const video = await Video.create({
+        videoUrl,
+        title,
+        description,
+        thumbnailImageUrl,
+        channelName,
+        videoLength,
+      });
+      videoId = video.dataValues.id;
+
+      //태그 id 검사하기 
+      const getTags = await Tag.findAll({
+        where: {
+          name: {
+            [Op.or]: [tagOne, tagTwo, tagThree]
+          }
+        }
+      });
+      const getTagsId = getTags.map((item) => item.dataValues.id);
+
+      await Video_Tag.create({
+        VideoId: videoId,
+        TagId: getTagsId[0]
+      });
+
+      await Video_Tag.create({
+        VideoId: videoId,
+        TagId: getTagsId[1]
+      });
+
+      await Video_Tag.create({
+        VideoId: videoId,
+        TagId: getTagsId[2]
+      });
+
+      return res
+        .status(sc.OK)
+        .send(ut.success(sc.OK, rm.POST_VIDEO_SUCCESS, video));
+    } catch (err) {
+      console.log(err);
+      return res
+        .status(sc.INTERNAL_SERVER_ERROR)
+        .send(ut.fail(sc.INTERNAL_SERVER_ERROR, rm.POST_VIDEO_FAIL));
+    }
+  },
+
+
+  // 2군 세션 추천하기 (관심사 / 직군 기반)
+  recommanVideos: async (req, res) => {
+    const user = req.body.userId;
+
+    try {
+      // 사용자 관심사 불러오기
+      const userInterst = await User_Keyword.findAll({
+        where: {
+          UserId: user
+        },
+        attributes: ["keywordId"]
+      });
+      //사용자 관심사 id값 불러오기 
+      const userInterestId = userInterst.map((item) => item.dataValues.keywordId);
+
+      //관심사 id가 가진 태그 불러오기
+      const getTags = await Tag.findAll({
+        where: {
+          keywordId: {
+            [Op.and]: [
+              { [Op.in]: userInterestId }
+            ],
+          }
+        },
+        attributes: ["id"]
+      });
+      const getTagsId = getTags.map((item) => item.dataValues.id);
+
+      // 2-2군: 사용자 관심사 기반 유사한 영상 추천하기 
+      /*
+        case1(제외): 이미 시청한 영상인 경우 제외
+        case2(추가): 사용자 관심사 기준 태그 동영상 불러오기
+        case3(예외): 불러온 동영상 갯수가 4개 미만일 경우(4개 기준은 기획과 논의 필요)
+      */
+
+      // 사용자가 이미 시청한 영상
+      const alreadyWatched = await View.findAll({
+        where: {
+          UserId: user,
+        },
+        attributes: ["VideoId"],
+      });
+      const alreadyWatchedId = alreadyWatched.map((item) => item.dataValues.VideoId)
+      console.log(alreadyWatchedId);
+
+      // 유사 태그 동영상 불러오기
+      const similarTag = await Video_Tag.findAll({
+        where: {
+          TagId: getTagsId,
+        },
+        attributes: [sequelize.fn("DISTINCT", "Video_Tag.VideoId"), "VideoId"],
+        order: sequelize.literal("rand()"),
+        limit: 5,
+      });
+      const similarTags = similarTag.map((item) => item.dataValues.VideoId);
+
+      console.log("비슷한 태그의 비디오들");
+      console.log(similarTags);
+
+
+      // Case1,2를 제외한 추천 영상 불러오기 (제외:현재 동영상, 이미 본 영상, 추가: 유사 태그)
+      const recommandVideos = await Video.findAll({
+        where: {
+          id: {
+            [Op.and]: [
+              { [Op.in]: similarTags },
+              { [Op.notIn]: alreadyWatchedId },
+            ],
+          },
+        },
+        attributes: ["id", "title", "videoUrl", "thumbnailImageUrl"],
+        order: sequelize.literal("rand()"),
+      });
+      const recommands = recommandVideos.map((item) => item.dataValues.id);
+      console.log(recommands);
+
+      recommandsLength = recommands.length;
+
+      if (recommandsLength < 7) {
+        const otherVideos = await Video.findAll({
+          where: {
+            id: {
+              [Op.and]: [
+                { [Op.notIn]: alreadyWatchedId },
+                { [Op.notIn]: recommands },
+              ],
+            },
+          },
+          attributes: ["id", "title", "videoUrl", "thumbnailImageUrl"],
+          order: sequelize.literal("rand()"),
+          limit: 4 - recommandsLength,
+        });
+        //여기서도 동영상 수가 적으면 이미 본 영상에서 가져와야 하는 로직 추가
+        recommandVideos.push(...otherVideos);
+      };
+
+      return res
+        .status(sc.OK)
+        .send(ut.success(sc.OK, rm.GET_VIDEO_RECOMMAND_SUCCESS, recommandVideos));
+
+    } catch (err) {
+      console.log(err);
+      return res
+        .status(sc.INTERNAL_SERVER_ERROR)
+        .send(ut.fail(sc.INTERNAL_SERVER_ERROR, rm.GET_VIDEO_RECOMMAND_FAIL));
+    }
+  },
+
+
   //홈화면 비디오 읽기
   bannerVideos: async (req, res) => {
     const video = req.query.filters;
     try {
       // 전체 비디오 불러오기
       const video = await Video.findAll({
-        group: "id",
         attributes: [
           "id",
           "videoUrl",
@@ -35,10 +196,15 @@ module.exports = {
           "viewCount",
           "videoLength",
           "channelName",
-          [
-            sequelize.fn("date_format", sequelize.col("createdAt"), "%Y-%m-%d"),
-            "createdAt",
-          ],
+          "createdAt"
+        ],
+        include: [
+          {
+            model: Tag,
+            as: "TaggedVideos",
+            attributes: ["id", "name"],
+            through: { attributes: [] },
+          }
         ],
       });
 
@@ -78,6 +244,8 @@ module.exports = {
         limit: 1,
       });
       const mostViewId = mostView.map((item) => item.dataValues.VideoId);
+
+
 
       // 어제 조회수가 가장 높았던 영상 추출
       const mostViewVideo = await Video.findOne({
@@ -151,6 +319,13 @@ module.exports = {
         .send(ut.fail(sc.INTERNAL_SERVER_ERROR, rm.GET_ALL_POST_FAIL));
     }
   },
+
+  getUseRecommandVideos: async (req, res) => {
+    const id = req.body.userId;
+
+  },
+
+
 
   // 동영상 디테일
   getDetail: async (req, res) => {
@@ -305,7 +480,6 @@ module.exports = {
   createLike: async (req, res) => {
     const video = req.params.videoId;
     const { id: user } = req.user;
-    console.log(user);
 
     try {
       const like = await Like.create({ VideoId: video, UserId: user });
@@ -326,7 +500,8 @@ module.exports = {
   //좋아요 취소
   deleteLike: async (req, res) => {
     const video = req.params.videoId;
-    const user = req.body.userId;
+    const { id: user } = req.user;
+
     try {
       await Like.destroy({
         where: {
@@ -348,7 +523,7 @@ module.exports = {
   // 동영상 저장
   createSave: async (req, res) => {
     const video = req.params.videoId;
-    const user = req.body.userId;
+    const { id: user } = req.user;
 
     try {
       const save = await Save.create({ VideoId: video, UserId: user });
@@ -368,7 +543,7 @@ module.exports = {
   // 동영상 저장 취소
   deleteSave: async (req, res) => {
     const video = req.params.videoId;
-    const user = req.body.userId;
+    const { id: user } = req.user;
 
     try {
       await Save.destroy({
@@ -378,7 +553,7 @@ module.exports = {
         },
       });
       return res
-        .status(sc.Ok)
+        .status(sc.OK)
         .send(ut.success(sc.OK, rm.DELETE_VIDEO_SAVE_SUCCESS));
     } catch (err) {
       console.log(err);
