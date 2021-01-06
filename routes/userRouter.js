@@ -5,22 +5,25 @@ const multer = require("../middlewares/multer");
 const userRouter = express.Router();
 
 // Kakao Login
-userRouter.get("/auth/kakao", userController.kakaoLogin);
-userRouter.get("/auth/kakao/callback", userController.kakaoLoginCallback);
+// userRouter.get("/auth/kakao", userController.kakaoLogin);
+// userRouter.get("/auth/kakao/callback", userController.kakaoLoginCallback);
 
 // Naver Login
-userRouter.get("/auth/naver", userController.naverLogin);
-userRouter.get("/auth/naver/callback", userController.naverLoginCallback);
+// userRouter.get("/auth/naver", userController.naverLogin);
+// userRouter.get("/auth/naver/callback", userController.naverLoginCallback);
 
-// logout
-// userRouter.post("/logout", isLoggedIn, userController.logout);
+// Login
+userRouter.post("/login", userController.login);
+
+// Logout
+userRouter.post("/logout", userController.logout);
 
 // Select Job and Keywords
-userRouter.post(
-  "/addInfo",
-  authMiddleware.checkToken("user"),
-  userController.selectJobAndKeywords,
-);
+// userRouter.post(
+//   "/addInfo",
+//   authMiddleware.checkToken("user"),
+//   userController.selectJobAndKeywords,
+// );
 
 userRouter.get(
   "/profile",

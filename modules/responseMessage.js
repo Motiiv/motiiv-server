@@ -4,8 +4,7 @@ module.exports = {
   NO_AUTHORITY: "권한이 없습니다",
 
   // 로그인
-  KAKAO_LOGIN_SUCCESS: "카카오 로그인 성공",
-  NAVER_LOGIN_SUCCESS: "네이버 로그인 성공",
+  LOGIN_SUCCESS: "로그인 성공",
   LOGIN_FAIL: "로그인 실패",
   NO_USER: "존재하지 않는 회원입니다.",
   MISS_MATCH_PW: "비밀번호가 맞지 않습니다.",
@@ -122,6 +121,5 @@ module.exports = {
 
   /* 추천 영상 불러오기(홈) */
   GET_VIDEO_RECOMMAND_SUCCESS: "추천 영상 불러오기 성공",
-  GET_VIDEO_RECOMMAND_FAIL: "추천 영상 불러오기 실패"
-
+  GET_VIDEO_RECOMMAND_FAIL: "추천 영상 불러오기 실패",
 };

@@ -29,15 +29,19 @@ const BASE_URL =
     ? "http://52.78.212.95:3004/motiiv/api/v1"
     : "http://127.0.0.1:3004/motiiv/api/v1";
 
-// TODO: populate Videos
 module.exports = {
   kakaoLogin: (req, res) => {
+    // const { backToClientURL } = req.body;
+    const backToClientURL = "http://127.0.0.1:3004/motiiv/api/v1/users";
     const kakaoAuthUrl = `https://kauth.kakao.com/oauth/authorize?client_id=${KAKAO_ID}&redirect_uri=${KAKAO_REDIRECT_URI}&response_type=code`;
 
-    return res.redirect(kakaoAuthUrl);
+    return res
+      .cookie("backToClientURL", backToClientURL)
+      .redirect(kakaoAuthUrl);
   },
   kakaoLoginCallback: async (req, res) => {
     const { code } = req.query;
+    const { backToClientURL } = req.cookies;
     let tokenResponse;
     try {
       tokenResponse = await axios({
@@ -79,51 +83,38 @@ module.exports = {
     }
     console.info("==== userResponse.data ====");
     console.log(userResponse.data);
-    const userData = userResponse.data.properties;
-    const snsId = userData.id;
-    const socialInfo = qs.stringify({
-      username: userData.profile_image,
-    });
-    const alreadyUser = await User.findOne({
-      where: { snsId, socialType: "kakao" },
-    });
-    if (alreadyUser) {
-      const { accessToken } = await jwt.sign(alreadyUser);
-      const { createdAt, updatedAt, ...userInfo } = alreadyUser.dataValues;
-      return res.set("jwt", accessToken).redirect(`${BASE_URL}/users/profile`);
-      return res.status(statusCode.OK).send(
-        util.success(statusCode.OK, responseMessage.KAKAO_LOGIN_SUCCESS, {
-          ...userInfo,
-          accessToken,
-        }),
-      );
-    } else {
-      const newUser = await User.create({
-        username: userData.properties.nickname,
-        snsId,
-        socialType: "kakao",
-        profileImageUrl: userData.properties.profile_image,
-      });
-      const { accessToken } = await jwt.sign(newUser);
-      const { createdAt, updatedAt, ...userInfo } = newUser.dataValues;
-      return res.set("jwt", accessToken).redirect(`${BASE_URL}/users/profile`);
 
-      return res.status(statusCode.OK).send(
-        util.success(statusCode.OK, responseMessage.CREATE_USER_SUCCESS, {
-          ...userInfo,
-          accessToken,
-        }),
-      );
-    }
+    const {
+      data: {
+        properties: { nickname: username, profile_image: profileImageUrl },
+        id: snsId,
+      },
+    } = userResponse;
+    const socialType = "kakao";
+    const socialInfo = {
+      username,
+      profileImageUrl,
+      snsId,
+      socialType,
+    };
+    console.log("si", socialInfo);
+    return res
+      .cookie("socialInfo", socialInfo, { httpOnly: true })
+      .redirect(backToClientURL);
   },
 
   naverLogin: (req, res) => {
+    // const { backToClientURL } = req.body;
+    const backToClientURL = "http://127.0.0.1:3004/motiiv/api/v1/users";
     const naverAuthUrl = `https://nid.naver.com/oauth2.0/authorize?client_id=${NAVER_ID}&redirect_uri=${NAVER_REDIRECT_URI}&response_type=code&state=${NAVER_STATE}`;
-    return res.redirect(naverAuthUrl);
+    return res
+      .cookie("backToClientURL", backToClientURL)
+      .redirect(naverAuthUrl);
   },
 
   naverLoginCallback: async (req, res) => {
     const { code, state } = req.query;
+    const { backToClientURL } = req.cookies;
     let tokenResponse;
     try {
       tokenResponse = await axios({
@@ -164,39 +155,163 @@ module.exports = {
       return res.json(error.data);
     }
     console.info("==== userResponse.data ====");
-    const userData = userResponse.data;
-    const snsId = userData.response.id;
-    const alreadyUser = await User.findOne({
-      where: { snsId, socialType: "naver" },
-    });
-    if (alreadyUser) {
-      const { accessToken } = await jwt.sign(alreadyUser);
-      const { createdAt, updatedAt, ...userInfo } = alreadyUser.dataValues;
-      return res.status(statusCode.OK).send(
-        util.success(statusCode.OK, responseMessage.NAVER_LOGIN_SUCCESS, {
-          ...userInfo,
-          accessToken,
-        }),
-      );
-    } else {
-      const newUser = await User.create({
-        username: userData.response.name,
-        snsId,
-        socialType: "naver",
-        profileImageUrl: userData.response.profile_image,
-      });
-      const { accessToken } = await jwt.sign(newUser);
-      const { createdAt, updatedAt, ...userInfo } = newUser.dataValues;
-      return res.status(statusCode.OK).send(
-        util.success(statusCode.OK, responseMessage.CREATE_USER_SUCCESS, {
-          ...userInfo,
-          accessToken,
-        }),
-      );
-    }
+    const {
+      data: {
+        response: { name: username, profile_image: profileImageUrl, id: snsId },
+      },
+    } = userResponse;
+    const socialType = "naver";
+
+    const socialInfo = {
+      username,
+      profileImageUrl,
+      snsId,
+      socialType,
+    };
+    return res
+      .cookie("socialInfo", socialInfo, { httpOnly: true })
+      .redirect(backToClientURL);
   },
 
   // TODO: Cleanup
+
+  login: async (req, res) => {
+    const {
+      username,
+      profileImageUrl,
+      snsId,
+      socialType,
+      jobName,
+      keywordNames,
+    } = req.body;
+    if (
+      !username ||
+      !profileImageUrl ||
+      !snsId ||
+      !socialType ||
+      !jobName ||
+      !keywordNames
+    ) {
+      return res
+        .status(statusCode.BAD_REQUEST)
+        .send(util.fail(statusCode.BAD_REQUEST, responseMessage.NULL_VALUE));
+    }
+    try {
+      const alreadyUser = await User.findOne({
+        where: { snsId, socialType },
+        attributes: [
+          "id",
+          "username",
+          "profileImageUrl",
+          "snsId",
+          "socialType",
+        ],
+        include: [
+          { model: Job, attributes: { exclude: ["createdAt", "updatedAt"] } },
+          {
+            model: Keyword,
+            as: "UserKeywords",
+            attributes: { exclude: ["createdAt", "updatedAt"] },
+            through: { attributes: [] },
+          },
+        ],
+      });
+      if (alreadyUser) {
+        const { accessToken } = await jwt.sign(alreadyUser);
+        return res
+          .cookie("jwt", accessToken, { httpOnly: true })
+          .status(statusCode.OK)
+          .send(
+            util.success(
+              statusCode.OK,
+              responseMessage.LOGIN_SUCCESS,
+              alreadyUser,
+            ),
+          );
+      }
+      const keywordIds = [];
+      for (let i = 0; i < keywordNames.length; i++) {
+        const keyword = await Keyword.findOne({
+          where: { name: keywordNames[i] },
+        });
+        if (!keyword) {
+          return res
+            .status(statusCode.BAD_REQUEST)
+            .send(
+              util.fail(
+                statusCode.BAD_REQUEST,
+                responseMessage.NO_SUCH_KEYWORD,
+              ),
+            );
+        }
+        keywordIds.push(keyword.id);
+      }
+      const job = await Job.findOne({ where: { name: jobName } });
+      if (!job) {
+        return res
+          .status(statusCode.BAD_REQUEST)
+          .send(util.fail(statusCode.BAD_REQUEST, responseMessage.NO_SUCH_JOB));
+      }
+      const newUser = await User.create({
+        username,
+        profileImageUrl,
+        snsId,
+        socialType,
+      });
+      newUser.JobId = job.id;
+      await newUser.save();
+      await Promise.all(
+        keywordIds.map(async (keywordId) => {
+          await User_Keyword.create({
+            UserId: newUser.id,
+            KeywordId: keywordId,
+          });
+        }),
+      );
+
+      const { accessToken } = await jwt.sign(newUser);
+      const newUserInfo = await User.findOne({
+        where: { snsId, socialType },
+        attributes: [
+          "id",
+          "username",
+          "profileImageUrl",
+          "snsId",
+          "socialType",
+        ],
+        include: [
+          { model: Job, attributes: { exclude: ["createdAt", "updatedAt"] } },
+          {
+            model: Keyword,
+            as: "UserKeywords",
+            attributes: { exclude: ["createdAt", "updatedAt"] },
+            through: { attributes: [] },
+          },
+        ],
+      });
+      return res
+        .cookie("jwt", accessToken, { httpOnly: true })
+        .status(statusCode.OK)
+        .send(
+          util.success(
+            statusCode.OK,
+            responseMessage.CREATE_USER_SUCCESS,
+            newUserInfo,
+          ),
+        );
+    } catch (error) {
+      console.log(error);
+      res
+        .status(statusCode.INTERNAL_SERVER_ERROR)
+        .send(
+          util.fail(
+            statusCode.INTERNAL_SERVER_ERROR,
+            responseMessage.INTERNAL_SERVER_ERROR,
+          ),
+        );
+    }
+  },
+
   selectJobAndKeywords: async (req, res) => {
     const { user: userWithoutJobAndKeywords } = req;
     const { id: UserId } = req.user;
@@ -257,16 +372,16 @@ module.exports = {
 
       // const user = await User.findOne({
       //   where: { id: UserId },
-      //   attributes: ["id", "name", "profileImageUrl", "socialType", "snsId"],
+      //   attributes: ["id", "username", "profileImageUrl", "socialType", "snsId"],
       //   include: [
       //     {
       //       model: Job,
-      //       attributes: ["id", "name"],
+      //       attributes: ["id", "username"],
       //     },
       //     {
       //       model: Keyword,
       //       as: "UserKeywords",
-      //       attributes: ["id", "name"],
+      //       attributes: ["id", "username"],
       //       through: { attributes: [] },
       //     },
       //   ],
@@ -294,11 +409,8 @@ module.exports = {
     }
   },
 
-  // TODO: LOGOUT
   logout: async (req, res, next) => {
-    req.logout();
-    req.session.destroy();
-    res.redirect("/");
+    req.clearCookie("jwt").end();
   },
 
   getUserProfile: async (req, res) => {
@@ -330,7 +442,13 @@ module.exports = {
   getAllUsers: async (req, res) => {
     try {
       const users = await User.findAll({
-        attributes: ["id", "name", "profileImageUrl", "socialType", "snsId"],
+        attributes: [
+          "id",
+          "username",
+          "profileImageUrl",
+          "socialType",
+          "snsId",
+        ],
       });
       res
         .status(statusCode.OK)
@@ -360,7 +478,13 @@ module.exports = {
     try {
       const user = await User.findOne({
         where: { id: userId },
-        attributes: ["id", "name", "profileImageUrl", "socialType", "snsId"],
+        attributes: [
+          "id",
+          "username",
+          "profileImageUrl",
+          "socialType",
+          "snsId",
+        ],
         include: [
           { model: Job, attributes: ["id", "name"] },
           {
@@ -520,7 +644,13 @@ module.exports = {
     try {
       const user = await User.findOne({
         where: { id: userId },
-        attributes: ["id", "name", "profileImageUrl", "socialType", "snsId"],
+        attributes: [
+          "id",
+          "username",
+          "profileImageUrl",
+          "socialType",
+          "snsId",
+        ],
       });
       if (!user) {
         return res
