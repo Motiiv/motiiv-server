@@ -433,7 +433,8 @@ module.exports = {
           await User_Keyword.create({ UserId: user.id, KeywordId });
         });
       }
-      const profileImageUrl = req.file?.location || user.profileImageUrl;
+      const profileImageUrl =
+        (req.file && req.file.location) || user.profileImageUrl;
       user.JobId = job?.id;
       user.name = newName;
       user.profileImageUrl = profileImageUrl;
