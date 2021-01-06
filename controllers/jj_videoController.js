@@ -33,74 +33,33 @@ module.exports = {
         channelName,
         videoLength,
       });
+      videoId = video.dataValues.id;
 
-      //태그 유효성 검사
-      const redunCheckTag = await Tag.findAll({
+      //태그 id 검사하기 
+      const getTags = await Tag.findAll({
         where: {
           name: {
             [Op.or]: [tagOne, tagTwo, tagThree]
           }
         }
       });
+      const getTagsId = getTags.map((item) => item.dataValues.id);
 
-      //이미 존재하는 태그 분류하기
-      const alreadyTagName = redunCheckTag.map((item) => item.dataValues.name);
-      const alreadyTagId = redunCheckTag.map((item) => item.dataValues.id);
-      console.log("이미 존재하는 태그 목록");
-      console.log(alreadyTagId.length);
-      console.log(alreadyTagId);
-      //존재하지 않는 태그 테이블에 생성하기
-      const notExistTagName = [];
-      const notExistTagId = [];
-
-      if (alreadyTagName.indexOf(tagOne) == '-1') {
-        notExistTagName.push(tagOne);
-        const createTag = await Tag.create({
-          name: tagOne
-        })
-        notExistTagId.push(createTag.id);
-      }
-
-      if (alreadyTagName.indexOf(tagTwo) == '-1') {
-        notExistTagName.push(tagTwo);
-        const createTag = await Tag.create({
-          name: tagThree
-        })
-        notExistTagId.push(createTag.id);
-      }
-
-      if (alreadyTagName.indexOf(tagThree) == '-1') {
-        notExistTagName.push(tagThree);
-        const createTag = await Tag.create({
-          name: tagThree
-        })
-        notExistTagId.push(createTag.id);
-      }
-      console.log("존재하지 않은 태그 목록 태그 목록");
-      console.log(notExistTagId);
-
-      //모든 태그 합치기
-      alreadyTagId.push(notExistTagId);
-      console.log(alreadyTagId);
-
-      const postVideoTagOne = await Video_Tag.create({
-        VideoId: video.id,
-        TagId: alreadyTagId[0]
+      await Video_Tag.create({
+        VideoId: videoId,
+        TagId: getTagsId[0]
       });
-      const postVideoTagTwo = await Video_Tag.create({
-        VideoId: video.id,
-        TagId: alreadyTagId[1]
-      });
-      const postVideoTagThree = await Video_Tag.create({
-        VideoId: video.id,
-        TagId: alreadyTagId[2]
-      });
-      const postVideoTage = await Video_Tag.create({
-        VideoId: video.id,
-        TagId: alreadyTagId
-      })
 
-      //비디오에 해당되는 태그 추가하기
+      await Video_Tag.create({
+        VideoId: videoId,
+        TagId: getTagsId[1]
+      });
+
+      await Video_Tag.create({
+        VideoId: videoId,
+        TagId: getTagsId[2]
+      });
+
       return res
         .status(sc.OK)
         .send(ut.success(sc.OK, rm.POST_VIDEO_SUCCESS, video));
@@ -129,7 +88,6 @@ module.exports = {
       const userInterestId = userInterst.map((item) => item.dataValues.keywordId);
 
       //관심사 id가 가진 태그 불러오기
-
       const getTags = await Tag.findAll({
         where: {
           keywordId: {
@@ -142,10 +100,10 @@ module.exports = {
       });
       const getTagsId = getTags.map((item) => item.dataValues.id);
 
-      // 해당 id와 유사한 영상 추천하기 
+      // 2-2군: 사용자 관심사 기반 유사한 영상 추천하기 
       /*
         case1(제외): 이미 시청한 영상인 경우 제외
-        case2(추가): 관련있는 동영상 불러오기
+        case2(추가): 사용자 관심사 기준 태그 동영상 불러오기
         case3(예외): 불러온 동영상 갯수가 4개 미만일 경우(4개 기준은 기획과 논의 필요)
       */
 
@@ -192,7 +150,7 @@ module.exports = {
 
       recommandsLength = recommands.length;
 
-      if (recommandsLength < 4) {
+      if (recommandsLength < 7) {
         const otherVideos = await Video.findAll({
           where: {
             id: {
@@ -208,7 +166,7 @@ module.exports = {
         });
         //여기서도 동영상 수가 적으면 이미 본 영상에서 가져와야 하는 로직 추가
         recommandVideos.push(...otherVideos);
-      }
+      };
 
       return res
         .status(sc.OK)
@@ -220,11 +178,7 @@ module.exports = {
         .status(sc.INTERNAL_SERVER_ERROR)
         .send(ut.fail(sc.INTERNAL_SERVER_ERROR, rm.GET_VIDEO_RECOMMAND_FAIL));
     }
-
-
   },
-
-
 
 
   //홈화면 비디오 읽기
