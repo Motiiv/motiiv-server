@@ -187,7 +187,6 @@ module.exports = {
     try {
       // 전체 비디오 불러오기
       const video = await Video.findAll({
-        group: "id",
         attributes: [
           "id",
           "videoUrl",
@@ -197,10 +196,15 @@ module.exports = {
           "viewCount",
           "videoLength",
           "channelName",
-          [
-            sequelize.fn("date_format", sequelize.col("createdAt"), "%Y-%m-%d"),
-            "createdAt",
-          ],
+          "createdAt"
+        ],
+        include: [
+          {
+            model: Tag,
+            as: "TaggedVideos",
+            attributes: ["id", "name"],
+            through: { attributes: [] },
+          }
         ],
       });
 
@@ -240,6 +244,8 @@ module.exports = {
         limit: 1,
       });
       const mostViewId = mostView.map((item) => item.dataValues.VideoId);
+
+
 
       // 어제 조회수가 가장 높았던 영상 추출
       const mostViewVideo = await Video.findOne({
@@ -324,7 +330,7 @@ module.exports = {
   // 동영상 디테일
   getDetail: async (req, res) => {
     const video = req.params.videoId;
-    const { id: user } = req.user;
+    const user = req.body.userId;
 
     //video id check
     if (!video) {

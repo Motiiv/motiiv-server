@@ -63,9 +63,9 @@ db.Keyword.belongsToMany(db.User, {
   as: "KeywordUsers",
 });
 
-// 1 : 1    User : Job
-db.User.hasOne(db.Job);
-db.Job.belongsTo(db.User);
+// 1 : N    Job : User
+db.Job.hasMany(db.User, { onDelete: "SET NULL" });
+db.User.belongsTo(db.Job);
 
 // N : M    Video : Tag => Video_Tag
 db.Video.belongsToMany(db.Tag, { through: "Video_Tag", as: "TaggedVideos" });

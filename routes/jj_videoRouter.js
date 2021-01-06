@@ -13,7 +13,7 @@ jj_videoRouter.get("/getBanners", videoController.bannerVideos);
 jj_videoRouter.get("/getRecommand", videoController.recommanVideos);
 
 //디테일뷰 정보 불러오기
-jj_videoRouter.get("/:videoId", authMiddleware.checkToken("user"), videoController.getDetail);
+jj_videoRouter.get("/:videoId", videoController.getDetail);
 
 //좋아요 추가
 jj_videoRouter.post(
