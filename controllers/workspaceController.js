@@ -17,8 +17,8 @@ module.exports = {
     let logoUrl;
     try {
       const hostname = new URL(url).hostname;
-      const { url } = await LogoScrape.getLogo(hostname);
-      logoUrl = url;
+      const { url: tempUrl } = await LogoScrape.getLogo(hostname);
+      logoUrl = tempUrl;
     } catch (error) {
       console.log(error);
       return res
