@@ -261,6 +261,7 @@ module.exports = {
           "viewCount",
           "videoLength",
           "channelName",
+          "videoGif",
           "createdAt"
         ],
         include: [
@@ -279,6 +280,7 @@ module.exports = {
         .sort((a, b) => b.viewCount - a.viewCount);
       topTens = topTen.slice(0, 10);
 
+
       //어제 날짜 포맷 변경 함수
       function getFormatDate(date) {
         var year = date.getFullYear(); //yyyy
@@ -288,13 +290,14 @@ module.exports = {
         day = day >= 10 ? day : "0" + day; //day 두자리로 저장
         return year + "-" + month + "-" + day; //'-' 추가하여 yyyy-mm-dd 형태 생성 가능
       }
+
       const yesterday = ((d) => new Date(d.setDate(d.getDate() - 1)))(
         new Date(),
       );
       const today = ((d) => new Date(d.setDate(d.getDate())))(new Date());
 
-      /* 배너 동영상 */
 
+      /* 배너 동영상 */
       // 어제 조회수가 가장 높았던 동영상 => View에서 어제 동영상 목록 가져오기 => 동영상 갯수가 가장 많은것 순서대로 sort
 
       const mostView = await View.findAll({
