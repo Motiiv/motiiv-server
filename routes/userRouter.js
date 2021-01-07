@@ -12,8 +12,11 @@ const userRouter = express.Router();
 // userRouter.get("/auth/naver", userController.naverLogin);
 // userRouter.get("/auth/naver/callback", userController.naverLoginCallback);
 
-// Login
+// Check
 userRouter.post("/login", userController.login);
+
+// Login
+userRouter.post("/signup", userController.signup);
 
 // Logout
 userRouter.post("/logout", userController.logout);

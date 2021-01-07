@@ -9,6 +9,9 @@ module.exports = {
   NO_USER: "존재하지 않는 회원입니다.",
   MISS_MATCH_PW: "비밀번호가 맞지 않습니다.",
   LOGIN_REQUIRED: "로그인이 필요합니다",
+  PROCEED_WITH_SIGNUP:
+    "해당 snsId와 socialType를 가진 유저가 없습니다. 회원가입을 진행해 주세요",
+  LOGOUT_SUCCESS: "유저 로그아웃 성공",
 
   // 인증
   EMPTY_TOKEN: "토큰 값이 없습니다.",
@@ -28,6 +31,7 @@ module.exports = {
   GET_ONE_USER_SUCCESS: "유저 조회 성공",
   GET_ONE_USER_FAIL: "유저 조회 실패",
   GET_USER_PROFILE_SUCCESS: "유저 프로필 조회 성공",
+  UPDATE_USER_SUCCESS: "유저 수정 성공",
   DELETE_USER_SUCCESS: "유저 삭제 성공",
   DELETE_USER_FAIL: "해당 아이디를 가진 유저가 없습니다.",
   SELECT_JOB_AND_KEYWORDS_SUCCESS: "직군과 관심사 추가 성공",

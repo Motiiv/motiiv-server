@@ -12,7 +12,8 @@ module.exports = (sequelize, DataTypes) => {
       },
       adminCheck: {
         type: DataTypes.BOOLEAN,
-      }
+        defaultValue: 0,
+      },
     },
     {
       freezeTableName: true,
