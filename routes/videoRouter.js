@@ -10,7 +10,7 @@ videoRouter.post("/postVideo", videoController.postVideo);
 videoRouter.get("/getBanners", videoController.bannerVideos);
 
 //홈화면 추천 영상 불러오기
-videoRouter.get("/getRecommand", videoController.recommanVideos);
+videoRouter.get("/getRecommand", authMiddleware.checkToken("user"), videoController.recommanVideos);
 
 //디테일뷰 정보 불러오기
 videoRouter.get("/:videoId", videoController.getDetail);

@@ -74,7 +74,8 @@ module.exports = {
 
   // 2군 세션 추천하기 (관심사 / 직군 기반)
   recommanVideos: async (req, res) => {
-    const user = req.body.userId;
+    const user = req.user;
+    console.log(user);
 
     try {
       // 사용자 관심사 불러오기
