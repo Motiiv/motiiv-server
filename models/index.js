@@ -38,8 +38,8 @@ db.Video_Section = require("./Video_Section")(sequelize, Sequelize);
 db.User_Keyword = require("./User_Keyword")(sequelize, Sequelize);
 
 // N : M    User : Video => View
-db.User.belongsToMany(db.Video, { through: "View", as: "VideoViewer" });
-db.Video.belongsToMany(db.User, { through: "View", as: "VideoViewed" });
+db.User.belongsToMany(db.Video, { through: "View", as: "ViewedVideos" });
+db.Video.belongsToMany(db.User, { through: "View", as: "VideoViewer" });
 
 // N : M    User : Video => Like
 db.User.belongsToMany(db.Video, { through: "Like", as: "LikedVideos" });
@@ -68,8 +68,8 @@ db.Job.hasMany(db.User, { onDelete: "SET NULL" });
 db.User.belongsTo(db.Job);
 
 // N : M    Video : Tag => Video_Tag
-db.Video.belongsToMany(db.Tag, { through: "Video_Tag", as: "TaggedVideos" });
-db.Tag.belongsToMany(db.Video, { through: "Video_Tag", as: "VideoTags" });
+db.Video.belongsToMany(db.Tag, { through: "Video_Tag", as: "VideoTags" });
+db.Tag.belongsToMany(db.Video, { through: "Video_Tag", as: "TaggedVideos" });
 
 // N : M    Video : Section => Video_Section
 db.Video.belongsToMany(db.Section, {
