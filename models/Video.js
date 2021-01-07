@@ -32,7 +32,7 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: true,
       },
       videoGif: {
-        type: DataTypes.STRING(100),
+        type: DataTypes.STRING(400),
         allowNull: true,
       },
     },
