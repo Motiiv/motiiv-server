@@ -13,8 +13,12 @@ module.exports = {
   // 해독한 정보는 req.decoded에 저장하고 있으며 이후 로그인 유무는 decoded가 있는지 없는지를 통해 알 수 있음
   checkToken: (role) => {
     return async (req, res, next) => {
-      const token = req.headers.jwt;
-
+      let token;
+      if (role === "admin") {
+        token = req.cookies.adminToken;
+      } else if (role === "user") {
+        token = req.cookies.userToken;
+      }
       if (!token) {
         return res
           .status(statusCode.BAD_REQUEST)
