@@ -24,18 +24,11 @@ sequelize.query("SET FOREIGN_KEY_CHECKS = 0").then(() =>
 var app = express();
 app.use(
   cors({
-    origin: true,
     credentials: true,
   }),
 );
 
-app.use((req, res, next) => {
-  res.append("Access-Control-Allow-Headers", "Set-Cookie");
-  res.append("Access-Control-Expose-Headers", "Set-Cookie");
-  // res.setHeader("Access-Control-Allow-Origin", "localhost:3000");
-  // res.setHeader("Access-Control-Allow-Credentials", "true");
-  next();
-});
+// app.set(res.append("Access-Control-Allow-Origin", true));
 
 // view engine setup
 app.set("views", path.join(__dirname, "views"));

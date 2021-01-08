@@ -189,8 +189,13 @@ module.exports = {
       const { accessToken } = await jwt.sign(user);
       res
         .status(statusCode.OK)
-        .cookie("userToken", accessToken)
-        .send(util.success(statusCode.OK, responseMessage.LOGIN_SUCCESS, user));
+        .cookies("userToken", accessToken)
+        .send(
+          util.success(statusCode.OK, responseMessage.LOGIN_SUCCESS, {
+            ...user.dataValues,
+            userToken: accessToken,
+          }),
+        );
     } catch (error) {
       console.log(error);
       res
@@ -252,8 +257,9 @@ module.exports = {
           keywordIds.push(keyword.id);
         }
       }
+      let job;
       if (jobName) {
-        const job = await Job.findOne({ where: { name: jobName } });
+        job = await Job.findOne({ where: { name: jobName } });
         if (!job) {
           return res
             .status(statusCode.BAD_REQUEST)
@@ -268,7 +274,9 @@ module.exports = {
         snsId,
         socialType,
       });
-      newUser.JobId = job.id;
+      if (jobName && job) {
+        newUser.JobId = job.id;
+      }
       await newUser.save();
       if (keywordNames) {
         await Promise.all(
@@ -302,14 +310,13 @@ module.exports = {
         ],
       });
       return res
-        .cookie("userToken", accessToken)
         .status(statusCode.OK)
+        .cookies("userToken", accessToken)
         .send(
-          util.success(
-            statusCode.OK,
-            responseMessage.CREATE_USER_SUCCESS,
-            newUserInfo,
-          ),
+          util.success(statusCode.OK, responseMessage.CREATE_USER_SUCCESS, {
+            ...newUserInfo.dataValues,
+            userToken: accessToken,
+          }),
         );
     } catch (error) {
       console.log(error);

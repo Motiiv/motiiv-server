@@ -30,15 +30,13 @@ module.exports = {
       const { salt, hashed } = await encrypt(password);
       const admin = await Admin.create({ username, password: hashed, salt });
       const { accessToken } = await jwt.sign(admin);
-      res
-        .cookie("adminToken", accessToken)
-        .status(statusCode.OK)
-        .send(
-          util.success(statusCode.OK, responseMessage.CREATE_ADMIN_SUCCESS, {
-            id: admin.id,
-            username: admin.username,
-          }),
-        );
+      res.status(statusCode.OK).send(
+        util.success(statusCode.OK, responseMessage.CREATE_ADMIN_SUCCESS, {
+          id: admin.id,
+          username: admin.username,
+          adminToken: accessToken,
+        }),
+      );
     } catch (error) {
       console.log(error);
       res
@@ -69,15 +67,13 @@ module.exports = {
       const hashed = await encryptWithSalt(password, salt);
       if (hashed === admin.password) {
         const { accessToken } = await jwt.sign(admin);
-        return res
-          .cookie("adminToken", accessToken)
-          .status(statusCode.OK)
-          .send(
-            util.success(statusCode.OK, responseMessage.LOGIN_ADMIN_SUCCESS, {
-              id: admin.id,
-              username: admin.username,
-            }),
-          );
+        return res.status(statusCode.OK).send(
+          util.success(statusCode.OK, responseMessage.LOGIN_ADMIN_SUCCESS, {
+            id: admin.id,
+            username: admin.username,
+            adminToken: accessToken,
+          }),
+        );
       } else {
         return res
           .status(statusCode.FORBIDDEN)
