@@ -189,7 +189,7 @@ module.exports = {
       const { accessToken } = await jwt.sign(user);
       res
         .status(statusCode.OK)
-        .cookie("userToken", accessToken)
+        .cookie("userToken", accessToken, { sameSite: false })
         .send(util.success(statusCode.OK, responseMessage.LOGIN_SUCCESS, user));
     } catch (error) {
       console.log(error);
