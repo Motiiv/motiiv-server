@@ -187,15 +187,12 @@ module.exports = {
           );
       }
       const { accessToken } = await jwt.sign(user);
-      res
-        .status(statusCode.OK)
-        .cookie("userToken", accessToken, { sameSite: "none", secure: true })
-        .send(
-          util.success(statusCode.OK, responseMessage.LOGIN_SUCCESS, {
-            ...user.dataValues,
-            userToken: accessToken,
-          }),
-        );
+      res.status(statusCode.OK).send(
+        util.success(statusCode.OK, responseMessage.LOGIN_SUCCESS, {
+          ...user.dataValues,
+          userToken: accessToken,
+        }),
+      );
     } catch (error) {
       console.log(error);
       res
@@ -309,15 +306,12 @@ module.exports = {
           },
         ],
       });
-      return res
-        .status(statusCode.OK)
-        .cookie("userToken", accessToken)
-        .send(
-          util.success(statusCode.OK, responseMessage.CREATE_USER_SUCCESS, {
-            ...newUserInfo.dataValues,
-            userToken: accessToken,
-          }),
-        );
+      return res.status(statusCode.OK).send(
+        util.success(statusCode.OK, responseMessage.CREATE_USER_SUCCESS, {
+          ...newUserInfo.dataValues,
+          userToken: accessToken,
+        }),
+      );
     } catch (error) {
       console.log(error);
       res

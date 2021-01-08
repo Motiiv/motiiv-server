@@ -22,12 +22,7 @@ sequelize.query("SET FOREIGN_KEY_CHECKS = 0").then(() =>
 );
 
 var app = express();
-app.use(
-  cors({
-    credentials: true,
-    origin: "http://localhost:3000",
-  }),
-);
+app.use(cors());
 
 // app.set(res.append("Access-Control-Allow-Origin", true));
 
