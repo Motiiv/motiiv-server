@@ -187,8 +187,10 @@ module.exports = {
           );
       }
       const { accessToken } = await jwt.sign(user);
-      res.status(statusCode.OK).cookie("userToken", accessToken);
-      // .send(util.success(statusCode.OK, responseMessage.LOGIN_SUCCESS, user));
+      res
+        .status(statusCode.OK)
+        .cookie("userToken", accessToken, { domain: "localhost" })
+        .send(util.success(statusCode.OK, responseMessage.LOGIN_SUCCESS, user));
     } catch (error) {
       console.log(error);
       res
