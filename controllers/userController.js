@@ -432,28 +432,40 @@ module.exports = {
     const { id: userId } = req.user;
     const { userToken } = req.cookies;
     console.log(userToken);
-    const profile = await User.findOne({
-      where: { id: userId },
-      attributes: { exclude: ["createdAt", "updatedAt", "JobId"] },
-      include: [
-        { model: Job, attributes: { exclude: ["createdAt", "updatedAt"] } },
-        {
-          model: Keyword,
-          as: "UserKeywords",
-          attributes: { exclude: ["createdAt", "updatedAt"] },
-          through: { attributes: [] },
-        },
-      ],
-    });
-    res
-      .status(statusCode.OK)
-      .send(
-        util.success(
-          statusCode.OK,
-          responseMessage.GET_USER_PROFILE_SUCCESS,
-          profile,
-        ),
-      );
+    try {
+      const profile = await User.findOne({
+        where: { id: userId },
+        attributes: { exclude: ["createdAt", "updatedAt", "JobId"] },
+        include: [
+          { model: Job, attributes: { exclude: ["createdAt", "updatedAt"] } },
+          {
+            model: Keyword,
+            as: "UserKeywords",
+            attributes: { exclude: ["createdAt", "updatedAt"] },
+            through: { attributes: [] },
+          },
+        ],
+      });
+      res
+        .status(statusCode.OK)
+        .send(
+          util.success(
+            statusCode.OK,
+            responseMessage.GET_USER_PROFILE_SUCCESS,
+            profile,
+          ),
+        );
+    } catch (error) {
+      console.log(error);
+      res
+        .status(statusCode.INTERNAL_SERVER_ERROR)
+        .send(
+          util.fail(
+            statusCode.INTERNAL_SERVER_ERROR,
+            responseMessage.INTERNAL_SERVER_ERROR,
+          ),
+        );
+    }
   },
 
   getAllUsers: async (req, res) => {
@@ -477,6 +489,7 @@ module.exports = {
           ),
         );
     } catch (error) {
+      console.log(error);
       res
         .status(statusCode.INTERNAL_SERVER_ERROR)
         .send(
