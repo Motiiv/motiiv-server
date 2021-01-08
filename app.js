@@ -29,9 +29,10 @@ app.use(
   }),
 );
 
-app.set({
-  "Access-Control-Allow-Headers": "Set-Cookie",
-  "Access-Control-Expose-Headers": "Set-Cookie",
+app.use((req, res, next) => {
+  res.append("Access-Control-Allow-Headers", "Set-Cookie");
+  res.append("Access-Control-Expose-Headers", "Set-Cookie");
+  next();
 });
 
 // view engine setup
