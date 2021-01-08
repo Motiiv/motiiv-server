@@ -189,7 +189,7 @@ module.exports = {
       const { accessToken } = await jwt.sign(user);
       res
         .status(statusCode.OK)
-        .cookies("userToken", accessToken)
+        .cookie("userToken", accessToken)
         .send(
           util.success(statusCode.OK, responseMessage.LOGIN_SUCCESS, {
             ...user.dataValues,
@@ -311,7 +311,7 @@ module.exports = {
       });
       return res
         .status(statusCode.OK)
-        .cookies("userToken", accessToken)
+        .cookie("userToken", accessToken)
         .send(
           util.success(statusCode.OK, responseMessage.CREATE_USER_SUCCESS, {
             ...newUserInfo.dataValues,
