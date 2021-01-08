@@ -3,8 +3,14 @@ const adminController = require("../controllers/adminController");
 const authMiddleware = require("../middlewares/authMiddleware");
 const adminRouter = express.Router();
 
-// Create an Admin
-adminRouter.post("/", adminController.createAdmin);
+// Admin Signup
+adminRouter.post("/signup", adminController.createAdmin);
+
+// Admin Login
+adminRouter.post("/login", adminController.adminLogin);
+
+// Admin Logout
+adminRouter.post("/logout", adminController.adminLogout);
 
 // Read all Admins
 adminRouter.get("/", adminController.getAllAdmins);

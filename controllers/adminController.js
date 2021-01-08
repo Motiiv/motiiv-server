@@ -1,11 +1,9 @@
 const { Admin, Video } = require("../models");
-// const crypto = require("../modules/crypto");
-const bcrypt = require("bcrypt");
 const jwt = require("../middlewares/jwt");
 const responseMessage = require("../modules/responseMessage");
 const statusCode = require("../modules/statusCode");
 const util = require("../modules/util");
-const { encrypt } = require("../modules/crypto");
+const { encrypt, encryptWithSalt } = require("../modules/crypto");
 const crypto = require("../modules/crypto");
 
 module.exports = {
@@ -32,13 +30,15 @@ module.exports = {
       const { salt, hashed } = await encrypt(password);
       const admin = await Admin.create({ username, password: hashed, salt });
       const { accessToken } = await jwt.sign(admin);
-      res.status(statusCode.OK).send(
-        util.success(statusCode.OK, responseMessage.CREATE_ADMIN_SUCCESS, {
-          id: admin.id,
-          username: admin.username,
-          accessToken,
-        }),
-      );
+      res
+        .cookie("adminToken", accessToken)
+        .status(statusCode.OK)
+        .send(
+          util.success(statusCode.OK, responseMessage.CREATE_ADMIN_SUCCESS, {
+            id: admin.id,
+            username: admin.username,
+          }),
+        );
     } catch (error) {
       console.log(error);
       res
@@ -52,7 +52,61 @@ module.exports = {
     }
   },
 
-  // TODO: Login URI
+  adminLogin: async (req, res) => {
+    const { username, password } = req.body;
+
+    if (!username || !password) {
+      return res
+        .status(statusCode.BAD_REQUEST)
+        .send(util.fail(statusCode.BAD_REQUEST, responseMessage.NULL_VALUE));
+    }
+    try {
+      const admin = await Admin.findOne({
+        where: { username },
+      });
+
+      const salt = admin.salt;
+      const hashed = await encryptWithSalt(password, salt);
+      if (hashed === admin.password) {
+        const { accessToken } = await jwt.sign(admin);
+        return res
+          .cookie("adminToken", accessToken)
+          .status(statusCode.OK)
+          .send(
+            util.success(statusCode.OK, responseMessage.LOGIN_ADMIN_SUCCESS, {
+              id: admin.id,
+              username: admin.username,
+            }),
+          );
+      } else {
+        return res
+          .status(statusCode.FORBIDDEN)
+          .send(
+            util.fail(
+              statusCode.FORBIDDEN,
+              responseMessage.LOGIN_ADMIN_FAIL_PASSWORD,
+            ),
+          );
+      }
+    } catch (error) {
+      console.log(error);
+      res
+        .status(statusCode.INTERNAL_SERVER_ERROR)
+        .send(
+          util.fail(
+            statusCode.INTERNAL_SERVER_ERROR,
+            responseMessage.INTERNAL_SERVER_ERROR,
+          ),
+        );
+    }
+  },
+
+  adminLogout: async (req, res) => {
+    res
+      .status(statusCode.OK)
+      .clearCookie("adminToken")
+      .send(util.success(statusCode.OK, responseMessage.LOGOUT_ADMIN_SUCCESS));
+  },
 
   getAllAdmins: async (req, res) => {
     try {
@@ -210,7 +264,7 @@ module.exports = {
         updatedAt,
         ...deletedAdmin
       } = admin.dataValues;
-      await admin.destroy({ where: { id: adminId } });
+      await admin.destroy({ where: { id: admin.id } });
       res
         .status(statusCode.OK)
         .send(

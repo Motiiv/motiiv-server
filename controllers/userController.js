@@ -320,7 +320,7 @@ module.exports = {
         ],
       });
       return res
-        .cookie("userToken", accessToken, { httpOnly: true })
+        .cookie("userToken", accessToken)
         .status(statusCode.OK)
         .send(
           util.success(
