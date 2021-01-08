@@ -30,8 +30,10 @@ app.use(
 );
 
 app.use((req, res, next) => {
-  res.append("Access-Control-Allow-Headers", "Set-Cookie");
-  res.append("Access-Control-Expose-Headers", "Set-Cookie");
+  // res.append("Access-Control-Allow-Headers", "Set-Cookie");
+  // res.append("Access-Control-Expose-Headers", "Set-Cookie");
+  res.setHeader("Access-Control-Allow-Origin", "localhost:3000");
+  res.setHeader("Access-Control-Allow-Credentials", "true");
   next();
 });
 
