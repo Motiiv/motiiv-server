@@ -29,6 +29,11 @@ app.use(
   }),
 );
 
+app.set({
+  "Access-Control-Allow-Headers": "Set-Cookie",
+  "Access-Control-Expose-Headers": "Set-Cookie",
+});
+
 // view engine setup
 app.set("views", path.join(__dirname, "views"));
 app.set("view engine", "jade");
