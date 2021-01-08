@@ -1,33 +1,8 @@
-const {
-  User,
-  Video,
-  Workspace,
-  Keyword,
-  User_Keyword,
-  Job,
-} = require("../models");
+const { User, Keyword, User_Keyword, Job } = require("../models");
 const jwt = require("../middlewares/jwt");
 const responseMessage = require("../modules/responseMessage");
 const statusCode = require("../modules/statusCode");
 const util = require("../modules/util");
-const axios = require("axios");
-const qs = require("qs");
-const {
-  KAKAO_ID,
-  KAKAO_SECRET,
-  KAKAO_REDIRECT_URI,
-} = require("../config/kakao");
-const {
-  NAVER_ID,
-  NAVER_SECRET,
-  NAVER_STATE,
-  NAVER_REDIRECT_URI,
-} = require("../config/naver");
-
-const BASE_URL =
-  process.env.NODE_ENV === "production"
-    ? "http://52.78.212.95:3004/motiiv/api/v1"
-    : "http://127.0.0.1:3004/motiiv/api/v1";
 
 module.exports = {
   // kakaoLogin: (req, res) => {
@@ -214,7 +189,7 @@ module.exports = {
       const { accessToken } = await jwt.sign(user);
       res
         .status(statusCode.OK)
-        .cookie("userToken", accessToken, { httpOnly: true })
+        .cookie("userToken", accessToken)
         .send(util.success(statusCode.OK, responseMessage.LOGIN_SUCCESS, user));
     } catch (error) {
       console.log(error);
@@ -243,7 +218,6 @@ module.exports = {
       !profileImageUrl ||
       !snsId ||
       !socialType ||
-      !jobName ||
       !keywordNames
     ) {
       return res
@@ -260,27 +234,33 @@ module.exports = {
           .send(util.fail(statusCode.OK, responseMessage.ALREADY_USER));
       }
       const keywordIds = [];
-      for (let i = 0; i < keywordNames.length; i++) {
-        const keyword = await Keyword.findOne({
-          where: { name: keywordNames[i] },
-        });
-        if (!keyword) {
+      if (keywordNames) {
+        for (let i = 0; i < keywordNames.length; i++) {
+          const keyword = await Keyword.findOne({
+            where: { name: keywordNames[i] },
+          });
+          if (!keyword) {
+            return res
+              .status(statusCode.BAD_REQUEST)
+              .send(
+                util.fail(
+                  statusCode.BAD_REQUEST,
+                  responseMessage.NO_SUCH_KEYWORD,
+                ),
+              );
+          }
+          keywordIds.push(keyword.id);
+        }
+      }
+      if (jobName) {
+        const job = await Job.findOne({ where: { name: jobName } });
+        if (!job) {
           return res
             .status(statusCode.BAD_REQUEST)
             .send(
-              util.fail(
-                statusCode.BAD_REQUEST,
-                responseMessage.NO_SUCH_KEYWORD,
-              ),
+              util.fail(statusCode.BAD_REQUEST, responseMessage.NO_SUCH_JOB),
             );
         }
-        keywordIds.push(keyword.id);
-      }
-      const job = await Job.findOne({ where: { name: jobName } });
-      if (!job) {
-        return res
-          .status(statusCode.BAD_REQUEST)
-          .send(util.fail(statusCode.BAD_REQUEST, responseMessage.NO_SUCH_JOB));
       }
       const newUser = await User.create({
         username,
@@ -290,14 +270,16 @@ module.exports = {
       });
       newUser.JobId = job.id;
       await newUser.save();
-      await Promise.all(
-        keywordIds.map(async (keywordId) => {
-          await User_Keyword.create({
-            UserId: newUser.id,
-            KeywordId: keywordId,
-          });
-        }),
-      );
+      if (keywordNames) {
+        await Promise.all(
+          keywordIds.map(async (keywordId) => {
+            await User_Keyword.create({
+              UserId: newUser.id,
+              KeywordId: keywordId,
+            });
+          }),
+        );
+      }
 
       const { accessToken } = await jwt.sign(newUser);
       const newUserInfo = await User.findOne({
@@ -320,7 +302,7 @@ module.exports = {
         ],
       });
       return res
-        .cookie("userToken", accessToken, { httpOnly: true })
+        .cookie("userToken", accessToken)
         .status(statusCode.OK)
         .send(
           util.success(
