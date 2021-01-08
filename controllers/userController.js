@@ -190,8 +190,6 @@ module.exports = {
       res
         .status(statusCode.OK)
         .cookie("userToken", accessToken)
-        .setHeader("Access-Control-Allow-Origin", "localhost:3000")
-        .setHeader("Access-Control-Allow-Credentials", "true")
         .send(util.success(statusCode.OK, responseMessage.LOGIN_SUCCESS, user));
     } catch (error) {
       console.log(error);
