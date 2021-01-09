@@ -74,8 +74,7 @@ module.exports = {
 
   // 2군 세션 추천하기 (관심사 / 직군 기반)
   recommanVideos: async (req, res) => {
-    const user = req.user;
-    console.log(user);
+    const user = req.body.userId;
 
     try {
       // 사용자 관심사 불러오기
@@ -83,10 +82,16 @@ module.exports = {
         where: {
           UserId: user
         },
-        attributes: ["keywordId"]
+        attributes: ["keywordId"],
+        through: { attributes: [] }
       });
       //사용자 관심사 id값 불러오기 
       const userInterestId = userInterst.map((item) => item.dataValues.keywordId);
+
+      // if 사용자 관심사가 없다면 베드 리퀘스트값 리턴
+      if (!userInterestId) {
+
+      }
 
       //관심사 id가 가진 태그 불러오기
       const getTags = await Tag.findAll({
@@ -110,7 +115,7 @@ module.exports = {
         4. 영상 랜덤하게 리턴
       */
 
-      // 1. 사용자 관심 직군 찾기
+      // 1. user 직군 불러오기
       const userJob = await User.findOne({
         where: { id: user }
       });
@@ -118,7 +123,8 @@ module.exports = {
       console.log("job ID");
       console.log(userJobId);
 
-      // 2. 직군의 이름 찾기
+
+
       const findJobName = await Job.findOne({
         where: { id: userJobId },
         attributes: ["name"]
@@ -135,23 +141,29 @@ module.exports = {
 
       // 4. 해당 태그를 가진 비디오 id찾기
       const tagedVideos = await Video_Tag.findAll({
-        where: { TagId: jobTagId }
+        where: { TagId: jobTagId },
       });
       const tagedVideosId = tagedVideos.map((item) => item.dataValues.VideoId);
       console.log(tagedVideosId);
 
-      const jobVideos = await Video.findAll({
+      jobVideos = await Video.findAll({
         where: { id: tagedVideosId },
         attributes: ["id", "title", "videoLength", "thumbnailImageUrl", "viewCount", "channelName"],
         include: [
           {
             model: Tag,
-            as: "TaggedVideos",
+            as: "VideoTags",
             attributes: ["id", "name"],
             through: { attributes: [] },
           }
         ],
       });
+      //10개 미만인 경우 동영상 추가
+
+
+      // 2. 직군의 이름 찾기
+
+
 
 
       // 2-2군: 사용자 관심사 기반 유사한 영상 추천하기 
@@ -234,7 +246,6 @@ module.exports = {
       });
 
 
-
       return res
         .status(sc.OK)
         .send(ut.success(sc.OK, rm.GET_VIDEO_RECOMMAND_SUCCESS, { jobVideos, recommandVideos, checkHomeSection }));
@@ -251,6 +262,7 @@ module.exports = {
   //홈화면 비디오 읽기
   bannerVideos: async (req, res) => {
     const video = req.query.filters;
+
     try {
       // 전체 비디오 불러오기
       const video = await Video.findAll({
@@ -268,11 +280,11 @@ module.exports = {
         include: [
           {
             model: Tag,
-            as: "TaggedVideos",
+            as: "VideoTags",
             attributes: ["id", "name"],
             through: { attributes: [] },
           }
-        ],
+        ]
       });
 
       //Top10 동영상
@@ -329,7 +341,7 @@ module.exports = {
         include: [
           {
             model: Tag,
-            as: "TaggedVideos",
+            as: "VideoTags",
             attributes: ["id", "name"],
             through: { attributes: [] },
           },
@@ -363,7 +375,7 @@ module.exports = {
         include: [
           {
             model: Tag,
-            as: "TaggedVideos",
+            as: "VideoTags",
             attributes: ["id", "name"],
             through: { attributes: [] },
           },
@@ -387,12 +399,144 @@ module.exports = {
     }
   },
 
-  getUseRecommandVideos: async (req, res) => {
-    const id = req.body.userId;
+  getMyMotiiv: async (req, res) => {
+    const user = req.body.userId;
 
+    try {
+      /* 1. 가장 많이 본 모티브 */
+      const mostViewMy = await View.findAll({
+        attributes: ["VideoId", "UserCnt"],
+        where: {
+          UserId: user
+        }
+      });
+
+      const most_map = new Map();
+      mostViewMy.map((view) => {
+        most_map.set(view.VideoId, view.UserCnt);
+      });
+      const mostViewMyId = mostViewMy.map((item) => item.dataValues.VideoId)
+
+      const mostViewMyMotiiv = await Video.findAll({
+        attributes: ['id', 'title', 'videoLength', 'thumbnailImageUrl', 'viewCount', 'channelName'],
+        where: {
+          id: mostViewMyId
+        },
+        include: [
+          {
+            model: Tag,
+            as: "VideoTags",
+            attributes: ["id", "name"],
+            through: { attributes: [] },
+          }
+        ],
+      });
+
+      mostViewMyMotiiv.map((mostViewed, i) => {
+        const UserCnt = most_map.get(mostViewed.dataValues.id);
+        mostViewMyMotiiv[i].dataValues.UserCnt = UserCnt;
+      });
+
+      const mostViewSort = mostViewMyMotiiv.sort((a, b) => {
+        return b.dataValues.UserCnt - a.dataValues.UserCnt;
+      });
+
+      // 내림차순 or 오름차순
+      //사용자 시청 기록 불러오기
+
+      /* 2. 내가 저장한 모티브 */
+      const savedMotiiv = await Save.findAll({
+        attributes: ['VideoId', 'createdAt'],
+        where: {
+          UserId: user
+        },
+      });
+      const save_map = new Map();
+      savedMotiiv.map((save) => {
+        save_map.set(save.VideoId, save.createdAt);
+      });
+      const savedMotiivId = savedMotiiv.map((item) => item.dataValues.VideoId);
+
+      const recentSavedVideos = await Video.findAll({
+        // 배열
+        attributes: ['id', 'title', 'videoLength', 'thumbnailImageUrl', 'viewCount', 'channelName'],
+        where: {
+          id: savedMotiivId,
+        },
+        include: [
+          {
+            model: Tag,
+            as: "VideoTags",
+            attributes: ["id", "name"],
+            through: { attributes: [] },
+          }
+        ],
+      });
+
+      recentSavedVideos.map((savedvideo, i) => {
+        const createdAt = save_map.get(savedvideo.dataValues.id); // updatedAt
+        recentSavedVideos[i].dataValues.createdAt = createdAt;
+      });
+
+      const savedResult = recentSavedVideos.sort((a, b) => {
+        return b.createdAt - a.createdAt;
+      });
+
+      /* 3.최근 재생한 모티브 */
+      const recentViews = await View.findAll({
+        attributes: ['VideoId', 'updatedAt'],
+        where: {
+          UserId: user,
+        },
+      });
+      const view_map = new Map();
+      recentViews.map((view) => {
+        view_map.set(view.VideoId, view.updatedAt);
+      });
+      const recentViewId = recentViews.map((item) => item.dataValues.VideoId);
+
+      const recentViewVideos = await Video.findAll({
+        // 배열
+        attributes: ['id', 'title', 'videoLength', 'thumbnailImageUrl', 'viewCount', 'channelName'],
+        where: {
+          id: recentViewId,
+        },
+        include: [
+          {
+            model: Tag,
+            as: "VideoTags",
+            attributes: ["id", "name"],
+            through: { attributes: [] },
+          }
+        ],
+      });
+
+      recentViewVideos.map((viewVideo, i) => {
+        const updatedAt = view_map.get(viewVideo.dataValues.id); // updatedAt
+        recentViewVideos[i].dataValues.updatedAt = updatedAt;
+      });
+
+      const recentViewSort = recentViewVideos.sort((a, b) => {
+        return b.updatedAt - a.updatedAt;
+      });
+
+      return res
+        .status(sc.OK)
+        .send(
+          ut.success(sc.OK, rm.GET_ALL_POST_SUCCESS, {
+            mostViewSort,
+            savedResult,
+            recentViewSort
+          }),
+        );
+
+    } catch (err) {
+      console.log(err)
+      return res
+        .status(sc.INTERNAL_SERVER_ERROR)
+        .send(ut.fail(sc.INTERNAL_SERVER_ERROR, rm.GET_VIDEO_DETAIL_FAIL));
+    }
   },
-
-
 
   // 동영상 디테일
   getDetail: async (req, res) => {
@@ -427,7 +571,7 @@ module.exports = {
         include: [
           {
             model: Tag,
-            as: "TaggedVideos",
+            as: "VideoTags",
             attributes: ["id", "name"],
             through: { attributes: [] },
           },
@@ -446,17 +590,31 @@ module.exports = {
       );
 
       // View 테이블 사용자별 비디오 조회수 저장
-      const viewcount = await View.findAll({
+      const viewcount = await View.findOne({
         where: {
           VideoId: video,
           UserId: user,
         },
+        attributes: ["UserCnt"],
       });
+
 
       // 테이블에 중복이 없을 경우 View에 비디오, 사용자 추가
       if (!viewcount) {
         const viewcount = await View.create({ VideoId: video, UserId: user });
-      }
+      } else {
+        const usercnts = viewcount.UserCnt + 1;
+        await View.update({
+          UserCnt: usercnts,
+        },
+          {
+            where: {
+              VideoId: video,
+              UserId: user
+            }
+          })
+      };
+
 
       /* 추천 영상 불러오기 */
 
@@ -474,7 +632,7 @@ module.exports = {
       console.log(alreadyWatchedId);
 
       // Case2. 해당 영상의 태그를 가진 다른 영상 (포함)
-      const taggedVideos = details.dataValues.TaggedVideos;
+      const taggedVideos = details.dataValues.VideoTags;
       const tagId = taggedVideos.map((item) => item.dataValues.id);
 
       // 유사 태그 동영상 불러오기
@@ -484,7 +642,7 @@ module.exports = {
         },
         attributes: [sequelize.fn("DISTINCT", "Video_Tag.VideoId"), "VideoId"],
         order: sequelize.literal("rand()"),
-        limit: 5,
+        limit: 10,
       });
       const similarTags = similarTag.map((item) => item.dataValues.VideoId);
 
@@ -505,13 +663,14 @@ module.exports = {
         },
         attributes: ["id", "title", "videoUrl", "thumbnailImageUrl"],
         order: sequelize.literal("rand()"),
+        limit: 10
       });
       recommands = recommandVideos.map((item) => item.dataValues.id);
       console.log(recommands);
 
       recommandsLength = recommands.length;
 
-      if (recommandsLength < 4) {
+      if (recommandsLength < 10) {
         const otherVideos = await Video.findAll({
           where: {
             id: {
@@ -523,7 +682,7 @@ module.exports = {
           },
           attributes: ["id", "title", "videoUrl", "thumbnailImageUrl"],
           order: sequelize.literal("rand()"),
-          limit: 4 - recommandsLength,
+          limit: 10 - recommandsLength,
         });
         //여기서도 동영상 수가 적으면 이미 본 영상에서 가져와야 하는 로직 추가
         recommandVideos.push(...otherVideos);
@@ -563,6 +722,8 @@ module.exports = {
         .send(ut.fail(sc.INTERNAL_SERVER_ERROR, rm.POST_VIDEO_LIKE_FAIL));
     }
   },
+
+
 
   //좋아요 취소
   deleteLike: async (req, res) => {

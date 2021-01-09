@@ -19,6 +19,10 @@ module.exports = (sequelize, DataTypes) => {
                     key: "id",
                 },
             },
+            UserCnt: {
+                type: DataTypes.INTEGER,
+                allowNull: true,
+            }
         },
         {
             freezeTableName: true,

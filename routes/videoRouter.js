@@ -3,6 +3,9 @@ const videoRouter = express.Router();
 const videoController = require("../controllers/videoController");
 const authMiddleware = require("../middlewares/authMiddleware");
 
+//마이모티브 불러오기
+videoRouter.get("/myMotiiv", videoController.getMyMotiiv);
+
 //비디오 업로드
 videoRouter.post("/postVideo", videoController.postVideo);
 
@@ -10,10 +13,11 @@ videoRouter.post("/postVideo", videoController.postVideo);
 videoRouter.get("/getBanners", videoController.bannerVideos);
 
 //홈화면 추천 영상 불러오기
-videoRouter.get("/getRecommand", authMiddleware.checkToken("user"), videoController.recommanVideos);
+videoRouter.get("/getRecommand", videoController.recommanVideos);
 
 //디테일뷰 정보 불러오기
 videoRouter.get("/:videoId", videoController.getDetail);
+
 
 //좋아요 추가
 videoRouter.post(
