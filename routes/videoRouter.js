@@ -6,6 +6,9 @@ const authMiddleware = require("../middlewares/authMiddleware");
 //마이모티브 불러오기
 videoRouter.get("/myMotiiv", videoController.getMyMotiiv);
 
+//카테고리뷰 불러오기
+videoRouter.get("/category/:keyword/:filters", videoController.getCategory);
+
 //비디오 업로드
 videoRouter.post("/postVideo", videoController.postVideo);
 

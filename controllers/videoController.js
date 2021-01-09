@@ -14,7 +14,8 @@ const {
   Workspace,
   View,
   Job,
-  User_Keyword
+  User_Keyword,
+  Keyword
 } = require("../models");
 const { Sequelize } = require("sequelize");
 const { STRING } = require("sequelize");
@@ -483,6 +484,7 @@ module.exports = {
       });
 
       /* 3.최근 재생한 모티브 */
+
       const recentViews = await View.findAll({
         attributes: ['VideoId', 'updatedAt'],
         where: {
@@ -523,7 +525,7 @@ module.exports = {
       return res
         .status(sc.OK)
         .send(
-          ut.success(sc.OK, rm.GET_ALL_POST_SUCCESS, {
+          ut.success(sc.OK, rm.GET_MYMOTIIV_VIDEOS_SUCCESS, {
             mostViewSort,
             savedResult,
             recentViewSort
@@ -534,9 +536,130 @@ module.exports = {
       console.log(err)
       return res
         .status(sc.INTERNAL_SERVER_ERROR)
-        .send(ut.fail(sc.INTERNAL_SERVER_ERROR, rm.GET_VIDEO_DETAIL_FAIL));
+        .send(ut.fail(sc.INTERNAL_SERVER_ERROR, rm.GET_MYMOTIIV_VIDEOS_FAIL));
     }
   },
+
+  getCategory: async (req, res) => {
+    const keyword = req.params.keyword;
+    const filter = req.params.filters;
+
+    try {
+      let filterKeyword;
+      // 직군(keyword) 필터링 (keyword==0 => 전체보기)
+      if (keyword == 0) {
+        filterKeyword = await Video.findAll()
+      } else {
+        const filterKeywords = await Keyword.findAll({
+          where: { id: keyword }
+        });
+        const filterKeywordId = filterKeywords.map((item) => item.dataValues.id);
+
+        //keyword의 태그값 불러오기
+        const keywordTags = await Tag.findAll({
+          where: {
+            KeywordId: {
+              [Op.and]: [
+                { [Op.in]: filterKeywordId }
+              ],
+            }
+          },
+          attributes: ["id", "name"]
+        });
+        const keywordTagsId = keywordTags.map((item) => item.dataValues.id);
+
+        const getFilterVideo = await Video_Tag.findAll({
+          where: { TagId: keywordTagsId },
+          attributes: ["VideoId"]
+        });
+        const getFilterVideoId = getFilterVideo.map((item) => item.dataValues.VideoId);
+
+
+
+        if (filter == 'new') {
+          filterKeyword = await Video.findAll({
+            where: { id: getFilterVideoId },
+            attributes: ['id', 'title', 'videoLength', 'thumbnailImageUrl', 'viewCount', 'channelName', 'createdAt',
+            ],
+            include: [
+              {
+                model: Tag,
+                as: "VideoTags",
+                attributes: ["id", "name"],
+                through: { attributes: [] },
+              }
+            ],
+            order: [[sequelize.literal("createdAt"), "DESC"]],
+          });
+        } else if (filter == 'like') {
+          const mostLikeVideo = await Like.findAll({
+            group: ["VideoId"],
+            where: {
+              VideoId: getFilterVideoId
+            },
+            attributes: ["VideoId", [sequelize.fn("Count", "VideoId"), "likecnt"]],
+            through: { attributes: [] }
+          });
+
+          const like_map = new Map();
+          mostLikeVideo.map((like) => {
+            like_map.set(like.VideoId, like.likecnt);
+          });
+
+          const mostLikeId = mostLikeVideo.map((item) => item.dataValues.VideoId);
+
+          const sortLikeVideo = await Video.findAll({
+            attributes: ['id', 'title', 'videoLength', 'thumbnailImageUrl', 'viewCount', 'channelName', 'createdAt'],
+            include: [
+              {
+                model: Tag,
+                as: "VideoTags",
+                attributes: ["id", "name"],
+                through: { attributes: [] },
+              },
+              /*
+              {
+                model: User, 
+                as: "VideoLikers",
+                through: { model: Like, as: "VideoLikes"}               
+              }
+            ],
+            order: [[Sequelize.literal('`VideoLikers->VideoLikes`. `li`'), 'DESC']]
+            */
+            ]
+          });
+
+          sortLikeVideo.map((likevideo, i) => {
+            const likecnt = like_map.get(likevideo.dataValues.id);
+            sortLikeVideo[i].dataValues.likecnt = likecnt;
+          });
+
+          filterKeyword = sortLikeVideo.sort((a, b) => {
+            return b.likecnt - a.likecnt;
+          });
+
+
+        } else if (filter == 'save') {
+
+        }
+
+      };
+
+      return res
+        .status(sc.OK)
+        .send(
+          ut.success(sc.OK, rm.GET_MYMOTIIV_VIDEOS_SUCCESS, filterKeyword),
+        );
+    } catch (err) {
+      console.log(err)
+      return res
+        .status(sc.INTERNAL_SERVER_ERROR)
+        .send(ut.fail(sc.INTERNAL_SERVER_ERROR, rm.GET_ALL_CATEGORY_FAIL));
+    }
+  },
+
+
+
 
   // 동영상 디테일
   getDetail: async (req, res) => {

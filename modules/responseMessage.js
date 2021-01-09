@@ -126,4 +126,12 @@ module.exports = {
   /* 추천 영상 불러오기(홈) */
   GET_VIDEO_RECOMMAND_SUCCESS: "추천 영상 불러오기 성공",
   GET_VIDEO_RECOMMAND_FAIL: "추천 영상 불러오기 실패",
+
+  /* 마이모티브 동영상 불러오기 */
+  GET_MYMOTIIV_VIDEOS_SUCCESS: "마이모티브 영상 불러오기 성공",
+  GET_MYMOTIIV_VIDEOS_FAIL: "마이모티브 영상 불러오기 실패",
+
+  /* 카테고리 동영상 불러오기 */
+  GET_ALL_CATEGORY_SUCCESS: "모든 카테고리 불러오기 성공",
+  GET_ALL_CATEGORY_FAIL: "모든 카테고리 불러오기 실패"
 };
