@@ -541,6 +541,8 @@ module.exports = {
   },
 
   getCategory: async (req, res) => {
+    const DB_NAME =
+      process.env.NODE_ENV === "production" ? "MOTIIV_PROD" : "motiiv"
     const keyword = req.params.keyword;
     const filter = req.params.filters;
 
@@ -572,12 +574,11 @@ module.exports = {
           where: { TagId: keywordTagsId },
           attributes: ["VideoId"]
         });
-        const getFilterVideoId = getFilterVideo.map((item) => item.dataValues.VideoId);
-
-
+        const getFilterVideoIds = getFilterVideo.map((item) => item.dataValues.VideoId);
+        const getFilterVideoId = Array.from(new Set(getFilterVideoIds));
 
         if (filter == 'new') {
-          filterKeyword = await Video.findAll({
+          const newVideos = await Video.findAll({
             where: { id: getFilterVideoId },
             attributes: ['id', 'title', 'videoLength', 'thumbnailImageUrl', 'viewCount', 'channelName', 'createdAt',
             ],
@@ -591,60 +592,69 @@ module.exports = {
             ],
             order: [[sequelize.literal("createdAt"), "DESC"]],
           });
+          return res
+            .status(sc.OK)
+            .send(
+              ut.success(sc.OK, rm.GET_MYMOTIIV_VIDEOS_SUCCESS, newVideos),
+            );
         } else if (filter == 'like') {
-          const mostLikeVideo = await Like.findAll({
-            group: ["VideoId"],
-            where: {
-              VideoId: getFilterVideoId
-            },
-            attributes: ["VideoId", [sequelize.fn("Count", "VideoId"), "likecnt"]],
-            through: { attributes: [] }
-          });
-
-          const like_map = new Map();
-          mostLikeVideo.map((like) => {
-            like_map.set(like.VideoId, like.likecnt);
-          });
-
-          const mostLikeId = mostLikeVideo.map((item) => item.dataValues.VideoId);
-
           const sortLikeVideo = await Video.findAll({
-            attributes: ['id', 'title', 'videoLength', 'thumbnailImageUrl', 'viewCount', 'channelName', 'createdAt'],
-            include: [
-              {
-                model: Tag,
-                as: "VideoTags",
-                attributes: ["id", "name"],
-                through: { attributes: [] },
-              },
-              /*
-              {
-                model: User, 
-                as: "VideoLikers",
-                through: { model: Like, as: "VideoLikes"}               
-              }
+            where: {
+              id: getFilterVideoId
+            },
+            attributes: [
+              "id",
+              "title",
+              "videoLength",
+              "thumbnailImageUrl",
+              "viewCount",
+              "channelName",
+              "createdAt",
+              [
+                Sequelize.literal(
+                  `(SELECT COUNT(*) FROM ${DB_NAME}.Like WHERE ${DB_NAME}.Like.VideoId = ${DB_NAME}.Video.id)`,
+                ),
+                "LikeCount",
+              ],
             ],
-            order: [[Sequelize.literal('`VideoLikers->VideoLikes`. `li`'), 'DESC']]
-            */
-            ]
+            order: [[Sequelize.literal("LikeCount"), "DESC"]],
           });
-
-          sortLikeVideo.map((likevideo, i) => {
-            const likecnt = like_map.get(likevideo.dataValues.id);
-            sortLikeVideo[i].dataValues.likecnt = likecnt;
-          });
-
-          filterKeyword = sortLikeVideo.sort((a, b) => {
-            return b.likecnt - a.likecnt;
-          });
+          return res
+            .status(sc.OK)
+            .send(
+              ut.success(sc.OK, rm.GET_MYMOTIIV_VIDEOS_SUCCESS, sortLikeVideo),
+            );
 
 
         } else if (filter == 'save') {
-
+          const sortSaveVideo = await Video.findAll({
+            where: {
+              id: getFilterVideoId
+            },
+            attributes: [
+              "id",
+              "title",
+              "videoLength",
+              "thumbnailImageUrl",
+              "viewCount",
+              "channelName",
+              "createdAt",
+              [
+                Sequelize.literal(
+                  `(SELECT COUNT(*) FROM ${DB_NAME}.Save WHERE ${DB_NAME}.Save.VideoId = ${DB_NAME}.Video.id)`,
+                ),
+                "SaveCount",
+              ],
+            ],
+            order: [[Sequelize.literal("SaveCount"), "DESC"]],
+          });
+          return res
+            .status(sc.OK)
+            .send(
+              ut.success(sc.OK, rm.GET_MYMOTIIV_VIDEOS_SUCCESS, sortSaveVideo),
+            );
         }
-
       };
-
       return res
         .status(sc.OK)
         .send(
