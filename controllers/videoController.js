@@ -568,10 +568,15 @@ module.exports = {
     const filter = req.params.filters;
 
     try {
-      let filterKeyword;
+      let getFilterVideoId;
       // 직군(keyword) 필터링 (keyword==0 => 전체보기)
       if (keyword == 0) {
-        filterKeyword = await Video.findAll()
+        const filterKeywords = await Video.findAll({
+          attributes: ["id"]
+        });
+        const getFilterVideoIds = filterKeywords.map((item) => item.dataValues.id);
+        getFilterVideoId = Array.from(new Set(getFilterVideoIds));
+
       } else {
         const filterKeywords = await Keyword.findAll({
           where: { id: keyword }
@@ -587,7 +592,6 @@ module.exports = {
               ],
             }
           },
-          attributes: ["id", "name"]
         });
         const keywordTagsId = keywordTags.map((item) => item.dataValues.id);
 
@@ -596,108 +600,146 @@ module.exports = {
           attributes: ["VideoId"]
         });
         const getFilterVideoIds = getFilterVideo.map((item) => item.dataValues.VideoId);
-        const getFilterVideoId = Array.from(new Set(getFilterVideoIds));
-
-        if (filter == 'new') {
-          const newVideos = await Video.findAll({
-            where: { id: getFilterVideoId },
-            attributes: ['id', 'title', 'videoLength', 'thumbnailImageUrl', 'viewCount', 'channelName', "videoGif", 'createdAt',
-            ],
-            include: [
-              {
-                model: Tag,
-                as: "VideoTags",
-                attributes: ["id", "name"],
-                through: { attributes: [] },
-              }
-            ],
-            order: [[sequelize.literal("createdAt"), "DESC"]],
-          });
-          return res
-            .status(sc.OK)
-            .send(
-              ut.success(sc.OK, rm.GET_MYMOTIIV_VIDEOS_SUCCESS, newVideos),
-            );
-        } else if (filter == 'like') {
-          const sortLikeVideo = await Video.findAll({
-            where: {
-              id: getFilterVideoId
-            },
-            attributes: [
-              "id",
-              "title",
-              "videoLength",
-              "thumbnailImageUrl",
-              "viewCount",
-              "videoGif",
-              "channelName",
-              "createdAt",
-              [
-                Sequelize.literal(
-                  `(SELECT COUNT(*) FROM ${DB_NAME}.Like WHERE ${DB_NAME}.Like.VideoId = ${DB_NAME}.Video.id)`,
-                ),
-                "LikeCount",
-              ],
-            ],
-            order: [[Sequelize.literal("LikeCount"), "DESC"]],
-          });
-          return res
-            .status(sc.OK)
-            .send(
-              ut.success(sc.OK, rm.GET_MYMOTIIV_VIDEOS_SUCCESS, sortLikeVideo),
-            );
-
-        } else if (filter == 'save') {
-          const sortSaveVideo = await Video.findAll({
-            where: {
-              id: getFilterVideoId
-            },
-            attributes: [
-              "id",
-              "title",
-              "videoLength",
-              "thumbnailImageUrl",
-              "viewCount",
-              "videoGif",
-              "channelName",
-              "createdAt",
-              [
-                Sequelize.literal(
-                  `(SELECT COUNT(*) FROM ${DB_NAME}.Save WHERE ${DB_NAME}.Save.VideoId = ${DB_NAME}.Video.id)`,
-                ),
-                "SaveCount",
-              ],
-            ],
-            order: [[Sequelize.literal("SaveCount"), "DESC"]],
-          });
-          return res
-            .status(sc.OK)
-            .send(
-              ut.success(sc.OK, rm.GET_MYMOTIIV_VIDEOS_SUCCESS, sortSaveVideo),
-            );
-        } else if (filter == 'view') {
-          const sortView = await Video.findAll({
-            where: { id: getFilterVideoId },
-            attributes: ['id', 'title', 'videoLength', 'thumbnailImageUrl', 'viewCount', 'channelName', "videoGif", 'createdAt',
-            ],
-            include: [
-              {
-                model: Tag,
-                as: "VideoTags",
-                attributes: ["id", "name"],
-                through: { attributes: [] },
-              }
-            ],
-            order: [[sequelize.literal("viewCount"), "DESC"]],
-          });
-          return res
-            .status(sc.OK)
-            .send(
-              ut.success(sc.OK, rm.GET_MYMOTIIV_VIDEOS_SUCCESS, sortView),
-            );
-        }
+        getFilterVideoId = Array.from(new Set(getFilterVideoIds));
       }
-    } catch (err) {
+
+
+      if (filter == 'new') {
+        const filteredVideo = await Video.findAll({
+          group: ["id"],
+          where: { id: getFilterVideoId },
+          attributes: ['id', 'title', 'videoLength', 'thumbnailImageUrl', 'viewCount', 'channelName', "videoGif", 'createdAt',
+          ],
+          include: [
+            {
+              model: Tag,
+              as: "VideoTags",
+              attributes: ["id", "name"],
+              through: { attributes: [] },
+            }
+          ],
+          order: [[sequelize.literal("createdAt"), "DESC"]],
+        });
+        const calCnt = filteredVideo.map((item) => item.dataValues.id);
+        const videoCnt = calCnt.length;
+
+        return res
+          .status(sc.OK)
+          .send(
+            ut.success(sc.OK, rm.GET_MYMOTIIV_VIDEOS_SUCCESS, { filteredVideo, videoCnt }),
+          );
+      } else if (filter == 'like') {
+        const filteredVideo = await Video.findAll({
+          where: {
+            id: getFilterVideoId
+          },
+          attributes: [
+            "id",
+            "title",
+            "videoLength",
+            "thumbnailImageUrl",
+            "viewCount",
+            "videoGif",
+            "channelName",
+            "createdAt",
+            [
+              Sequelize.literal(
+                `(SELECT COUNT(*) FROM ${DB_NAME}.Like WHERE ${DB_NAME}.Like.VideoId = ${DB_NAME}.Video.id)`,
+              ),
+              "LikeCount",
+            ],
+          ],
+          order: [[Sequelize.literal("LikeCount"), "DESC"]],
+          include: [
+            {
+              model: Tag,
+              as: "VideoTags",
+              attributes: ["id", "name"],
+              through: { attributes: [] },
+            }
+          ],
+        });
+        const calCnt = filteredVideo.map((item) => item.dataValues.id);
+        const videoCnt = calCnt.length;
+
+        return res
+          .status(sc.OK)
+          .send(
+            ut.success(sc.OK, rm.GET_MYMOTIIV_VIDEOS_SUCCESS, { filteredVideo, videoCnt }),
+          );
+
+      } else if (filter == 'save') {
+        const filteredVideo = await Video.findAll({
+          where: {
+            id: getFilterVideoId
+          },
+          attributes: [
+            "id",
+            "title",
+            "videoLength",
+            "thumbnailImageUrl",
+            "viewCount",
+            "videoGif",
+            "channelName",
+            "createdAt",
+            [
+              Sequelize.literal(
+                `(SELECT COUNT(*) FROM ${DB_NAME}.Save WHERE ${DB_NAME}.Save.VideoId = ${DB_NAME}.Video.id)`,
+              ),
+              "SaveCount",
+            ],
+          ],
+          order: [[Sequelize.literal("SaveCount"), "DESC"]],
+          include: [
+            {
+              model: Tag,
+              as: "VideoTags",
+              attributes: ["id", "name"],
+              through: { attributes: [] },
+            }
+          ],
+        });
+        const calCnt = filteredVideo.map((item) => item.dataValues.id);
+        const videoCnt = calCnt.length;
+
+        return res
+          .status(sc.OK)
+          .send(
+            ut.success(sc.OK, rm.GET_MYMOTIIV_VIDEOS_SUCCESS, { filteredVideo, videoCnt }),
+          );
+      } else if (filter == 'view') {
+        const filteredVideo = await Video.findAll({
+          where: { id: getFilterVideoId },
+          attributes: ['id', 'title', 'videoLength', 'thumbnailImageUrl', 'viewCount', 'channelName', "videoGif", 'createdAt',
+          ],
+          include: [
+            {
+              model: Tag,
+              as: "VideoTags",
+              attributes: ["id", "name"],
+              through: { attributes: [] },
+            }
+          ],
+          order: [[sequelize.literal("viewCount"), "DESC"]],
+          include: [
+            {
+              model: Tag,
+              as: "VideoTags",
+              attributes: ["id", "name"],
+              through: { attributes: [] },
+            }
+          ],
+        });
+        const calCnt = filteredVideo.map((item) => item.dataValues.id);
+        const videoCnt = calCnt.length;
+        return res
+          .status(sc.OK)
+          .send(
+            ut.success(sc.OK, rm.GET_MYMOTIIV_VIDEOS_SUCCESS, { filteredVideo, videoCnt }),
+          );
+      }
+    }
+    catch (err) {
       console.log(err)
       return res
         .status(sc.INTERNAL_SERVER_ERROR)
@@ -705,6 +747,40 @@ module.exports = {
     }
   },
 
+  // 태그 비디오 불러오기
+
+  TagVideo: async (req, res) => {
+    try {
+      const tag = req.params.tagId;
+      const findTagVideo = await Tag.findAll({
+        attributes: { exclude: ["createdAt", "updatedAt", "KeywordId"] },
+        include: [{
+          model: Video,
+          as: "TaggedVideos",
+          attributes: ['id', 'title', 'videoLength', 'thumbnailImageUrl', 'viewCount', 'channelName', "videoGif", 'createdAt',],
+          through: { attributes: [] },
+          include: [{
+            model: Tag,
+            as: "VideoTags",
+            attributes: ["id", "name"],
+            through: { attributes: [] },
+          }]
+        }],
+        where: { id: tag },
+        through: { attributes: [] },
+      });
+      return res
+        .status(sc.OK)
+        .send(
+          ut.success(sc.OK, rm.GET_CATEGORY_TAGS_SUCCESS, ...findTagVideo),
+        );
+    } catch (err) {
+      console.log(err)
+      return res
+        .status(sc.INTERNAL_SERVER_ERROR)
+        .send(ut.fail(sc.INTERNAL_SERVER_ERROR, rm.GET_CATEGORY_TAGS_FAIL));
+    }
+  },
 
   // 동영상 디테일
   getDetail: async (req, res) => {
@@ -809,7 +885,7 @@ module.exports = {
         },
         attributes: [sequelize.fn("DISTINCT", "Video_Tag.VideoId"), "VideoId"],
         order: sequelize.literal("rand()"),
-        limit: 4,
+        limit: 6,
       });
       const similarTags = similarTag.map((item) => item.dataValues.VideoId);
       alreadyWatchedId.push(video);
@@ -826,13 +902,13 @@ module.exports = {
         },
         attributes: ["id", "title", "videoUrl", "thumbnailImageUrl", "videoLength", "videoGif"],
         order: sequelize.literal("rand()"),
-        limit: 4
+        limit: 6
       });
       recommands = recommandVideos.map((item) => item.dataValues.id);
 
       recommandsLength = recommands.length;
 
-      if (recommandsLength < 4) {
+      if (recommandsLength < 6) {
         const otherVideos = await Video.findAll({
           where: {
             id: {
@@ -844,7 +920,7 @@ module.exports = {
           },
           attributes: ["id", "title", "videoUrl", "thumbnailImageUrl", "videoLength", "videoGif"],
           order: sequelize.literal("rand()"),
-          limit: 4 - recommandsLength,
+          limit: 6 - recommandsLength,
         });
         //여기서도 동영상 수가 적으면 이미 본 영상에서 가져와야 하는 로직 추가
         recommandVideos.push(...otherVideos);
