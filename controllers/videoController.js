@@ -804,6 +804,7 @@ module.exports = {
           id: video,
         },
         attributes: [
+          "id",
           "title",
           "description",
           "videoUrl",
