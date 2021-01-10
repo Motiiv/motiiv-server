@@ -138,9 +138,13 @@ module.exports = {
   GET_ALL_CATEGORY_SUCCESS: "모든 카테고리 불러오기 성공",
   GET_ALL_CATEGORY_FAIL: "모든 카테고리 불러오기 실패",
 
-  /* 카테코기 키워드 불러오기 */
+  /* 카테고리 키워드 불러오기 */
   GET_KEYWORD_CATEGORY_SUCCESS: "키워드 불러오기 성공",
-  GET_KEYWORD_CATEGORY_FAIL: "키워드 불러오기 실패"
+  GET_KEYWORD_CATEGORY_FAIL: "키워드 불러오기 실패",
+
+  /* 카테고리 태그 검색 */
+  GET_CATEGORY_TAGS_SUCCESS: "태그 검색하기 성공",
+  GET_CATEGORY_TAGS_FAIL: "태그 검색하기 실패"
 
 
 };

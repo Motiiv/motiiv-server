@@ -747,6 +747,40 @@ module.exports = {
     }
   },
 
+  // 태그 비디오 불러오기
+
+  TagVideo: async (req, res) => {
+    try {
+      const tag = req.params.tagId;
+      const findTagVideo = await Tag.findAll({
+        attributes: { exclude: ["createdAt", "updatedAt", "KeywordId"] },
+        include: [{
+          model: Video,
+          as: "TaggedVideos",
+          attributes: ['id', 'title', 'videoLength', 'thumbnailImageUrl', 'viewCount', 'channelName', "videoGif", 'createdAt',],
+          through: { attributes: [] },
+          include: [{
+            model: Tag,
+            as: "VideoTags",
+            attributes: ["id", "name"],
+            through: { attributes: [] },
+          }]
+        }],
+        where: { id: tag },
+        through: { attributes: [] },
+      });
+      return res
+        .status(sc.OK)
+        .send(
+          ut.success(sc.OK, rm.GET_CATEGORY_TAGS_SUCCESS, ...findTagVideo),
+        );
+    } catch (err) {
+      console.log(err)
+      return res
+        .status(sc.INTERNAL_SERVER_ERROR)
+        .send(ut.fail(sc.INTERNAL_SERVER_ERROR, rm.GET_CATEGORY_TAGS_FAIL));
+    }
+  },
 
   // 동영상 디테일
   getDetail: async (req, res) => {
