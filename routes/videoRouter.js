@@ -40,6 +40,7 @@ videoRouter.get(
 
 //디테일뷰 정보 불러오기
 videoRouter.get("/:videoId",
+  authMiddleware.handleRequestWithoutUserToken,
   authMiddleware.checkToken("user"),
   videoController.getDetail);
 
