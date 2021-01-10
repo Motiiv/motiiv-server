@@ -15,9 +15,9 @@ module.exports = {
     return async (req, res, next) => {
       let token;
       if (role === "admin") {
-        token = req.headers.adminToken;
+        token = req.headers.admintoken;
       } else if (role === "user") {
-        token = req.headers.userToken;
+        token = req.headers.usertoken;
       }
       if (!token) {
         return res
