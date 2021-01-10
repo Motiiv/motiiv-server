@@ -701,12 +701,10 @@ module.exports = {
   },
 
 
-
-
   // 동영상 디테일
   getDetail: async (req, res) => {
     const video = req.params.videoId;
-    const { user } = req.user;
+    const { id: user } = req.user;
 
     //video id check
     if (!video) {
@@ -793,8 +791,6 @@ module.exports = {
       const alreadyWatchedId = alreadyWatched.map(
         (item) => item.dataValues.VideoId,
       );
-      console.log("이미 시청한 영상");
-      console.log(alreadyWatchedId);
 
       // Case2. 해당 영상의 태그를 가진 다른 영상 (포함)
       const taggedVideos = details.dataValues.VideoTags;
@@ -807,13 +803,9 @@ module.exports = {
         },
         attributes: [sequelize.fn("DISTINCT", "Video_Tag.VideoId"), "VideoId"],
         order: sequelize.literal("rand()"),
-        limit: 10,
+        limit: 4,
       });
       const similarTags = similarTag.map((item) => item.dataValues.VideoId);
-
-      console.log("비슷한 태그의 비디오들");
-      console.log(similarTags);
-
       alreadyWatchedId.push(video);
 
       // Case1,2를 제외한 추천 영상 불러오기 (제외:현재 동영상, 이미 본 영상, 추가: 유사 태그)
@@ -828,14 +820,13 @@ module.exports = {
         },
         attributes: ["id", "title", "videoUrl", "thumbnailImageUrl"],
         order: sequelize.literal("rand()"),
-        limit: 10
+        limit: 4
       });
       recommands = recommandVideos.map((item) => item.dataValues.id);
-      console.log(recommands);
 
       recommandsLength = recommands.length;
 
-      if (recommandsLength < 10) {
+      if (recommandsLength < 4) {
         const otherVideos = await Video.findAll({
           where: {
             id: {
@@ -847,7 +838,7 @@ module.exports = {
           },
           attributes: ["id", "title", "videoUrl", "thumbnailImageUrl"],
           order: sequelize.literal("rand()"),
-          limit: 10 - recommandsLength,
+          limit: 4 - recommandsLength,
         });
         //여기서도 동영상 수가 적으면 이미 본 영상에서 가져와야 하는 로직 추가
         recommandVideos.push(...otherVideos);
