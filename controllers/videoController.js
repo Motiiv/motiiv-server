@@ -75,8 +75,7 @@ module.exports = {
 
   // 2군 세션 추천하기 (관심사 / 직군 기반)
   recommanVideos: async (req, res) => {
-    const user = req.body.userId;
-
+    const { id: user } = req.user;
     try {
       // 사용자 관심사 불러오기
       const userInterst = await User_Keyword.findAll({
@@ -401,7 +400,7 @@ module.exports = {
   },
 
   getMyMotiiv: async (req, res) => {
-    const user = req.body.userId;
+    const { id: user } = req.user;
 
     try {
       /* 1. 가장 많이 본 모티브 */
@@ -673,7 +672,7 @@ module.exports = {
   // 동영상 디테일
   getDetail: async (req, res) => {
     const video = req.params.videoId;
-    const user = req.body.userId;
+    const { user } = req.user;
 
     //video id check
     if (!video) {
@@ -843,7 +842,6 @@ module.exports = {
       const like = await Like.create({ VideoId: video, UserId: user });
 
       // 중복 처리 추가
-
       return res
         .status(sc.OK)
         .send(ut.success(sc.OK, rm.POST_VIDEO_LIKE_SUCCESS, like));
