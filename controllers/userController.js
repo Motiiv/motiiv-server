@@ -516,8 +516,6 @@ module.exports = {
 
   getUserProfile: async (req, res) => {
     const { id: userId } = req.user;
-    const { userToken } = req.cookies;
-    console.log(userToken);
     try {
       const profile = await User.findOne({
         where: { id: userId },
