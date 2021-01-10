@@ -996,12 +996,12 @@ module.exports = {
         });
         return res
           .status(sc.OK)
-          .send(ut.success(sc.OK, rm.POST_VIDEO_SAVE_SUCCESS));
+          .send(ut.success(sc.OK, rm.DELETE_VIDEO_SAVE_SUCCESS));
       } else {
         const save = await Save.create({ VideoId: video, UserId: user });
         return res
           .status(sc.OK)
-          .send(ut.success(sc.OK, rm.DELETE_VIDEO_SAVE_SUCCESS, save));
+          .send(ut.success(sc.OK, rm.POST_VIDEO_SAVE_SUCCESS, save));
       }
     } catch (err) {
       return res
