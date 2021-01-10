@@ -24,8 +24,6 @@ sequelize.query("SET FOREIGN_KEY_CHECKS = 0").then(() =>
 var app = express();
 app.use(cors());
 
-// app.set(res.append("Access-Control-Allow-Origin", true));
-
 // view engine setup
 app.set("views", path.join(__dirname, "views"));
 app.set("view engine", "jade");

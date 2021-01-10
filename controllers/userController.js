@@ -1,8 +1,19 @@
+const axios = require("axios");
+const qs = require("qs");
 const { User, Keyword, User_Keyword, Job } = require("../models");
 const jwt = require("../middlewares/jwt");
 const responseMessage = require("../modules/responseMessage");
 const statusCode = require("../modules/statusCode");
 const util = require("../modules/util");
+const {
+  NAVER_ID,
+  NAVER_SECRET,
+  NAVER_REDIRECT_URI,
+  NAVER_STATE,
+} = require("../config/naver");
+const request = require("request");
+const fetch = require("node-fetch");
+const { URLSearchParams } = require("url");
 
 module.exports = {
   // kakaoLogin: (req, res) => {
@@ -78,77 +89,149 @@ module.exports = {
   //     .redirect(backToClientURL);
   // },
 
-  // naverLogin: (req, res) => {
-  //   // const { backToClientURL } = req.body;
-  //   const backToClientURL = "http://127.0.0.1:3004/motiiv/api/v1/users";
-  //   const naverAuthUrl = `https://nid.naver.com/oauth2.0/authorize?client_id=${NAVER_ID}&redirect_uri=${NAVER_REDIRECT_URI}&response_type=code&state=${NAVER_STATE}`;
-  //   return res
-  //     .cookie("backToClientURL", backToClientURL)
-  //     .redirect(naverAuthUrl);
-  // },
+  naverProxy: (req, res) => {
+    return res.redirect("http://127.0.0.1:3004/motiiv/api/v1/users/auth/naver");
+  },
 
-  // naverLoginCallback: async (req, res) => {
-  //   const { code, state } = req.query;
-  //   const { backToClientURL } = req.cookies;
-  //   let tokenResponse;
-  //   try {
-  //     tokenResponse = await axios({
-  //       method: "POST",
-  //       url: "https://nid.naver.com/oauth2.0/token",
-  //       headers: {
-  //         "content-type": "application/x-www-form-urlencoded",
-  //       },
-  //       data: qs.stringify({
-  //         grant_type: "authorization_code",
-  //         client_id: NAVER_ID,
-  //         client_secret: NAVER_SECRET,
-  //         redirect_uri: NAVER_REDIRECT_URI,
-  //         state,
-  //         code,
-  //       }),
-  //     });
-  //   } catch (error) {
-  //     console.log(error);
-  //     return res.json(error.data);
-  //   }
-  //   console.info("==== tokenResponse.data ====");
+  naverLogin: (req, res) => {
+    // const { backToClientURL } = req.body;
+    const naverAuthUrl = `https://nid.naver.com/oauth2.0/authorize?client_id=${NAVER_ID}&redirect_uri=${NAVER_REDIRECT_URI}&response_type=code&state=${NAVER_STATE}`;
+    return res.redirect(naverAuthUrl);
+  },
 
-  //   const { access_token } = tokenResponse.data;
+  naverLoginCallback: async (req, res) => {
+    const { code, state } = req.query;
+    let tokenResponse;
+    try {
+      tokenResponse = await axios({
+        method: "POST",
+        url: "https://nid.naver.com/oauth2.0/token",
+        headers: {
+          "content-type": "application/x-www-form-urlencoded",
+        },
+        data: qs.stringify({
+          grant_type: "authorization_code",
+          client_id: NAVER_ID,
+          client_secret: NAVER_SECRET,
+          redirect_uri: NAVER_REDIRECT_URI,
+          state,
+          code,
+        }),
+      });
+      const params = new URLSearchParams();
+      params.append("grant_type", "authorization_code");
+      params.append("redirect_uri", NAVER_REDIRECT_URI);
+      params.append("client_id", NAVER_ID);
+      params.append("client_secret", NAVER_SECRET);
+      params.append("code", code);
+      params.append("state", state);
+      console.log(params);
+      const tokenData = await fetch("https://nid.naver.com/oauth2.0/token", {
+        method: "POST",
+        body: params,
+        headers: {
+          "content-type": "application/x-www-form-urlencoded",
+        },
+      });
+      // tokenResponse = await tokenData.json();
+    } catch (error) {
+      console.log(error);
+      return res.json(error.data);
+    }
+    console.info("==== tokenResponse.data ====");
 
-  //   let userResponse;
-  //   try {
-  //     userResponse = await axios({
-  //       method: "GET",
-  //       url: "https://openapi.naver.com/v1/nid/me",
-  //       headers: {
-  //         "content-type": "application/x-www-form-urlencoded",
-  //         Authorization: `Bearer ${access_token}`,
-  //       },
-  //     });
-  //   } catch (error) {
-  //     console.log(error);
-  //     return res.json(error.data);
-  //   }
-  //   console.info("==== userResponse.data ====");
-  //   const {
-  //     data: {
-  //       response: { name: username, profile_image: profileImageUrl, id: snsId },
-  //     },
-  //   } = userResponse;
-  //   const socialType = "naver";
+    const { access_token } = tokenResponse.data;
 
-  //   const socialInfo = {
-  //     username,
-  //     profileImageUrl,
-  //     snsId,
-  //     socialType,
-  //   };
-  //   return res
-  //     .cookie("socialInfo", socialInfo, { httpOnly: true })
-  //     .redirect(backToClientURL);
-  // },
+    let userResponse;
+    try {
+      // userResponse = await axios({
+      //   method: "GET",
+      //   url: "https://openapi.naver.com/v1/nid/me",
+      //   headers: {
+      //     "content-type": "application/x-www-form-urlencoded",
+      //     Authorization: `Bearer ${access_token}`,
+      //   },
+      // });
+      const userData = await fetch("https://openapi.naver.com/v1/nid/me", {
+        method: "GET",
+        headers: {
+          "content-type": "application/x-www-form-urlencoded",
+          Authorization: `Bearer ${access_token}`,
+        },
+      });
+      userResponse = await userData.json();
+    } catch (error) {
+      console.log(error);
+      return res.json(error.data);
+    }
+    console.info("==== userResponse.data ====");
+    const {
+      response: { name: username, profile_image: profileImageUrl, id: snsId },
+    } = userResponse;
+    const socialType = "naver";
+
+    const socialInfo = {
+      username,
+      profileImageUrl,
+      snsId,
+      socialType,
+    };
+    return res
+      .status(statusCode.OK)
+      .send(
+        util.success(
+          statusCode.OK,
+          responseMessage.GET_PROFILE_NAVER_SUCCESS,
+          socialInfo,
+        ),
+      );
+  },
 
   // TODO: Cleanup
+
+  getNaverProfile: async (req, res) => {
+    // const {access_token} = req.body
+    const { access_token } = req.body;
+
+    let userResponse;
+    try {
+      userResponse = await axios({
+        method: "GET",
+        url: "https://openapi.naver.com/v1/nid/me",
+        headers: {
+          "content-type": "application/x-www-form-urlencoded",
+          Authorization: `Bearer ${access_token}`,
+        },
+      });
+    } catch (error) {
+      console.log(error);
+      return res.json(error.data);
+    }
+    console.info("==== userResponse.data ====");
+    const {
+      data: {
+        response: { name: username, profile_image: profileImageUrl, id: snsId },
+      },
+    } = userResponse;
+    const socialType = "naver";
+
+    const socialInfo = {
+      username,
+      profileImageUrl,
+      snsId,
+      socialType,
+    };
+    return res
+      .status(statusCode.OK)
+      .send(
+        util.success(
+          statusCode.OK,
+          responseMessage.GET_PROFILE_NAVER_SUCCESS,
+          socialInfo,
+        ),
+      );
+  },
+
   login: async (req, res) => {
     const { snsId, socialType } = req.body;
     if (!snsId || !socialType) {
@@ -177,6 +260,8 @@ module.exports = {
         ],
       });
       if (!user) {
+        if (socialType === "naver") {
+        }
         return res
           .status(statusCode.NOT_FOUND)
           .send(
