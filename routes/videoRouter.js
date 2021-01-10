@@ -5,10 +5,10 @@ const authMiddleware = require("../middlewares/authMiddleware");
 
 
 //좋아요 추가/취소
-videoRouter.post("/like/:videoId", authMiddleware.checkToken("user"), videoController.likeControl);
+videoRouter.put("/like/:videoId", authMiddleware.checkToken("user"), videoController.likeControl);
 
 //비디오 저장 추가/취소
-videoRouter.post("/save/:videoId", authMiddleware.checkToken("user"), videoController.saveControl);
+videoRouter.put("/save/:videoId", authMiddleware.checkToken("user"), videoController.saveControl);
 
 //마이모티브 불러오기
 videoRouter.get(
