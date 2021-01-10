@@ -87,6 +87,9 @@ module.exports = {
       });
       //사용자 관심사 id값 불러오기 
       const userInterestId = userInterst.map((item) => item.dataValues.keywordId);
+      if (!user) {
+        console.log('a')
+      };
 
       //관심사 id가 가진 태그 불러오기
       const getTags = await Tag.findAll({

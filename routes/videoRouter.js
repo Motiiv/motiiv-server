@@ -34,6 +34,7 @@ videoRouter.get("/getBanners", videoController.bannerVideos);
 //홈화면 추천 영상 불러오기
 videoRouter.get(
   "/getRecommand",
+  authMiddleware.handleRequestWithoutUserToken,
   authMiddleware.checkToken("user"),
   videoController.recommanVideos);
 
@@ -41,23 +42,6 @@ videoRouter.get(
 videoRouter.get("/:videoId",
   authMiddleware.checkToken("user"),
   videoController.getDetail);
-
-
-
-//비디오 저장
-videoRouter.post(
-  "/:videoId/createSave",
-  authMiddleware.checkToken("user"),
-  videoController.createSave,
-);
-
-//비디오 저장 취소
-videoRouter.delete(
-  "/:videoId/deleteSave",
-  authMiddleware.checkToken("user"),
-  videoController.deleteSave,
-);
-
 
 
 module.exports = videoRouter;
