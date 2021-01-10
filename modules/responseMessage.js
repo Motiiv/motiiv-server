@@ -39,6 +39,9 @@ module.exports = {
   NO_SUCH_JOB: "해당 직군이 없습니다",
   ALREADY_ADDED_KEYWORD: "이미 추가된 관심사입니다.",
 
+  // 네이버
+  GET_PROFILE_NAVER_SUCCESS: "네아로 프로필 조회 성공",
+
   // 워크스페이스
   CREATE_WORKSPACE_SUCCESS: "워크스페이스 생성 성공",
   GET_ONE_WORKSPACE_SUCCESS: "워크스페이스 조회 성공",
@@ -144,7 +147,5 @@ module.exports = {
 
   /* 카테고리 태그 검색 */
   GET_CATEGORY_TAGS_SUCCESS: "태그 검색하기 성공",
-  GET_CATEGORY_TAGS_FAIL: "태그 검색하기 실패"
-
-
+  GET_CATEGORY_TAGS_FAIL: "태그 검색하기 실패",
 };
