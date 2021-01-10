@@ -32,14 +32,17 @@ module.exports = {
         await workspace.save();
       }
       await user.addWorkspace(workspace);
-      const { createdAt, updatedAt, ...workspaceData } = workspace.dataValues;
+      // const { createdAt, updatedAt, ...workspaceData } = workspace.dataValues;
+      const workspaces = await Workspace.findAll({
+        attributes: ["id", "name", "url", "logoUrl"],
+      });
       res
         .status(statusCode.OK)
         .send(
           util.success(
             statusCode.OK,
             responseMessage.CREATE_WORKSPACE_SUCCESS,
-            workspaceData,
+            workspaces,
           ),
         );
     } catch (error) {
@@ -175,14 +178,18 @@ module.exports = {
       workspace.url = newUrl || workspace.url;
       workspace.logoUrl = newLogoUrl || defaultWorkspaceLogoUrl;
       await workspace.save();
-      const { createdAt, updatedAt, ...workspaceData } = workspace.dataValues;
+      // const { createdAt, updatedAt, ...workspaceData } = workspace.dataValues;
+
+      const workspaces = await Workspace.findAll({
+        attributes: ["id", "name", "url", "logoUrl"],
+      });
       res
         .status(statusCode.OK)
         .send(
           util.success(
             statusCode.OK,
             responseMessage.UPDATE_WORKSPACE_SUCCESS,
-            workspaceData,
+            workspaces,
           ),
         );
     } catch (error) {
@@ -216,19 +223,23 @@ module.exports = {
             ),
           );
       }
-      const {
-        createdAt,
-        updatedAt,
-        ...deletedWorkspace
-      } = workspace.dataValues;
+      // const {
+      //   createdAt,
+      //   updatedAt,
+      //   ...deletedWorkspace
+      // } = workspace.dataValues;
       await workspace.destroy();
+
+      const workspaces = await Workspace.findAll({
+        attributes: ["id", "name", "url", "logoUrl"],
+      });
       res
         .status(statusCode.OK)
         .send(
           util.success(
             statusCode.OK,
             responseMessage.DELETE_WORKSPACE_SUCCESS,
-            { deletedWorkspace },
+            workspaces,
           ),
         );
     } catch (error) {
