@@ -548,13 +548,13 @@ module.exports = {
       return res
         .status(sc.OK)
         .send(
-          ut.success(sc.OK, rm.GET_MYMOTIIV_VIDEOS_SUCCESS, keywords),
+          ut.success(sc.OK, rm.GET_KEYWORD_CATEGORY_SUCCESS, keywords),
         );
     } catch (err) {
       console.log(err)
       return res
         .status(sc.INTERNAL_SERVER_ERROR)
-        .send(ut.fail(sc.INTERNAL_SERVER_ERROR, rm.GET_MYMOTIIV_VIDEOS_FAIL));
+        .send(ut.fail(sc.INTERNAL_SERVER_ERROR, rm.GET_KEYWORD_CATEGORY_FAIL));
     }
   },
 
