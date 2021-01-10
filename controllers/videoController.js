@@ -148,7 +148,7 @@ module.exports = {
 
       jobVideos = await Video.findAll({
         where: { id: tagedVideosId },
-        attributes: ["id", "title", "videoLength", "thumbnailImageUrl", "viewCount", "channelName"],
+        attributes: ["id", "title", "videoLength", "thumbnailImageUrl", "viewCount", "videoGif", "channelName"],
         include: [
           {
             model: Tag,
@@ -208,7 +208,7 @@ module.exports = {
             ],
           },
         },
-        attributes: ["id", "title", "videoLength", "thumbnailImageUrl", "viewCount", "channelName"],
+        attributes: ["id", "title", "videoLength", "thumbnailImageUrl", "viewCount", "videoGif", "channelName"],
         order: sequelize.literal("rand()"),
       });
       const recommands = recommandVideos.map((item) => item.dataValues.id);
@@ -226,7 +226,7 @@ module.exports = {
               ],
             },
           },
-          attributes: ["id", "title", "videoLength", "thumbnailImageUrl", "viewCount", "channelName"],
+          attributes: ["id", "title", "videoLength", "thumbnailImageUrl", "viewCount", "videoGif", "channelName"],
           order: sequelize.literal("rand()"),
           limit: 4 - recommandsLength,
         });
@@ -240,7 +240,7 @@ module.exports = {
       const checkHomeSection = await Section.findAll({
         where: { adminCheck: 1 },
         include: [{
-          model: Video, as: "SectionVideos", attributes: ["id", "title", "videoLength", "thumbnailImageUrl", "viewCount", "channelName"]
+          model: Video, as: "SectionVideos", attributes: ["id", "title", "videoLength", "thumbnailImageUrl", "viewCount", "videoGif", "channelName"]
           , through: { attributes: [] }
         }]
       });
@@ -337,6 +337,7 @@ module.exports = {
           "description",
           "thumbnailImageUrl",
           "videoLength",
+          "videoGif",
         ],
         include: [
           {
@@ -371,6 +372,7 @@ module.exports = {
           "description",
           "thumbnailImageUrl",
           "videoLength",
+          "videoGif",
         ],
         include: [
           {
@@ -418,7 +420,7 @@ module.exports = {
       const mostViewMyId = mostViewMy.map((item) => item.dataValues.VideoId)
 
       const mostViewMyMotiiv = await Video.findAll({
-        attributes: ['id', 'title', 'videoLength', 'thumbnailImageUrl', 'viewCount', 'channelName'],
+        attributes: ['id', 'title', 'videoLength', 'thumbnailImageUrl', 'viewCount', 'channelName', "videoGif"],
         where: {
           id: mostViewMyId
         },
@@ -459,7 +461,7 @@ module.exports = {
 
       const recentSavedVideos = await Video.findAll({
         // 배열
-        attributes: ['id', 'title', 'videoLength', 'thumbnailImageUrl', 'viewCount', 'channelName'],
+        attributes: ['id', 'title', 'videoLength', 'thumbnailImageUrl', 'viewCount', "videoGif", 'channelName'],
         where: {
           id: savedMotiivId,
         },
@@ -498,7 +500,7 @@ module.exports = {
 
       const recentViewVideos = await Video.findAll({
         // 배열
-        attributes: ['id', 'title', 'videoLength', 'thumbnailImageUrl', 'viewCount', 'channelName'],
+        attributes: ['id', 'title', 'videoLength', 'thumbnailImageUrl', 'viewCount', "videoGif", 'channelName'],
         where: {
           id: recentViewId,
         },
@@ -598,7 +600,7 @@ module.exports = {
         if (filter == 'new') {
           const newVideos = await Video.findAll({
             where: { id: getFilterVideoId },
-            attributes: ['id', 'title', 'videoLength', 'thumbnailImageUrl', 'viewCount', 'channelName', 'createdAt',
+            attributes: ['id', 'title', 'videoLength', 'thumbnailImageUrl', 'viewCount', 'channelName', "videoGif", 'createdAt',
             ],
             include: [
               {
@@ -626,6 +628,7 @@ module.exports = {
               "videoLength",
               "thumbnailImageUrl",
               "viewCount",
+              "videoGif",
               "channelName",
               "createdAt",
               [
@@ -654,6 +657,7 @@ module.exports = {
               "videoLength",
               "thumbnailImageUrl",
               "viewCount",
+              "videoGif",
               "channelName",
               "createdAt",
               [
@@ -673,7 +677,7 @@ module.exports = {
         } else if (filter == 'view') {
           const sortView = await Video.findAll({
             where: { id: getFilterVideoId },
-            attributes: ['id', 'title', 'videoLength', 'thumbnailImageUrl', 'viewCount', 'channelName', 'createdAt',
+            attributes: ['id', 'title', 'videoLength', 'thumbnailImageUrl', 'viewCount', 'channelName', "videoGif", 'createdAt',
             ],
             include: [
               {
@@ -729,6 +733,7 @@ module.exports = {
           "videoUrl",
           "viewCount",
           "channelName",
+          "videoGif",
           "createdAt",
         ],
         include: [
@@ -818,7 +823,7 @@ module.exports = {
             ],
           },
         },
-        attributes: ["id", "title", "videoUrl", "thumbnailImageUrl"],
+        attributes: ["id", "title", "videoUrl", "thumbnailImageUrl", "videoLength", "videoGif"],
         order: sequelize.literal("rand()"),
         limit: 4
       });
@@ -836,7 +841,7 @@ module.exports = {
               ],
             },
           },
-          attributes: ["id", "title", "videoUrl", "thumbnailImageUrl"],
+          attributes: ["id", "title", "videoUrl", "thumbnailImageUrl", "videoLength", "videoGif"],
           order: sequelize.literal("rand()"),
           limit: 4 - recommandsLength,
         });
