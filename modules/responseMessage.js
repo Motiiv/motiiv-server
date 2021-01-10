@@ -39,6 +39,9 @@ module.exports = {
   NO_SUCH_JOB: "해당 직군이 없습니다",
   ALREADY_ADDED_KEYWORD: "이미 추가된 관심사입니다.",
 
+  // 네이버
+  GET_PROFILE_NAVER_SUCCESS: "네아로 프로필 조회 성공",
+
   // 워크스페이스
   CREATE_WORKSPACE_SUCCESS: "워크스페이스 생성 성공",
   GET_ONE_WORKSPACE_SUCCESS: "워크스페이스 조회 성공",
@@ -129,18 +132,4 @@ module.exports = {
   /* 추천 영상 불러오기(홈) */
   GET_VIDEO_RECOMMAND_SUCCESS: "추천 영상 불러오기 성공",
   GET_VIDEO_RECOMMAND_FAIL: "추천 영상 불러오기 실패",
-
-  /* 마이모티브 동영상 불러오기 */
-  GET_MYMOTIIV_VIDEOS_SUCCESS: "마이모티브 영상 불러오기 성공",
-  GET_MYMOTIIV_VIDEOS_FAIL: "마이모티브 영상 불러오기 실패",
-
-  /* 카테고리 동영상 불러오기 */
-  GET_ALL_CATEGORY_SUCCESS: "모든 카테고리 불러오기 성공",
-  GET_ALL_CATEGORY_FAIL: "모든 카테고리 불러오기 실패",
-
-  /* 카테코기 키워드 불러오기 */
-  GET_KEYWORD_CATEGORY_SUCCESS: "키워드 불러오기 성공",
-  GET_KEYWORD_CATEGORY_FAIL: "키워드 불러오기 실패"
-
-
 };
