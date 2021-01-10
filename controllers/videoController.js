@@ -238,11 +238,12 @@ module.exports = {
       // 3군 어드민이 설정한 세션 불러오기
 
       const checkHomeSection = await Section.findAll({
-        where: { adminCheck: 1 },
         include: [{
           model: Video, as: "SectionVideos", attributes: ["id", "title", "videoLength", "thumbnailImageUrl", "viewCount", "videoGif", "channelName"]
           , through: { attributes: [] }
-        }]
+        }],
+        order: sequelize.literal("rand()"),
+        limit: 4
       });
 
 
@@ -823,6 +824,7 @@ module.exports = {
         ],
       });
 
+
       /* 조회수 증가 */
 
       // Video 테이블 조회수 증가
@@ -932,6 +934,7 @@ module.exports = {
           recommandVideos,
         }),
       );
+
     } catch (err) {
       console.log(err);
       return res
@@ -940,50 +943,75 @@ module.exports = {
     }
   },
 
-  //좋아요 기능
-  createLike: async (req, res) => {
+  likeControl: async (req, res) => {
     const video = req.params.videoId;
     const { id: user } = req.user;
 
     try {
-      const like = await Like.create({ VideoId: video, UserId: user });
+      const isLikeTable = await Like.findAll({
+        where: { VideoId: video, UserId: user }
+      });
+      const isLike = isLikeTable.map((item) => item.dataValues.VideoId);
+      console.log(isLike);
 
-      // 중복 처리 추가
-      return res
-        .status(sc.OK)
-        .send(ut.success(sc.OK, rm.POST_VIDEO_LIKE_SUCCESS, like));
+      if (isLike.length) {
+        await Like.destroy({
+          where: {
+            VideoId: video,
+            UserId: user,
+          },
+        });
+        return res
+          .status(sc.OK)
+          .send(ut.success(sc.OK, rm.DELETE_VIDEO_LIKE_SUCCESS));
+      } else {
+        const like = await Like.create({ VideoId: video, UserId: user });
+        return res
+          .status(sc.OK)
+          .send(ut.success(sc.OK, rm.POST_VIDEO_LIKE_SUCCESS, like));
+
+      }
     } catch (err) {
-      console.log(err);
       return res
         .status(sc.INTERNAL_SERVER_ERROR)
         .send(ut.fail(sc.INTERNAL_SERVER_ERROR, rm.POST_VIDEO_LIKE_FAIL));
     }
+
   },
 
-
-
-  //좋아요 취소
-  deleteLike: async (req, res) => {
+  saveControl: async (req, res) => {
     const video = req.params.videoId;
     const { id: user } = req.user;
 
     try {
-      await Like.destroy({
-        where: {
-          VideoId: video,
-          UserId: user,
-        },
+      const isSaveTable = await Save.findAll({
+        where: { VideoId: video, UserId: user }
       });
-      return res
-        .status(sc.OK)
-        .send(ut.success(sc.OK, rm.DELETE_VIDEO_LIKE_SUCCESS));
+      const isSave = isSaveTable.map((item) => item.dataValues.VideoId);
+      console.log(isSave);
+      if (isSave.length) {
+        await Save.destroy({
+          where: {
+            VideoId: video,
+            UserId: user,
+          },
+        });
+        return res
+          .status(sc.OK)
+          .send(ut.success(sc.OK, rm.POST_VIDEO_SAVE_SUCCESS));
+      } else {
+        const save = await Save.create({ VideoId: video, UserId: user });
+        return res
+          .status(sc.OK)
+          .send(ut.success(sc.OK, rm.DELETE_VIDEO_SAVE_SUCCESS, save));
+      }
     } catch (err) {
-      console.log(err);
       return res
         .status(sc.INTERNAL_SERVER_ERROR)
-        .send(ut.fail(sc.INTERNAL_SERVER_ERROR, rm.DELETE_VIDEO_LIKE_FAIL));
+        .send(ut.fail(sc.INTERNAL_SERVER_ERROR, rm.POST_VIDEO_SAVE_FAIL));
     }
   },
+
 
   // 동영상 저장
   createSave: async (req, res) => {

@@ -3,6 +3,13 @@ const videoRouter = express.Router();
 const videoController = require("../controllers/videoController");
 const authMiddleware = require("../middlewares/authMiddleware");
 
+
+//좋아요 추가/취소
+videoRouter.post("/like/:videoId", authMiddleware.checkToken("user"), videoController.likeControl);
+
+//비디오 저장 추가/취소
+videoRouter.post("/save/:videoId", authMiddleware.checkToken("user"), videoController.saveControl);
+
 //마이모티브 불러오기
 videoRouter.get(
   "/myMotiiv",
@@ -35,19 +42,7 @@ videoRouter.get("/:videoId",
   authMiddleware.checkToken("user"),
   videoController.getDetail);
 
-//좋아요 추가
-videoRouter.post(
-  "/:videoId/createLike",
-  authMiddleware.checkToken("user"),
-  videoController.createLike,
-);
 
-//좋아요 취소
-videoRouter.delete(
-  "/:videoId/deleteLike",
-  authMiddleware.checkToken("user"),
-  videoController.deleteLike,
-);
 
 //비디오 저장
 videoRouter.post(
@@ -62,5 +57,7 @@ videoRouter.delete(
   authMiddleware.checkToken("user"),
   videoController.deleteSave,
 );
+
+
 
 module.exports = videoRouter;
