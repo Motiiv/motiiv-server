@@ -1,33 +1,19 @@
-const {
-  User,
-  Video,
-  Workspace,
-  Keyword,
-  User_Keyword,
-  Job,
-} = require("../models");
+const axios = require("axios");
+const qs = require("qs");
+const { User, Keyword, User_Keyword, Job } = require("../models");
 const jwt = require("../middlewares/jwt");
 const responseMessage = require("../modules/responseMessage");
 const statusCode = require("../modules/statusCode");
 const util = require("../modules/util");
-const axios = require("axios");
-const qs = require("qs");
-const {
-  KAKAO_ID,
-  KAKAO_SECRET,
-  KAKAO_REDIRECT_URI,
-} = require("../config/kakao");
 const {
   NAVER_ID,
   NAVER_SECRET,
-  NAVER_STATE,
   NAVER_REDIRECT_URI,
+  NAVER_STATE,
 } = require("../config/naver");
-
-const BASE_URL =
-  process.env.NODE_ENV === "production"
-    ? "http://52.78.212.95:3004/motiiv/api/v1"
-    : "http://127.0.0.1:3004/motiiv/api/v1";
+const request = require("request");
+const fetch = require("node-fetch");
+const { URLSearchParams } = require("url");
 
 module.exports = {
   // kakaoLogin: (req, res) => {
@@ -103,77 +89,149 @@ module.exports = {
   //     .redirect(backToClientURL);
   // },
 
-  // naverLogin: (req, res) => {
-  //   // const { backToClientURL } = req.body;
-  //   const backToClientURL = "http://127.0.0.1:3004/motiiv/api/v1/users";
-  //   const naverAuthUrl = `https://nid.naver.com/oauth2.0/authorize?client_id=${NAVER_ID}&redirect_uri=${NAVER_REDIRECT_URI}&response_type=code&state=${NAVER_STATE}`;
-  //   return res
-  //     .cookie("backToClientURL", backToClientURL)
-  //     .redirect(naverAuthUrl);
-  // },
+  naverProxy: (req, res) => {
+    return res.redirect("http://127.0.0.1:3004/motiiv/api/v1/users/auth/naver");
+  },
 
-  // naverLoginCallback: async (req, res) => {
-  //   const { code, state } = req.query;
-  //   const { backToClientURL } = req.cookies;
-  //   let tokenResponse;
-  //   try {
-  //     tokenResponse = await axios({
-  //       method: "POST",
-  //       url: "https://nid.naver.com/oauth2.0/token",
-  //       headers: {
-  //         "content-type": "application/x-www-form-urlencoded",
-  //       },
-  //       data: qs.stringify({
-  //         grant_type: "authorization_code",
-  //         client_id: NAVER_ID,
-  //         client_secret: NAVER_SECRET,
-  //         redirect_uri: NAVER_REDIRECT_URI,
-  //         state,
-  //         code,
-  //       }),
-  //     });
-  //   } catch (error) {
-  //     console.log(error);
-  //     return res.json(error.data);
-  //   }
-  //   console.info("==== tokenResponse.data ====");
+  naverLogin: (req, res) => {
+    // const { backToClientURL } = req.body;
+    const naverAuthUrl = `https://nid.naver.com/oauth2.0/authorize?client_id=${NAVER_ID}&redirect_uri=${NAVER_REDIRECT_URI}&response_type=code&state=${NAVER_STATE}`;
+    return res.redirect(naverAuthUrl);
+  },
 
-  //   const { access_token } = tokenResponse.data;
+  naverLoginCallback: async (req, res) => {
+    const { code, state } = req.query;
+    let tokenResponse;
+    try {
+      tokenResponse = await axios({
+        method: "POST",
+        url: "https://nid.naver.com/oauth2.0/token",
+        headers: {
+          "content-type": "application/x-www-form-urlencoded",
+        },
+        data: qs.stringify({
+          grant_type: "authorization_code",
+          client_id: NAVER_ID,
+          client_secret: NAVER_SECRET,
+          redirect_uri: NAVER_REDIRECT_URI,
+          state,
+          code,
+        }),
+      });
+      const params = new URLSearchParams();
+      params.append("grant_type", "authorization_code");
+      params.append("redirect_uri", NAVER_REDIRECT_URI);
+      params.append("client_id", NAVER_ID);
+      params.append("client_secret", NAVER_SECRET);
+      params.append("code", code);
+      params.append("state", state);
+      console.log(params);
+      const tokenData = await fetch("https://nid.naver.com/oauth2.0/token", {
+        method: "POST",
+        body: params,
+        headers: {
+          "content-type": "application/x-www-form-urlencoded",
+        },
+      });
+      // tokenResponse = await tokenData.json();
+    } catch (error) {
+      console.log(error);
+      return res.json(error.data);
+    }
+    console.info("==== tokenResponse.data ====");
 
-  //   let userResponse;
-  //   try {
-  //     userResponse = await axios({
-  //       method: "GET",
-  //       url: "https://openapi.naver.com/v1/nid/me",
-  //       headers: {
-  //         "content-type": "application/x-www-form-urlencoded",
-  //         Authorization: `Bearer ${access_token}`,
-  //       },
-  //     });
-  //   } catch (error) {
-  //     console.log(error);
-  //     return res.json(error.data);
-  //   }
-  //   console.info("==== userResponse.data ====");
-  //   const {
-  //     data: {
-  //       response: { name: username, profile_image: profileImageUrl, id: snsId },
-  //     },
-  //   } = userResponse;
-  //   const socialType = "naver";
+    const { access_token } = tokenResponse.data;
 
-  //   const socialInfo = {
-  //     username,
-  //     profileImageUrl,
-  //     snsId,
-  //     socialType,
-  //   };
-  //   return res
-  //     .cookie("socialInfo", socialInfo, { httpOnly: true })
-  //     .redirect(backToClientURL);
-  // },
+    let userResponse;
+    try {
+      // userResponse = await axios({
+      //   method: "GET",
+      //   url: "https://openapi.naver.com/v1/nid/me",
+      //   headers: {
+      //     "content-type": "application/x-www-form-urlencoded",
+      //     Authorization: `Bearer ${access_token}`,
+      //   },
+      // });
+      const userData = await fetch("https://openapi.naver.com/v1/nid/me", {
+        method: "GET",
+        headers: {
+          "content-type": "application/x-www-form-urlencoded",
+          Authorization: `Bearer ${access_token}`,
+        },
+      });
+      userResponse = await userData.json();
+    } catch (error) {
+      console.log(error);
+      return res.json(error.data);
+    }
+    console.info("==== userResponse.data ====");
+    const {
+      response: { name: username, profile_image: profileImageUrl, id: snsId },
+    } = userResponse;
+    const socialType = "naver";
+
+    const socialInfo = {
+      username,
+      profileImageUrl,
+      snsId,
+      socialType,
+    };
+    return res
+      .status(statusCode.OK)
+      .send(
+        util.success(
+          statusCode.OK,
+          responseMessage.GET_PROFILE_NAVER_SUCCESS,
+          socialInfo,
+        ),
+      );
+  },
 
   // TODO: Cleanup
+
+  getNaverProfile: async (req, res) => {
+    // const {access_token} = req.body
+    const { access_token } = req.body;
+
+    let userResponse;
+    try {
+      userResponse = await axios({
+        method: "GET",
+        url: "https://openapi.naver.com/v1/nid/me",
+        headers: {
+          "content-type": "application/x-www-form-urlencoded",
+          Authorization: `Bearer ${access_token}`,
+        },
+      });
+    } catch (error) {
+      console.log(error);
+      return res.json(error.data);
+    }
+    console.info("==== userResponse.data ====");
+    const {
+      data: {
+        response: { name: username, profile_image: profileImageUrl, id: snsId },
+      },
+    } = userResponse;
+    const socialType = "naver";
+
+    const socialInfo = {
+      username,
+      profileImageUrl,
+      snsId,
+      socialType,
+    };
+    return res
+      .status(statusCode.OK)
+      .send(
+        util.success(
+          statusCode.OK,
+          responseMessage.GET_PROFILE_NAVER_SUCCESS,
+          socialInfo,
+        ),
+      );
+  },
+
   login: async (req, res) => {
     const { snsId, socialType } = req.body;
     if (!snsId || !socialType) {
@@ -202,6 +260,8 @@ module.exports = {
         ],
       });
       if (!user) {
+        if (socialType === "naver") {
+        }
         return res
           .status(statusCode.NOT_FOUND)
           .send(
@@ -212,10 +272,12 @@ module.exports = {
           );
       }
       const { accessToken } = await jwt.sign(user);
-      res
-        .status(statusCode.OK)
-        .cookie("userToken", accessToken)
-        .send(util.success(statusCode.OK, responseMessage.LOGIN_SUCCESS, user));
+      res.status(statusCode.OK).send(
+        util.success(statusCode.OK, responseMessage.LOGIN_SUCCESS, {
+          ...user.dataValues,
+          userToken: accessToken,
+        }),
+      );
     } catch (error) {
       console.log(error);
       res
@@ -243,7 +305,6 @@ module.exports = {
       !profileImageUrl ||
       !snsId ||
       !socialType ||
-      !jobName ||
       !keywordNames
     ) {
       return res
@@ -260,27 +321,34 @@ module.exports = {
           .send(util.fail(statusCode.OK, responseMessage.ALREADY_USER));
       }
       const keywordIds = [];
-      for (let i = 0; i < keywordNames.length; i++) {
-        const keyword = await Keyword.findOne({
-          where: { name: keywordNames[i] },
-        });
-        if (!keyword) {
+      if (keywordNames) {
+        for (let i = 0; i < keywordNames.length; i++) {
+          const keyword = await Keyword.findOne({
+            where: { name: keywordNames[i] },
+          });
+          if (!keyword) {
+            return res
+              .status(statusCode.BAD_REQUEST)
+              .send(
+                util.fail(
+                  statusCode.BAD_REQUEST,
+                  responseMessage.NO_SUCH_KEYWORD,
+                ),
+              );
+          }
+          keywordIds.push(keyword.id);
+        }
+      }
+      let job;
+      if (jobName) {
+        job = await Job.findOne({ where: { name: jobName } });
+        if (!job) {
           return res
             .status(statusCode.BAD_REQUEST)
             .send(
-              util.fail(
-                statusCode.BAD_REQUEST,
-                responseMessage.NO_SUCH_KEYWORD,
-              ),
+              util.fail(statusCode.BAD_REQUEST, responseMessage.NO_SUCH_JOB),
             );
         }
-        keywordIds.push(keyword.id);
-      }
-      const job = await Job.findOne({ where: { name: jobName } });
-      if (!job) {
-        return res
-          .status(statusCode.BAD_REQUEST)
-          .send(util.fail(statusCode.BAD_REQUEST, responseMessage.NO_SUCH_JOB));
       }
       const newUser = await User.create({
         username,
@@ -288,16 +356,20 @@ module.exports = {
         snsId,
         socialType,
       });
-      newUser.JobId = job.id;
+      if (jobName && job) {
+        newUser.JobId = job.id;
+      }
       await newUser.save();
-      await Promise.all(
-        keywordIds.map(async (keywordId) => {
-          await User_Keyword.create({
-            UserId: newUser.id,
-            KeywordId: keywordId,
-          });
-        }),
-      );
+      if (keywordNames) {
+        await Promise.all(
+          keywordIds.map(async (keywordId) => {
+            await User_Keyword.create({
+              UserId: newUser.id,
+              KeywordId: keywordId,
+            });
+          }),
+        );
+      }
 
       const { accessToken } = await jwt.sign(newUser);
       const newUserInfo = await User.findOne({
@@ -319,16 +391,12 @@ module.exports = {
           },
         ],
       });
-      return res
-        .cookie("userToken", accessToken, { httpOnly: true })
-        .status(statusCode.OK)
-        .send(
-          util.success(
-            statusCode.OK,
-            responseMessage.CREATE_USER_SUCCESS,
-            newUserInfo,
-          ),
-        );
+      return res.status(statusCode.OK).send(
+        util.success(statusCode.OK, responseMessage.CREATE_USER_SUCCESS, {
+          ...newUserInfo.dataValues,
+          userToken: accessToken,
+        }),
+      );
     } catch (error) {
       console.log(error);
       res
@@ -450,28 +518,40 @@ module.exports = {
     const { id: userId } = req.user;
     const { userToken } = req.cookies;
     console.log(userToken);
-    const profile = await User.findOne({
-      where: { id: userId },
-      attributes: { exclude: ["createdAt", "updatedAt", "JobId"] },
-      include: [
-        { model: Job, attributes: { exclude: ["createdAt", "updatedAt"] } },
-        {
-          model: Keyword,
-          as: "UserKeywords",
-          attributes: { exclude: ["createdAt", "updatedAt"] },
-          through: { attributes: [] },
-        },
-      ],
-    });
-    res
-      .status(statusCode.OK)
-      .send(
-        util.success(
-          statusCode.OK,
-          responseMessage.GET_USER_PROFILE_SUCCESS,
-          profile,
-        ),
-      );
+    try {
+      const profile = await User.findOne({
+        where: { id: userId },
+        attributes: { exclude: ["createdAt", "updatedAt", "JobId"] },
+        include: [
+          { model: Job, attributes: { exclude: ["createdAt", "updatedAt"] } },
+          {
+            model: Keyword,
+            as: "UserKeywords",
+            attributes: { exclude: ["createdAt", "updatedAt"] },
+            through: { attributes: [] },
+          },
+        ],
+      });
+      res
+        .status(statusCode.OK)
+        .send(
+          util.success(
+            statusCode.OK,
+            responseMessage.GET_USER_PROFILE_SUCCESS,
+            profile,
+          ),
+        );
+    } catch (error) {
+      console.log(error);
+      res
+        .status(statusCode.INTERNAL_SERVER_ERROR)
+        .send(
+          util.fail(
+            statusCode.INTERNAL_SERVER_ERROR,
+            responseMessage.INTERNAL_SERVER_ERROR,
+          ),
+        );
+    }
   },
 
   getAllUsers: async (req, res) => {
@@ -495,6 +575,7 @@ module.exports = {
           ),
         );
     } catch (error) {
+      console.log(error);
       res
         .status(statusCode.INTERNAL_SERVER_ERROR)
         .send(

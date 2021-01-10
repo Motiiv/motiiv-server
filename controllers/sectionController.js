@@ -7,13 +7,9 @@ const statusCode = require("../modules/statusCode");
 const util = require("../modules/util");
 
 module.exports = {
-  // TODO: JWT TOKEN
-  // TODO: Limit number of videos in each section
-  // TODO: Sorting options
-  // TODO: Check if createdAt is required
   createSection: async (req, res) => {
     const { title, subtitle } = req.body;
-    if (!title || !subtitle) {
+    if (!title) {
       return res
         .status(statusCode.BAD_REQUEST)
         .send(util.fail(statusCode.BAD_REQUEST, responseMessage.NULL_VALUE));
@@ -140,7 +136,8 @@ module.exports = {
   updateSection: async (req, res) => {
     const { sectionId } = req.params;
     const { newTitle, newSubtitle } = req.body;
-    if (!newTitle || !newSubtitle) {
+    console.log(newSubtitle);
+    if (!newTitle) {
       return res
         .status(statusCode.BAD_REQUEST)
         .send(util.fail(statusCode.BAD_REQUEST, responseMessage.NULL_VALUE));
@@ -157,13 +154,6 @@ module.exports = {
               statusCode.NOT_FOUND,
               responseMessage.GET_ONE_SECTION_FAIL,
             ),
-          );
-      }
-      if (section.title === newTitle) {
-        return res
-          .status(statusCode.CONFLICT)
-          .send(
-            util.fail(statusCode.CONFLICT, responseMessage.SAME_SECTION_TITLE),
           );
       }
       const sectionNameExists = await Section.findOne({

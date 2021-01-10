@@ -9,8 +9,8 @@ const userRouter = express.Router();
 // userRouter.get("/auth/kakao/callback", userController.kakaoLoginCallback);
 
 // Naver Login
-// userRouter.get("/auth/naver", userController.naverLogin);
-// userRouter.get("/auth/naver/callback", userController.naverLoginCallback);
+userRouter.get("/auth/naver", userController.naverLogin);
+userRouter.get("/auth/naver/callback", userController.naverLoginCallback);
 
 // Check
 userRouter.post("/login", userController.login);
@@ -20,6 +20,8 @@ userRouter.post("/signup", userController.signup);
 
 // Logout
 userRouter.post("/logout", userController.logout);
+
+userRouter.post("/naver", userController.getNaverProfile);
 
 // Select Job and Keywords
 // userRouter.post(
