@@ -544,7 +544,8 @@ module.exports = {
   getCategoryKeyword: async (req, res) => {
     try {
       const keywords = await Keyword.findAll({
-        attributes: ["id", "name"]
+        attributes: ["id", "name"],
+        order: [[sequelize.literal("id"), "ASC"]],
       })
 
       return res
