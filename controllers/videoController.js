@@ -625,7 +625,6 @@ module.exports = {
               ut.success(sc.OK, rm.GET_MYMOTIIV_VIDEOS_SUCCESS, sortLikeVideo),
             );
 
-
         } else if (filter == 'save') {
           const sortSaveVideo = await Video.findAll({
             where: {
