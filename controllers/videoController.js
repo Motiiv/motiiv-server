@@ -88,11 +88,6 @@ module.exports = {
       //사용자 관심사 id값 불러오기 
       const userInterestId = userInterst.map((item) => item.dataValues.keywordId);
 
-      // if 사용자 관심사가 없다면 베드 리퀘스트값 리턴
-      if (!userInterestId) {
-
-      }
-
       //관심사 id가 가진 태그 불러오기
       const getTags = await Tag.findAll({
         where: {
