@@ -605,7 +605,7 @@ module.exports = {
 
 
       if (filter == 'new') {
-        const newVideos = await Video.findAll({
+        const filteredVideo = await Video.findAll({
           group: ["id"],
           where: { id: getFilterVideoId },
           attributes: ['id', 'title', 'videoLength', 'thumbnailImageUrl', 'viewCount', 'channelName', "videoGif", 'createdAt',
@@ -620,16 +620,16 @@ module.exports = {
           ],
           order: [[sequelize.literal("createdAt"), "DESC"]],
         });
-        const calCnt = newVideos.map((item) => item.dataValues.id);
+        const calCnt = filteredVideo.map((item) => item.dataValues.id);
         const videoCnt = calCnt.length;
 
         return res
           .status(sc.OK)
           .send(
-            ut.success(sc.OK, rm.GET_MYMOTIIV_VIDEOS_SUCCESS, { newVideos, videoCnt }),
+            ut.success(sc.OK, rm.GET_MYMOTIIV_VIDEOS_SUCCESS, { filteredVideo, videoCnt }),
           );
       } else if (filter == 'like') {
-        const sortLikeVideo = await Video.findAll({
+        const filteredVideo = await Video.findAll({
           where: {
             id: getFilterVideoId
           },
@@ -659,17 +659,17 @@ module.exports = {
             }
           ],
         });
-        const calCnt = sortLikeVideo.map((item) => item.dataValues.id);
+        const calCnt = filteredVideo.map((item) => item.dataValues.id);
         const videoCnt = calCnt.length;
 
         return res
           .status(sc.OK)
           .send(
-            ut.success(sc.OK, rm.GET_MYMOTIIV_VIDEOS_SUCCESS, { sortLikeVideo, videoCnt }),
+            ut.success(sc.OK, rm.GET_MYMOTIIV_VIDEOS_SUCCESS, { filteredVideo, videoCnt }),
           );
 
       } else if (filter == 'save') {
-        const sortSaveVideo = await Video.findAll({
+        const filteredVideo = await Video.findAll({
           where: {
             id: getFilterVideoId
           },
@@ -699,16 +699,16 @@ module.exports = {
             }
           ],
         });
-        const calCnt = sortSaveVideo.map((item) => item.dataValues.id);
+        const calCnt = filteredVideo.map((item) => item.dataValues.id);
         const videoCnt = calCnt.length;
 
         return res
           .status(sc.OK)
           .send(
-            ut.success(sc.OK, rm.GET_MYMOTIIV_VIDEOS_SUCCESS, { sortSaveVideo, videoCnt }),
+            ut.success(sc.OK, rm.GET_MYMOTIIV_VIDEOS_SUCCESS, { filteredVideo, videoCnt }),
           );
       } else if (filter == 'view') {
-        const sortView = await Video.findAll({
+        const filteredVideo = await Video.findAll({
           where: { id: getFilterVideoId },
           attributes: ['id', 'title', 'videoLength', 'thumbnailImageUrl', 'viewCount', 'channelName', "videoGif", 'createdAt',
           ],
@@ -730,12 +730,12 @@ module.exports = {
             }
           ],
         });
-        const calCnt = sortView.map((item) => item.dataValues.id);
+        const calCnt = filteredVideo.map((item) => item.dataValues.id);
         const videoCnt = calCnt.length;
         return res
           .status(sc.OK)
           .send(
-            ut.success(sc.OK, rm.GET_MYMOTIIV_VIDEOS_SUCCESS, { sortView, videoCnt }),
+            ut.success(sc.OK, rm.GET_MYMOTIIV_VIDEOS_SUCCESS, { filteredVideo, videoCnt }),
           );
       }
     }
@@ -851,7 +851,7 @@ module.exports = {
         },
         attributes: [sequelize.fn("DISTINCT", "Video_Tag.VideoId"), "VideoId"],
         order: sequelize.literal("rand()"),
-        limit: 4,
+        limit: 6,
       });
       const similarTags = similarTag.map((item) => item.dataValues.VideoId);
       alreadyWatchedId.push(video);
@@ -868,13 +868,13 @@ module.exports = {
         },
         attributes: ["id", "title", "videoUrl", "thumbnailImageUrl", "videoLength", "videoGif"],
         order: sequelize.literal("rand()"),
-        limit: 4
+        limit: 6
       });
       recommands = recommandVideos.map((item) => item.dataValues.id);
 
       recommandsLength = recommands.length;
 
-      if (recommandsLength < 4) {
+      if (recommandsLength < 6) {
         const otherVideos = await Video.findAll({
           where: {
             id: {
@@ -886,7 +886,7 @@ module.exports = {
           },
           attributes: ["id", "title", "videoUrl", "thumbnailImageUrl", "videoLength", "videoGif"],
           order: sequelize.literal("rand()"),
-          limit: 4 - recommandsLength,
+          limit: 6 - recommandsLength,
         });
         //여기서도 동영상 수가 적으면 이미 본 영상에서 가져와야 하는 로직 추가
         recommandVideos.push(...otherVideos);
