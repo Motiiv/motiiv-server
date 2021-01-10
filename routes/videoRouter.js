@@ -9,6 +9,9 @@ videoRouter.get(
   authMiddleware.checkToken("user"),
   videoController.getMyMotiiv);
 
+//카테고리뷰 키워드 불러오기
+videoRouter.get("/category/keywords", videoController.getCategoryKeyword);
+
 //카테고리뷰 불러오기
 videoRouter.get("/category/:keyword/:filters", videoController.getCategory);
 

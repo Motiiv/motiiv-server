@@ -539,6 +539,25 @@ module.exports = {
     }
   },
 
+  getCategoryKeyword: async (req, res) => {
+    try {
+      const keywords = await Keyword.findAll({
+        attributes: ["id", "name"]
+      })
+
+      return res
+        .status(sc.OK)
+        .send(
+          ut.success(sc.OK, rm.GET_MYMOTIIV_VIDEOS_SUCCESS, keywords),
+        );
+    } catch (err) {
+      console.log(err)
+      return res
+        .status(sc.INTERNAL_SERVER_ERROR)
+        .send(ut.fail(sc.INTERNAL_SERVER_ERROR, rm.GET_MYMOTIIV_VIDEOS_FAIL));
+    }
+  },
+
   getCategory: async (req, res) => {
     const DB_NAME =
       process.env.NODE_ENV === "production" ? "MOTIIV_PROD" : "motiiv"
@@ -651,13 +670,28 @@ module.exports = {
             .send(
               ut.success(sc.OK, rm.GET_MYMOTIIV_VIDEOS_SUCCESS, sortSaveVideo),
             );
+        } else if (filter == 'view') {
+          const sortView = await Video.findAll({
+            where: { id: getFilterVideoId },
+            attributes: ['id', 'title', 'videoLength', 'thumbnailImageUrl', 'viewCount', 'channelName', 'createdAt',
+            ],
+            include: [
+              {
+                model: Tag,
+                as: "VideoTags",
+                attributes: ["id", "name"],
+                through: { attributes: [] },
+              }
+            ],
+            order: [[sequelize.literal("viewCount"), "DESC"]],
+          });
+          return res
+            .status(sc.OK)
+            .send(
+              ut.success(sc.OK, rm.GET_MYMOTIIV_VIDEOS_SUCCESS, sortView),
+            );
         }
-      };
-      return res
-        .status(sc.OK)
-        .send(
-          ut.success(sc.OK, rm.GET_MYMOTIIV_VIDEOS_SUCCESS, filterKeyword),
-        );
+      }
     } catch (err) {
       console.log(err)
       return res

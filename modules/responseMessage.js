@@ -136,5 +136,11 @@ module.exports = {
 
   /* 카테고리 동영상 불러오기 */
   GET_ALL_CATEGORY_SUCCESS: "모든 카테고리 불러오기 성공",
-  GET_ALL_CATEGORY_FAIL: "모든 카테고리 불러오기 실패"
+  GET_ALL_CATEGORY_FAIL: "모든 카테고리 불러오기 실패",
+
+  /* 카테코기 키워드 불러오기 */
+  GET_KEYWORD_CATEGORY_SUCCESS: "키워드 불러오기 성공",
+  GET_KEYWORD_CATEGORY_FAIL: "키워드 불러오기 실패"
+
+
 };
