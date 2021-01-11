@@ -72,22 +72,29 @@ module.exports = {
     }
   },
   recommanVideos: async (req, res) => {
-    const sectiononeId = [1, 2, 3, 4, 5, 6];
-    const sectiononeName = "이영진 바보";
-    const sectiononeNameSub = "이영진 바보";
-    const sectiontwoId = [7, 8, 9, 10, 11, 12];
-    const sectionTwoName = "메종L안맞음";
-    const sectionthreeId = [13, 14, 15, 16, 17, 18];
-    const sectionThreeName = "허허 돼지 이영진";
-    const sectionFourId = [19, 20, 21, 22, 23, 24];
-    const sectionFourName = "정신차려 이영진";
-    const sectionFiveId = [4, 12, 17, 14, 7, 28];
-    const sectionFiveName = "정차영";
-    const sectionSixId = [5, 26, 18, 19, 21, 1];
-    const sectionSixName = "부우~ 부부부우~"
-
+    const { id: user } = req.user;
     try {
-      const sectionOne = await Video.findAll({
+
+      const sectiononeId = [1, 2, 3, 4, 5, 6];
+      const sectiononeName = "이영진 바보";
+      const sectiononeNameSub = "이영진 바보";
+      const sectiontwoId = [7, 8, 9, 10, 11, 12];
+      const sectionTwoName = "메종L안맞음";
+      const sectionTwoNameSub = "메종L안맞음 부우";
+      const sectionthreeId = [13, 14, 15, 16, 17, 18];
+      const sectionThreeName = "허허 돼지 이영진";
+      const sectionThreeNameSub = "돼에지";
+      const sectionFourId = [19, 20, 21, 22, 23, 24];
+      const sectionFourName = "정신차려 이영진";
+      const sectionFourNameSub = "이 각박한 세상 속에서";
+      const sectionFiveId = [4, 12, 17, 14, 7, 28];
+      const sectionFiveName = "정차영";
+      const sectionFiveNameSub = "정신 차려이 영진";
+      const sectionSixId = [5, 26, 18, 19, 21, 1];
+      const sectionSixName = "부우~ 부부부우~";
+      const sectionSixNameSub = "뿌우우우~"
+
+      const sectionOnes = await Video.findAll({
         where: {
           id: {
             [Op.and]: [
@@ -107,8 +114,9 @@ module.exports = {
         ],
       });
 
+      const sectionOne = { sectionOnes, sectiononeName, sectiononeNameSub };
 
-      const sectionTwo = await Video.findAll({
+      const sectionTwos = await Video.findAll({
         where: {
           id: {
             [Op.and]: [
@@ -127,7 +135,9 @@ module.exports = {
           }
         ],
       });
-      const sectionThree = await Video.findAll({
+
+      const sectionTwo = { sectionTwos, sectionTwoName, sectionTwoNameSub };
+      const sectionThrees = await Video.findAll({
         where: {
           id: {
             [Op.and]: [
@@ -146,7 +156,9 @@ module.exports = {
           }
         ],
       });
-      const sectionFour = await Video.findAll({
+      const sectionThree = { sectionThrees, sectionThreeName, sectionThreeNameSub };
+
+      const sectionFours = await Video.findAll({
         where: {
           id: {
             [Op.and]: [
@@ -165,7 +177,9 @@ module.exports = {
           }
         ],
       });
-      const sectionFive = await Video.findAll({
+      const sectionFour = { sectionFours, sectionFourName, sectionFourNameSub };
+
+      const sectionFives = await Video.findAll({
         where: {
           id: {
             [Op.and]: [
@@ -184,7 +198,9 @@ module.exports = {
           }
         ],
       });
-      const sectionSix = await Video.findAll({
+      const sectionFive = { sectionFives, sectionFiveName, sectionFiveNameSub };
+
+      const sectionSixs = await Video.findAll({
         where: {
           id: {
             [Op.and]: [
@@ -203,6 +219,8 @@ module.exports = {
           }
         ],
       });
+      const sectionSix = { sectionSixs, sectionSixName, sectionSixNameSub };
+
       return res
         .status(sc.OK)
         .send(ut.success(sc.OK, rm.GET_VIDEO_RECOMMAND_SUCCESS, { sectionOne, sectionTwo, sectionThree, sectionFour, sectionFive, sectionSix }));
@@ -210,7 +228,7 @@ module.exports = {
     } catch (err) {
       return res
         .status(sc.INTERNAL_SERVER_ERROR)
-        .send(ut.fail(sc.INTERNAL_SERVER_ERROR, rm.GET_VIDEO_RECOMMAND_SUCCESS));
+        .send(ut.fail(sc.INTERNAL_SERVER_ERROR, rm.GET_VIDEO_RECOMMAND_FAIL));
     }
   },
 
