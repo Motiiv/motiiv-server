@@ -1237,7 +1237,6 @@ module.exports = {
           where: { VideoId: video, UserId: user }
         });
 
-
         if (isLikeTables.length) {
           const isLikes = true;
           return res
@@ -1296,11 +1295,39 @@ module.exports = {
             UserId: user,
           },
         });
-        return res
-          .status(sc.OK)
-          .send(ut.success(sc.OK, rm.DELETE_VIDEO_SAVE_SUCCESS));
+
+        const isSaveTables = await Save.findAll({
+          where: { VideoId: video, UserId: user }
+        });
+
+        if (isSaveTables.length) {
+          const isSaved = true;
+          return res
+            .status(sc.OK)
+            .send(ut.success(sc.OK, rm.DELETE_VIDEO_SAVE_FAIL, isSaved));
+        } else {
+          const isSaved = false;
+          return res
+            .status(sc.OK)
+            .send(ut.success(sc.OK, rm.DELETE_VIDEO_SAVE_SUCCESS, isSaved));
+        };
       } else {
         const save = await Save.create({ VideoId: video, UserId: user });
+        const isSaveTables = await Save.findAll({
+          where: { VideoId: video, UserId: user }
+        });
+        if (isSaveTables.length) {
+          const isSaved = true;
+          return res
+            .status(sc.OK)
+            .send(ut.success(sc.OK, rm.POST_VIDEO_SAVE_SUCCESS, isSaved));
+        } else {
+          const isSaved = false;
+          return res
+            .status(sc.OK)
+            .send(ut.success(sc.OK, rm.POST_VIDEO_SAVE_FAIL, isSaved));
+        };
+
         return res
           .status(sc.OK)
           .send(ut.success(sc.OK, rm.POST_VIDEO_SAVE_SUCCESS, save));
