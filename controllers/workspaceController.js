@@ -34,6 +34,7 @@ module.exports = {
       await user.addWorkspace(workspace);
       // const { createdAt, updatedAt, ...workspaceData } = workspace.dataValues;
       const workspaces = await Workspace.findAll({
+        where: { UserId: user.id },
         attributes: ["id", "name", "url", "logoUrl"],
       });
       res
@@ -181,6 +182,7 @@ module.exports = {
       // const { createdAt, updatedAt, ...workspaceData } = workspace.dataValues;
 
       const workspaces = await Workspace.findAll({
+        where: { UserId },
         attributes: ["id", "name", "url", "logoUrl"],
       });
       res
@@ -231,6 +233,7 @@ module.exports = {
       await workspace.destroy();
 
       const workspaces = await Workspace.findAll({
+        where: { UserId },
         attributes: ["id", "name", "url", "logoUrl"],
       });
       res
