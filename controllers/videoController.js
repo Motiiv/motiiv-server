@@ -73,11 +73,18 @@ module.exports = {
   },
   recommanVideos: async (req, res) => {
     const sectiononeId = [1, 2, 3, 4, 5, 6];
+    const sectiononeName = "이영진 바보";
+    const sectiononeNameSub = "이영진 바보";
     const sectiontwoId = [7, 8, 9, 10, 11, 12];
+    const sectionTwoName = "메종L안맞음";
     const sectionthreeId = [13, 14, 15, 16, 17, 18];
+    const sectionThreeName = "허허 돼지 이영진";
     const sectionFourId = [19, 20, 21, 22, 23, 24];
+    const sectionFourName = "정신차려 이영진";
     const sectionFiveId = [4, 12, 17, 14, 7, 28];
+    const sectionFiveName = "정차영";
     const sectionSixId = [5, 26, 18, 19, 21, 1];
+    const sectionSixName = "부우~ 부부부우~"
 
     try {
       const sectionOne = await Video.findAll({
@@ -99,6 +106,8 @@ module.exports = {
           }
         ],
       });
+
+
       const sectionTwo = await Video.findAll({
         where: {
           id: {
@@ -1215,7 +1224,7 @@ module.exports = {
         where: { VideoId: video, UserId: user }
       });
       const isLike = isLikeTable.map((item) => item.dataValues.VideoId);
-      console.log(isLike);
+
 
       if (isLike.length) {
         await Like.destroy({
@@ -1224,14 +1233,42 @@ module.exports = {
             UserId: user,
           },
         });
-        return res
-          .status(sc.OK)
-          .send(ut.success(sc.OK, rm.DELETE_VIDEO_LIKE_SUCCESS));
+        const isLikeTables = await Like.findAll({
+          where: { VideoId: video, UserId: user }
+        });
+
+
+        if (isLikeTables.length) {
+          const isLikes = true;
+          return res
+            .status(sc.OK)
+            .send(ut.success(sc.OK, rm.DELETE_VIDEO_LIKE_SUCCESS, isLikes));
+        } else {
+          const isLikes = false;
+          return res
+            .status(sc.OK)
+            .send(ut.success(sc.OK, rm.DELETE_VIDEO_LIKE_SUCCESS, isLikes));
+        }
+
+
+
       } else {
         const like = await Like.create({ VideoId: video, UserId: user });
-        return res
-          .status(sc.OK)
-          .send(ut.success(sc.OK, rm.POST_VIDEO_LIKE_SUCCESS, like));
+        const isLikeTable = await Like.findAll({
+          where: { VideoId: video, UserId: user }
+        });
+
+        if (isLikeTable.length) {
+          const isLikes = true;
+          return res
+            .status(sc.OK)
+            .send(ut.success(sc.OK, rm.POST_VIDEO_LIKE_SUCCESS, isLikes));
+        } else {
+          const isLikes = false;
+          return res
+            .status(sc.OK)
+            .send(ut.success(sc.OK, rm.POST_VIDEO_LIKE_FAIL, isLikes));
+        }
 
       }
     } catch (err) {
