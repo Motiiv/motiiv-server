@@ -71,8 +71,142 @@ module.exports = {
         .send(ut.fail(sc.INTERNAL_SERVER_ERROR, rm.POST_VIDEO_FAIL));
     }
   },
+  recommanVideos: async (req, res) => {
+    const sectiononeId = [1, 2, 3, 4, 5, 6];
+    const sectiontwoId = [7, 8, 9, 10, 11, 12];
+    const sectionthreeId = [13, 14, 15, 16, 17, 18];
+    const sectionFourId = [19, 20, 21, 22, 23, 24];
+    const sectionFiveId = [4, 12, 17, 14, 7, 28];
+    const sectionSixId = [5, 26, 18, 19, 21, 1];
+
+    try {
+      const sectionOne = await Video.findAll({
+        where: {
+          id: {
+            [Op.and]: [
+              { [Op.in]: sectiononeId }
+            ],
+          },
+        },
+        attributes: ["id", "title", "thumbnailImageUrl", "viewCount", "videoLength", "channelName", "videoLength", "videoGif", "createdAt",
+        ],
+        include: [
+          {
+            model: Tag,
+            as: "VideoTags",
+            attributes: ["id", "name"],
+            through: { attributes: [] },
+          }
+        ],
+      });
+      const sectionTwo = await Video.findAll({
+        where: {
+          id: {
+            [Op.and]: [
+              { [Op.in]: sectiontwoId }
+            ],
+          },
+        },
+        attributes: ["id", "title", "thumbnailImageUrl", "viewCount", "videoLength", "channelName", "videoLength", "videoGif", "createdAt",
+        ],
+        include: [
+          {
+            model: Tag,
+            as: "VideoTags",
+            attributes: ["id", "name"],
+            through: { attributes: [] },
+          }
+        ],
+      });
+      const sectionThree = await Video.findAll({
+        where: {
+          id: {
+            [Op.and]: [
+              { [Op.in]: sectionthreeId }
+            ],
+          },
+        },
+        attributes: ["id", "title", "thumbnailImageUrl", "viewCount", "videoLength", "channelName", "videoLength", "videoGif", "createdAt",
+        ],
+        include: [
+          {
+            model: Tag,
+            as: "VideoTags",
+            attributes: ["id", "name"],
+            through: { attributes: [] },
+          }
+        ],
+      });
+      const sectionFour = await Video.findAll({
+        where: {
+          id: {
+            [Op.and]: [
+              { [Op.in]: sectionFourId }
+            ],
+          },
+        },
+        attributes: ["id", "title", "thumbnailImageUrl", "viewCount", "videoLength", "channelName", "videoLength", "videoGif", "createdAt",
+        ],
+        include: [
+          {
+            model: Tag,
+            as: "VideoTags",
+            attributes: ["id", "name"],
+            through: { attributes: [] },
+          }
+        ],
+      });
+      const sectionFive = await Video.findAll({
+        where: {
+          id: {
+            [Op.and]: [
+              { [Op.in]: sectionFiveId }
+            ],
+          },
+        },
+        attributes: ["id", "title", "thumbnailImageUrl", "viewCount", "videoLength", "channelName", "videoLength", "videoGif", "createdAt",
+        ],
+        include: [
+          {
+            model: Tag,
+            as: "VideoTags",
+            attributes: ["id", "name"],
+            through: { attributes: [] },
+          }
+        ],
+      });
+      const sectionSix = await Video.findAll({
+        where: {
+          id: {
+            [Op.and]: [
+              { [Op.in]: sectionSixId }
+            ],
+          },
+        },
+        attributes: ["id", "title", "thumbnailImageUrl", "viewCount", "videoLength", "channelName", "videoLength", "videoGif", "createdAt",
+        ],
+        include: [
+          {
+            model: Tag,
+            as: "VideoTags",
+            attributes: ["id", "name"],
+            through: { attributes: [] },
+          }
+        ],
+      });
+      return res
+        .status(sc.OK)
+        .send(ut.success(sc.OK, rm.GET_VIDEO_RECOMMAND_SUCCESS, { sectionOne, sectionTwo, sectionThree, sectionFour, sectionFive, sectionSix }));
+
+    } catch (err) {
+      return res
+        .status(sc.INTERNAL_SERVER_ERROR)
+        .send(ut.fail(sc.INTERNAL_SERVER_ERROR, rm.GET_VIDEO_RECOMMAND_SUCCESS));
+    }
+  },
 
 
+  /*
   // 2군 세션 추천하기 (관심사 / 직군 기반)
   recommanVideos: async (req, res) => {
     const { id: user } = req.user;
@@ -85,11 +219,9 @@ module.exports = {
         attributes: ["keywordId"],
         through: { attributes: [] }
       });
+
       //사용자 관심사 id값 불러오기 
       const userInterestId = userInterst.map((item) => item.dataValues.keywordId);
-      if (!user) {
-        console.log('a')
-      };
 
       //관심사 id가 가진 태그 불러오기
       const getTags = await Tag.findAll({
@@ -104,31 +236,26 @@ module.exports = {
       });
       const getTagsId = getTags.map((item) => item.dataValues.id);
 
-
       // 2-1군: 직군 태그를 포함한 영상 불러오기 
       /*
         1. user 직군 불러오기
         2. 해당 직군의 태그 id값 검색
         3. 해당 태그를 가진 비디오 검색
         4. 영상 랜덤하게 리턴
-      */
+      
 
       // 1. user 직군 불러오기
       const userJob = await User.findOne({
         where: { id: user }
       });
       const userJobId = userJob.JobId;
-      console.log("job ID");
-      console.log(userJobId);
 
-
-
+      // 2. 해당 직권의 태그 id값 검색
       const findJobName = await Job.findOne({
         where: { id: userJobId },
         attributes: ["name"]
       });
       const jobName = findJobName.dataValues.name;
-      console.log(jobName);
 
       // 3. 직군의 TagId값 찾기
       const jobTag = await Tag.findOne({
@@ -137,14 +264,15 @@ module.exports = {
       const jobTagId = jobTag.dataValues.id;
       console.log(jobTagId);
 
-      // 4. 해당 태그를 가진 비디오 id찾기
+      // 3-1. 해당 태그를 가진 비디오 id찾기
       const tagedVideos = await Video_Tag.findAll({
         where: { TagId: jobTagId },
       });
       const tagedVideosId = tagedVideos.map((item) => item.dataValues.VideoId);
-      console.log(tagedVideosId);
 
-      jobVideos = await Video.findAll({
+
+      let sectionOne;
+      const sectionOneVideo = await Video.findAll({
         where: { id: tagedVideosId },
         attributes: ["id", "title", "videoLength", "thumbnailImageUrl", "viewCount", "videoGif", "channelName"],
         include: [
@@ -155,21 +283,47 @@ module.exports = {
             through: { attributes: [] },
           }
         ],
+        order: sequelize.literal("rand()"),
       });
+
+      const sectionOneLen = sectionOneVideo.map((item) => item.dataValues.id);
+      const sectionOneLength = sectionOneLen.length;
+
+      if (sectionOneLength < 6) {
+        const randomVideos = Video.findAll({
+          where: {
+            id: {
+              [Op.and]: [
+                { [Op.notIn]: sectionOneLen },
+              ],
+            },
+          },
+          attributes: ["id", "title", "videoLength", "thumbnailImageUrl", "viewCount", "videoGif", "channelName"],
+          include: [
+            {
+              model: Tag,
+              as: "VideoTags",
+              attributes: ["id", "name"],
+              through: { attributes: [] },
+            }
+          ],
+          order: sequelize.literal("rand()"),
+          limit: 6 - sectionOneLength
+        })
+        sectionOne = { ...sectionOneVideo, randomVideos }
+      }
+
       //10개 미만인 경우 동영상 추가
 
 
       // 2. 직군의 이름 찾기
-
-
-
 
       // 2-2군: 사용자 관심사 기반 유사한 영상 추천하기 
       /*
         case1(제외): 이미 시청한 영상인 경우 제외
         case2(추가): 사용자 관심사 기준 태그 동영상 불러오기
         case3(예외): 불러온 동영상 갯수가 4개 미만일 경우(4개 기준은 기획과 논의 필요)
-      */
+      
 
       // 사용자가 이미 시청한 영상
       const alreadyWatched = await View.findAll({
@@ -226,7 +380,7 @@ module.exports = {
           },
           attributes: ["id", "title", "videoLength", "thumbnailImageUrl", "viewCount", "videoGif", "channelName"],
           order: sequelize.literal("rand()"),
-          limit: 4 - recommandsLength,
+          limit: 7 - recommandsLength,
         });
         //여기서도 동영상 수가 적으면 이미 본 영상에서 가져와야 하는 로직 추가
         recommandVideos.push(...otherVideos);
@@ -246,7 +400,7 @@ module.exports = {
       });
       return res
         .status(sc.OK)
-        .send(ut.success(sc.OK, rm.GET_VIDEO_RECOMMAND_SUCCESS, { jobVideos, recommandVideos, checkHomeSection }));
+        .send(ut.success(sc.OK, rm.GET_VIDEO_RECOMMAND_SUCCESS, { sectionOne, recommandVideos, checkHomeSection }));
 
     } catch (err) {
       console.log(err);
@@ -255,15 +409,17 @@ module.exports = {
         .send(ut.fail(sc.INTERNAL_SERVER_ERROR, rm.GET_VIDEO_RECOMMAND_FAIL));
     }
   },
-
+  */
 
   //홈화면 비디오 읽기
   bannerVideos: async (req, res) => {
     const video = req.query.filters;
-
+    const { id: user } = req.user;
+    const DB_NAME =
+      process.env.NODE_ENV === "production" ? "MOTIIV_PROD" : "MOTIIV_DEV"
     try {
-      // 전체 비디오 불러오기
-      const video = await Video.findAll({
+      //Top10 동영상
+      const toptenVideos = await Video.findAll({
         attributes: [
           "id",
           "title",
@@ -273,7 +429,13 @@ module.exports = {
           "videoLength",
           "channelName",
           "videoGif",
-          "createdAt"
+          "createdAt",
+          [
+            Sequelize.literal(
+              `(SELECT COUNT(*) FROM ${DB_NAME}.Like WHERE ${DB_NAME}.Like.VideoId = ${DB_NAME}.Video.id)`,
+            ),
+            "likeCnt",
+          ],
         ],
         include: [
           {
@@ -281,16 +443,29 @@ module.exports = {
             as: "VideoTags",
             attributes: ["id", "name"],
             through: { attributes: [] },
-          }
-        ]
+          },
+        ],
+      });
+      const toptenView = toptenVideos.map((item) => item.dataValues.viewCount);
+      const toptenLike = toptenVideos.map((item) => item.dataValues.likeCnt);
+
+      const orderCnt = [];
+      for (i = 0; i < toptenVideos.length; i++) {
+        orderCnt.push(toptenView[i] + Math.pow(toptenLike[i], 2));
+      };
+
+      for (i = 0; i < toptenVideos.length; i++) {
+        toptenVideos[i].totalCnt = orderCnt[i];
+      };
+
+      toptenVideos.sort((a, b) => {
+        return b.totalCnt - a.totalCnt;
       });
 
-      //Top10 동영상
-      const topTen = video
-        .map((item) => item.dataValues)
-        .sort((a, b) => b.viewCount - a.viewCount);
-      topTens = topTen.slice(0, 10);
-
+      const toptenVideo = [];
+      for (i = 0; i < 10; i++) {
+        toptenVideo.push(toptenVideos[i]);
+      };
 
       //어제 날짜 포맷 변경 함수
       function getFormatDate(date) {
@@ -324,8 +499,6 @@ module.exports = {
       });
       const mostViewId = mostView.map((item) => item.dataValues.VideoId);
 
-
-
       // 어제 조회수가 가장 높았던 영상 추출
       const mostViewVideo = await Video.findOne({
         where: { id: mostViewId },
@@ -357,10 +530,18 @@ module.exports = {
         },
         attributes: ["VideoId", [sequelize.fn("Count", "VideoId"), "likeCnt"]],
         order: [[sequelize.literal("likeCnt"), "DESC"]],
-        limit: 1,
+        limit: 2,
       });
-      const mostLikeId = mostLike.map((item) => item.dataValues.VideoId);
-      console.log(mostLikeId);
+      const mostLikeIds = mostLike.map((item) => item.dataValues.VideoId);
+      let mostLikeId = [];
+
+      // 좋아요와 조회수 값이 일치하는 경우도 처리해야함
+      if (mostViewId == mostLikeIds) {
+        mostLikeId = mostLikeIds[1];
+      } else {
+        mostLikeId = mostLikeIds[0];
+      };
+
 
       const mostLikeVideo = await Video.findOne({
         where: { id: mostLikeId },
@@ -382,11 +563,9 @@ module.exports = {
         ],
       });
 
-      // 좋아요와 조회수 값이 일치하는 경우도 처리해야함
-
       return res.status(sc.OK).send(
         ut.success(sc.OK, rm.GET_ALL_POST_SUCCESS, {
-          topTens,
+          toptenVideo,
           mostViewVideo,
           mostLikeVideo,
         }),

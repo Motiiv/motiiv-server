@@ -29,7 +29,10 @@ videoRouter.get("/category/:tagId", videoController.TagVideo);
 videoRouter.post("/postVideo", videoController.postVideo);
 
 //홈화면 배너 불러오기
-videoRouter.get("/getBanners", videoController.bannerVideos);
+videoRouter.get("/getBanners",
+  authMiddleware.handleRequestWithoutUserToken,
+  authMiddleware.checkToken("user"),
+  videoController.bannerVideos);
 
 //홈화면 추천 영상 불러오기
 videoRouter.get(
