@@ -921,6 +921,14 @@ module.exports = {
             },
           },
           attributes: ["id", "title", "videoUrl", "thumbnailImageUrl", "videoLength", "videoGif",],
+          include: [
+            {
+              model: Tag,
+              as: "VideoTags",
+              attributes: ["id", "name"],
+              through: { attributes: [] },
+            },
+          ],
           order: sequelize.literal("rand()"),
           limit: 6
         });
@@ -940,6 +948,14 @@ module.exports = {
               },
             },
             attributes: ["id", "title", "videoUrl", "thumbnailImageUrl", "videoLength", "videoGif"],
+            include: [
+              {
+                model: Tag,
+                as: "VideoTags",
+                attributes: ["id", "name"],
+                through: { attributes: [] },
+              },
+            ],
             order: sequelize.literal("rand()"),
             limit: 6 - recommandsLength,
           });
@@ -953,6 +969,14 @@ module.exports = {
         if (recommandVideosLength < 6) {
           const otherVideo = await Video.findAll({
             attributes: ["id", "title", "videoUrl", "thumbnailImageUrl", "videoLength", "videoGif"],
+            include: [
+              {
+                model: Tag,
+                as: "VideoTags",
+                attributes: ["id", "name"],
+                through: { attributes: [] },
+              },
+            ],
             order: sequelize.literal("rand()"),
             limit: 6 - recommandVideosLength
           });
@@ -974,6 +998,14 @@ module.exports = {
             }
           },
           attributes: ["id", "title", "videoUrl", "thumbnailImageUrl", "videoLength", "videoGif"],
+          include: [
+            {
+              model: Tag,
+              as: "VideoTags",
+              attributes: ["id", "name"],
+              through: { attributes: [] },
+            },
+          ],
           order: sequelize.literal("rand()"),
           limit: 6
         });
