@@ -87,11 +87,9 @@ module.exports = {
       });
       //사용자 관심사 id값 불러오기 
       const userInterestId = userInterst.map((item) => item.dataValues.keywordId);
-
-      // if 사용자 관심사가 없다면 베드 리퀘스트값 리턴
-      if (!userInterestId) {
-
-      }
+      if (!user) {
+        console.log('a')
+      };
 
       //관심사 id가 가진 태그 불러오기
       const getTags = await Tag.findAll({
@@ -787,7 +785,7 @@ module.exports = {
   getDetail: async (req, res) => {
     const video = req.params.videoId;
     const { id: user } = req.user;
-
+    console.log(video)
     //video id check
     if (!video) {
       res.status(400).json({
@@ -806,6 +804,7 @@ module.exports = {
           id: video,
         },
         attributes: [
+          "id",
           "title",
           "description",
           "videoUrl",
@@ -824,7 +823,6 @@ module.exports = {
         ],
       });
 
-
       /* 조회수 증가 */
 
       // Video 테이블 조회수 증가
@@ -836,104 +834,123 @@ module.exports = {
         { where: { id: video } },
       );
 
-      // View 테이블 사용자별 비디오 조회수 저장
-      const viewcount = await View.findOne({
-        where: {
-          VideoId: video,
-          UserId: user,
-        },
-        attributes: ["UserCnt"],
-      });
-
-
-      // 테이블에 중복이 없을 경우 View에 비디오, 사용자 추가
-      if (!viewcount) {
-        const viewcount = await View.create({ VideoId: video, UserId: user });
-      } else {
-        const usercnts = viewcount.UserCnt + 1;
-        await View.update({
-          UserCnt: usercnts,
-        },
-          {
-            where: {
-              VideoId: video,
-              UserId: user
-            }
-          })
-      };
-
-
-      /* 추천 영상 불러오기 */
-
-      // Case1. 사용자가 이미 시청한 영상(제외)
-      const alreadyWatched = await View.findAll({
-        where: {
-          UserId: user,
-        },
-        attributes: ["VideoId"],
-      });
-      const alreadyWatchedId = alreadyWatched.map(
-        (item) => item.dataValues.VideoId,
-      );
-
-      // Case2. 해당 영상의 태그를 가진 다른 영상 (포함)
-      const taggedVideos = details.dataValues.VideoTags;
-      const tagId = taggedVideos.map((item) => item.dataValues.id);
-
-      // 유사 태그 동영상 불러오기
-      const similarTag = await Video_Tag.findAll({
-        where: {
-          tagId,
-        },
-        attributes: [sequelize.fn("DISTINCT", "Video_Tag.VideoId"), "VideoId"],
-        order: sequelize.literal("rand()"),
-        limit: 6,
-      });
-      const similarTags = similarTag.map((item) => item.dataValues.VideoId);
-      alreadyWatchedId.push(video);
-
-      // Case1,2를 제외한 추천 영상 불러오기 (제외:현재 동영상, 이미 본 영상, 추가: 유사 태그)
-      const recommandVideos = await Video.findAll({
-        where: {
-          id: {
-            [Op.and]: [
-              { [Op.in]: similarTags },
-              { [Op.notIn]: alreadyWatchedId },
-            ],
+      if (user) {
+        // View 테이블 사용자별 비디오 조회수 저장
+        const viewcount = await View.findOne({
+          where: {
+            VideoId: video,
+            UserId: user,
           },
-        },
-        attributes: ["id", "title", "videoUrl", "thumbnailImageUrl", "videoLength", "videoGif"],
-        order: sequelize.literal("rand()"),
-        limit: 6
-      });
-      recommands = recommandVideos.map((item) => item.dataValues.id);
+          attributes: ["UserCnt"],
+        });
 
-      recommandsLength = recommands.length;
+        // 테이블에 중복이 없을 경우 View에 비디오, 사용자 추가
+        if (!viewcount) {
+          const viewcount = await View.create({ VideoId: video, UserId: user });
+        } else {
+          const usercnts = viewcount.UserCnt + 1;
+          await View.update({
+            UserCnt: usercnts,
+          },
+            {
+              where: {
+                VideoId: video,
+                UserId: user
+              }
+            })
+        };
 
-      if (recommandsLength < 6) {
-        const otherVideos = await Video.findAll({
+
+        /* 추천 영상 불러오기 */
+
+        // Case1. 사용자가 이미 시청한 영상(제외)
+        const alreadyWatched = await View.findAll({
+          where: {
+            UserId: user,
+          },
+          attributes: ["VideoId"],
+        });
+        const alreadyWatchedId = alreadyWatched.map(
+          (item) => item.dataValues.VideoId,
+        );
+
+        // Case2. 해당 영상의 태그를 가진 다른 영상 (포함)
+        const taggedVideos = details.dataValues.VideoTags;
+        const tagId = taggedVideos.map((item) => item.dataValues.id);
+
+        // 유사 태그 동영상 불러오기
+        const similarTag = await Video_Tag.findAll({
+          where: {
+            tagId,
+          },
+          attributes: [sequelize.fn("DISTINCT", "Video_Tag.VideoId"), "VideoId"],
+          order: sequelize.literal("rand()"),
+          limit: 6,
+        });
+        const similarTags = similarTag.map((item) => item.dataValues.VideoId);
+        alreadyWatchedId.push(video);
+
+        // Case1,2를 제외한 추천 영상 불러오기 (제외:현재 동영상, 이미 본 영상, 추가: 유사 태그)
+        const recommandVideos = await Video.findAll({
           where: {
             id: {
               [Op.and]: [
+                { [Op.in]: similarTags },
                 { [Op.notIn]: alreadyWatchedId },
-                { [Op.notIn]: recommands },
               ],
             },
           },
           attributes: ["id", "title", "videoUrl", "thumbnailImageUrl", "videoLength", "videoGif"],
           order: sequelize.literal("rand()"),
-          limit: 6 - recommandsLength,
+          limit: 6
         });
-        //여기서도 동영상 수가 적으면 이미 본 영상에서 가져와야 하는 로직 추가
-        recommandVideos.push(...otherVideos);
+        recommands = recommandVideos.map((item) => item.dataValues.id);
+
+        recommandsLength = recommands.length;
+
+        if (recommandsLength < 6) {
+          const otherVideos = await Video.findAll({
+            where: {
+              id: {
+                [Op.and]: [
+                  { [Op.notIn]: alreadyWatchedId },
+                  { [Op.notIn]: recommands },
+                ],
+              },
+            },
+            attributes: ["id", "title", "videoUrl", "thumbnailImageUrl", "videoLength", "videoGif"],
+            order: sequelize.literal("rand()"),
+            limit: 6 - recommandsLength,
+          });
+          //여기서도 동영상 수가 적으면 이미 본 영상에서 가져와야 하는 로직 추가
+          recommandVideos.push(...otherVideos);
+        }
+        return res.status(sc.OK).send(
+          ut.success(sc.OK, rm.GET_VIDEO_DETAIL_SUCCESS, {
+            details,
+            recommandVideos,
+          }),
+        );
+      } else {
+        const recommandVideos = await Video.findAll({
+          where: {
+            id: {
+              [Op.not]: video
+            }
+          },
+          attributes: ["id", "title", "videoUrl", "thumbnailImageUrl", "videoLength", "videoGif"],
+          order: sequelize.literal("rand()"),
+          limit: 6
+        });
+
+        return res.status(sc.OK).send(
+          ut.success(sc.OK, rm.GET_VIDEO_DETAIL_SUCCESS, {
+            details,
+            recommandVideos,
+          }),
+        );
       }
 
-      return res.status(sc.OK).send(
-        ut.success(sc.OK, rm.GET_VIDEO_DETAIL_SUCCESS, {
-          details,
-          recommandVideos,
-        }),
-      );
 
     } catch (err) {
       console.log(err);
@@ -998,12 +1015,12 @@ module.exports = {
         });
         return res
           .status(sc.OK)
-          .send(ut.success(sc.OK, rm.POST_VIDEO_SAVE_SUCCESS));
+          .send(ut.success(sc.OK, rm.DELETE_VIDEO_SAVE_SUCCESS));
       } else {
         const save = await Save.create({ VideoId: video, UserId: user });
         return res
           .status(sc.OK)
-          .send(ut.success(sc.OK, rm.DELETE_VIDEO_SAVE_SUCCESS, save));
+          .send(ut.success(sc.OK, rm.POST_VIDEO_SAVE_SUCCESS, save));
       }
     } catch (err) {
       return res

@@ -5,10 +5,10 @@ const authMiddleware = require("../middlewares/authMiddleware");
 
 
 //좋아요 추가/취소
-videoRouter.post("/like/:videoId", authMiddleware.checkToken("user"), videoController.likeControl);
+videoRouter.put("/like/:videoId", authMiddleware.checkToken("user"), videoController.likeControl);
 
 //비디오 저장 추가/취소
-videoRouter.post("/save/:videoId", authMiddleware.checkToken("user"), videoController.saveControl);
+videoRouter.put("/save/:videoId", authMiddleware.checkToken("user"), videoController.saveControl);
 
 //마이모티브 불러오기
 videoRouter.get(
@@ -34,30 +34,15 @@ videoRouter.get("/getBanners", videoController.bannerVideos);
 //홈화면 추천 영상 불러오기
 videoRouter.get(
   "/getRecommand",
+  authMiddleware.handleRequestWithoutUserToken,
   authMiddleware.checkToken("user"),
   videoController.recommanVideos);
 
 //디테일뷰 정보 불러오기
 videoRouter.get("/:videoId",
+  authMiddleware.handleRequestWithoutUserToken,
   authMiddleware.checkToken("user"),
   videoController.getDetail);
-
-
-
-//비디오 저장
-videoRouter.post(
-  "/:videoId/createSave",
-  authMiddleware.checkToken("user"),
-  videoController.createSave,
-);
-
-//비디오 저장 취소
-videoRouter.delete(
-  "/:videoId/deleteSave",
-  authMiddleware.checkToken("user"),
-  videoController.deleteSave,
-);
-
 
 
 module.exports = videoRouter;
