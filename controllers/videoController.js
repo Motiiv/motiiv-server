@@ -840,7 +840,7 @@ module.exports = {
       const isSaved = save ? true : false;
 
       const videoDetailData = { ...details.dataValues, isLiked, isSaved };
-      console.log(videoDetailData);
+
       /* 조회수 증가 */
 
       // Video 테이블 조회수 증가
@@ -908,6 +908,8 @@ module.exports = {
         const similarTags = similarTag.map((item) => item.dataValues.VideoId);
         alreadyWatchedId.push(video);
 
+        console.log(similarTags);
+        console.log(alreadyWatchedId);
         // Case1,2를 제외한 추천 영상 불러오기 (제외:현재 동영상, 이미 본 영상, 추가: 유사 태그)
         const recommandVideos = await Video.findAll({
           where: {
@@ -922,10 +924,10 @@ module.exports = {
           order: sequelize.literal("rand()"),
           limit: 6
         });
-
         recommands = recommandVideos.map((item) => item.dataValues.id);
-
+        console.log(recommands);
         recommandsLength = recommands.length;
+        console.log(recommandsLength);
 
         if (recommandsLength < 6) {
           const otherVideos = await Video.findAll({
@@ -941,9 +943,23 @@ module.exports = {
             order: sequelize.literal("rand()"),
             limit: 6 - recommandsLength,
           });
-          //여기서도 동영상 수가 적으면 이미 본 영상에서 가져와야 하는 로직 추가
           recommandVideos.push(...otherVideos);
         }
+        // 여기서도 하나도 없으면 동영상 추가
+
+        const recommandVideosLen = recommandVideos.map((item) => item.dataValues.id);
+        const recommandVideosLength = recommandVideosLen.length;
+
+        if (recommandVideosLength < 6) {
+          const otherVideo = await Video.findAll({
+            attributes: ["id", "title", "videoUrl", "thumbnailImageUrl", "videoLength", "videoGif"],
+            order: sequelize.literal("rand()"),
+            limit: 6 - recommandVideosLength
+          });
+          recommandVideos.push(...otherVideo);
+        };
+
+
         return res.status(sc.OK).send(
           ut.success(sc.OK, rm.GET_VIDEO_DETAIL_SUCCESS, {
             videoDetailData,
