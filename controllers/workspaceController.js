@@ -8,13 +8,18 @@ const axios = require("axios");
 module.exports = {
   createWorkspace: async (req, res) => {
     const { user } = req;
-    const { name, url } = req.body;
-    if (!name || !url) {
+    const { name, url: rawUrl } = req.body;
+    if (!name || !rawUrl) {
       return res
         .status(statusCode.BAD_REQUEST)
         .send(util.fail(statusCode.BAD_REQUEST, responseMessage.NULL_VALUE));
     }
     let logoUrl;
+    const url =
+      rawUrl.substring(0, 7) !== "http://" &&
+      rawUrl.substring(0, 8) !== "https://"
+        ? "http://" + rawUrl
+        : rawUrl;
     try {
       const hostname = new URL(url).hostname;
       const { url: tempUrl } = await LogoScrape.getLogo(hostname);
@@ -133,9 +138,13 @@ module.exports = {
       "https://sopt-27-wooyeong.s3.ap-northeast-2.amazonaws.com/motiiv/user/workspace/favicon_new.png";
     const { id: UserId } = req.user;
     const { workspaceId } = req.params;
-    const { newName, newUrl } = req.body;
+    const { newName, newUrl: rawUrl } = req.body;
     let newLogoUrl;
-
+    const newUrl =
+      rawUrl.substring(0, 7) !== "http://" &&
+      rawUrl.substring(0, 8) !== "https://"
+        ? "http://" + rawUrl
+        : rawUrl;
     if (newUrl) {
       try {
         new URL(newUrl).hostname;
