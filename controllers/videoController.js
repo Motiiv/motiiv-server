@@ -236,6 +236,7 @@ module.exports = {
       // 3군 어드민이 설정한 세션 불러오기
 
       const checkHomeSection = await Section.findAll({
+        where: { hide: "0" },
         include: [{
           model: Video, as: "SectionVideos", attributes: ["id", "title", "videoLength", "thumbnailImageUrl", "viewCount", "videoGif", "channelName"]
           , through: { attributes: [] }
@@ -243,8 +244,6 @@ module.exports = {
         order: sequelize.literal("rand()"),
         limit: 4
       });
-
-
       return res
         .status(sc.OK)
         .send(ut.success(sc.OK, rm.GET_VIDEO_RECOMMAND_SUCCESS, { jobVideos, recommandVideos, checkHomeSection }));
@@ -562,7 +561,7 @@ module.exports = {
 
   getCategory: async (req, res) => {
     const DB_NAME =
-      process.env.NODE_ENV === "production" ? "MOTIIV_PROD" : "motiiv"
+      process.env.NODE_ENV === "production" ? "MOTIIV_PROD" : "MOTIIV_DEV"
     const keyword = req.params.keyword;
     const filter = req.params.filters;
 
@@ -823,6 +822,25 @@ module.exports = {
         ],
       });
 
+      const like = await Like.findOne({
+        where: {
+          VideoId: video,
+          UserId: user
+        }
+      });
+
+      const save = await Save.findOne({
+        where: {
+          VideoId: video,
+          UserId: user
+        }
+      });
+
+      const isLiked = like ? true : false;
+      const isSaved = save ? true : false;
+
+      const videoDetailData = { ...details.dataValues, isLiked, isSaved };
+      console.log(videoDetailData);
       /* 조회수 증가 */
 
       // Video 테이블 조회수 증가
@@ -900,10 +918,11 @@ module.exports = {
               ],
             },
           },
-          attributes: ["id", "title", "videoUrl", "thumbnailImageUrl", "videoLength", "videoGif"],
+          attributes: ["id", "title", "videoUrl", "thumbnailImageUrl", "videoLength", "videoGif",],
           order: sequelize.literal("rand()"),
           limit: 6
         });
+
         recommands = recommandVideos.map((item) => item.dataValues.id);
 
         recommandsLength = recommands.length;
@@ -927,7 +946,7 @@ module.exports = {
         }
         return res.status(sc.OK).send(
           ut.success(sc.OK, rm.GET_VIDEO_DETAIL_SUCCESS, {
-            details,
+            videoDetailData,
             recommandVideos,
           }),
         );
@@ -945,7 +964,7 @@ module.exports = {
 
         return res.status(sc.OK).send(
           ut.success(sc.OK, rm.GET_VIDEO_DETAIL_SUCCESS, {
-            details,
+            videoDetailData,
             recommandVideos,
           }),
         );
