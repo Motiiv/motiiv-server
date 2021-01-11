@@ -147,25 +147,25 @@ module.exports = {
         : rawUrl;
     if (newUrl) {
       try {
-        new URL(newUrl).hostname;
+        const hostname = new URL(newUrl).hostname;
+        const urlData = await LogoScrape.getLogo(hostname);
+        if (urlData) {
+          try {
+            await axios({
+              method: "GET",
+              url: urlData.url,
+            });
+            newLogoUrl = urlData.url;
+          } catch (error) {
+            console.log(error);
+            newLogoUrl = defaultWorkspaceLogoUrl;
+          }
+        }
       } catch (error) {
         console.log(error);
         return res
           .status(statusCode.BAD_REQUEST)
           .send(util.fail(statusCode.BAD_REQUEST, responseMessage.INVALID_URL));
-      }
-      const urlData = await LogoScrape.getLogo(newUrl);
-      if (urlData) {
-        try {
-          await axios({
-            method: "GET",
-            url: urlData.url,
-          });
-          newLogoUrl = urlData.url;
-        } catch (error) {
-          console.log(error);
-          newLogoUrl = defaultWorkspaceLogoUrl;
-        }
       }
     }
 
