@@ -72,6 +72,7 @@ module.exports = {
         .send(ut.fail(sc.INTERNAL_SERVER_ERROR, rm.POST_VIDEO_FAIL));
     }
   },
+
   recommanVideos: async (req, res) => {
     const { id: user } = req.user;
     const DB_NAME =
@@ -272,6 +273,191 @@ module.exports = {
     }
   },
 
+
+  /* 작성중
+  recommendVideos: async (req, res) => {
+    const { id: user } = req.user;
+    const DB_NAME =
+      process.env.NODE_ENV === "production" ? "MOTIIV_PROD" : "MOTIIV_DEV"
+    try {
+      let sectionOne;
+      let sectionTwo;
+
+      if (user) {
+        /*
+        직군 기반 추천하기
+        return sectionOne
+        2-1군
+        */
+  /*
+  // 1. user 직군 불러오기
+  const userJob = await User.findOne({
+    where: { id: user }
+  });
+  const userJobId = userJob.JobId;
+
+  // 2. 해당 직권의 태그 id값 검색
+  const findJobName = await Job.findOne({
+    where: { id: userJobId },
+    attributes: ["name"]
+  });
+  const jobName = findJobName.dataValues.name;
+
+  // 3. 직군의 TagId값 찾기
+  const jobTag = await Tag.findOne({
+    where: { name: jobName }
+  });
+  const jobTagId = jobTag.dataValues.id;
+  console.log(jobTagId);
+
+  // 3-1. 해당 태그를 가진 비디오 id찾기
+  const tagedVideos = await Video_Tag.findAll({
+    where: { TagId: jobTagId },
+  });
+  const tagedVideosId = tagedVideos.map((item) => item.dataValues.VideoId);
+
+
+  const sectionOneVideo = await Video.findAll({
+    where: { id: tagedVideosId },
+    attributes: ["id", "title", "videoLength", "thumbnailImageUrl", "viewCount", "videoGif", "channelName",
+      [
+        Sequelize.literal(
+          `(SELECT COUNT(*) FROM ${DB_NAME}.Save WHERE (${DB_NAME}.Save.VideoId = ${DB_NAME}.Video.id) AND (${DB_NAME}.Save.UserId = ${user}))`,
+        ),
+        "isSave",
+      ],
+    ],
+    include: [
+      {
+        model: Tag,
+        as: "VideoTags",
+        attributes: ["id", "name"],
+        through: { attributes: [] },
+      }
+    ],
+    order: sequelize.literal("rand()"),
+    limit: 10
+  });
+
+  const sectionOnesId = sectionOneVideo.map((item) => item.dataValues.id);
+  console.log(sectionOnesId);
+  if (sectionOnesId.length < 10) {
+    const randomVideos = await Video.findAll({
+      where: {
+        id: {
+          [Op.and]: [
+            { [Op.notIn]: sectionOnesId },
+          ],
+        },
+      },
+      attributes: ["id", "title", "videoLength", "thumbnailImageUrl", "viewCount", "videoGif", "channelName",
+        [
+          Sequelize.literal(
+            `(SELECT COUNT(*) FROM ${DB_NAME}.Save WHERE (${DB_NAME}.Save.VideoId = ${DB_NAME}.Video.id) AND (${DB_NAME}.Save.UserId = ${user}))`,
+          ),
+          "isSave",
+        ],],
+      include: [
+        {
+          model: Tag,
+          as: "VideoTags",
+          attributes: ["id", "name"],
+          through: { attributes: [] },
+        }
+      ],
+      order: sequelize.literal("rand()"),
+      limit: 10 - sectionOnesId.length
+    })
+    sectionOneVideo.push(...randomVideos);
+
+    sectionOne = { sectionOne, sectionOneVideo };
+  } else {
+    sectionOne = { sectionOne, sectionOneVideo };
+  };
+  /*
+  관심사 기반 추천하기
+  return sectionTwo
+  2-2군
+  */
+  /*
+  // 사용자가 이미 시청한 영상
+  const alreadyWatched = await View.findAll({
+    where: {
+      UserId: user,
+    },
+    attributes: ["VideoId"],
+  });
+  const alreadyWatchedId = alreadyWatched.map((item) => item.dataValues.VideoId)
+  console.log(alreadyWatchedId);
+
+  // 유사 태그 동영상 불러오기
+  const similarTag = await Video_Tag.findAll({
+    where: {
+      TagId: getTagsId,
+    },
+    attributes: [sequelize.fn("DISTINCT", "Video_Tag.VideoId"), "VideoId"],
+    order: sequelize.literal("rand()"),
+    limit: 8,
+  });
+  const similarTags = similarTag.map((item) => item.dataValues.VideoId);
+
+  console.log("비슷한 태그의 비디오들");
+  console.log(similarTags);
+
+
+  // Case1,2를 제외한 추천 영상 불러오기 (제외:현재 동영상, 이미 본 영상, 추가: 유사 태그)
+  const recommandVideos = await Video.findAll({
+    where: {
+      id: {
+        [Op.and]: [
+          { [Op.in]: similarTags },
+          { [Op.notIn]: alreadyWatchedId },
+        ],
+      },
+    },
+    attributes: ["id", "title", "videoLength", "thumbnailImageUrl", "viewCount", "videoGif", "channelName"],
+    order: sequelize.literal("rand()"),
+  });
+  const recommands = recommandVideos.map((item) => item.dataValues.id);
+  console.log(recommands);
+
+  recommandsLength = recommands.length;
+
+  if (recommandsLength < 7) {
+    const otherVideos = await Video.findAll({
+      where: {
+        id: {
+          [Op.and]: [
+            { [Op.notIn]: alreadyWatchedId },
+            { [Op.notIn]: recommands },
+          ],
+        },
+      },
+      attributes: ["id", "title", "videoLength", "thumbnailImageUrl", "viewCount", "videoGif", "channelName"],
+      order: sequelize.literal("rand()"),
+      limit: 7 - recommandsLength,
+    });
+    //여기서도 동영상 수가 적으면 이미 본 영상에서 가져와야 하는 로직 추가
+    recommandVideos.push(...otherVideos);
+  };
+  */
+  /*
+        } else {
+  
+  
+        };
+  
+        return res
+          .status(sc.OK)
+          .send(ut.success(sc.OK, rm.GET_VIDEO_RECOMMAND_SUCCESS, sectionOne));
+      } catch (err) {
+        console.log(err);
+        return res
+          .status(sc.INTERNAL_SERVER_ERROR)
+          .send(ut.fail(sc.INTERNAL_SERVER_ERROR, rm.GET_VIDEO_RECOMMAND_FAIL));
+      }
+    },
+  */
 
   /*
   // 2군 세션 추천하기 (관심사 / 직군 기반)
@@ -1127,6 +1313,9 @@ module.exports = {
           },
         ],
       });
+
+      details.dataValues.createdAt = dayjs(details.dataValues.createdAt).format('YYYY.MM.DD');
+
 
       const like = await Like.findOne({
         where: {
