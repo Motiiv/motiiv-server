@@ -20,7 +20,10 @@ videoRouter.get(
 videoRouter.get("/category/keywords", videoController.getCategoryKeyword);
 
 //카테고리뷰 불러오기
-videoRouter.get("/category/:keyword/:filters", videoController.getCategory);
+videoRouter.get("/category/:keyword/:filters",
+  authMiddleware.handleRequestWithoutUserToken,
+  authMiddleware.checkToken("user"),
+  videoController.getCategory);
 
 //카테고리뷰 특정 태그값 검색하기
 videoRouter.get("/category/:tagId", videoController.TagVideo);

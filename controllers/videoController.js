@@ -463,6 +463,12 @@ module.exports = {
             ),
             "likeCnt",
           ],
+          [
+            Sequelize.literal(
+              `(SELECT COUNT(*) FROM ${DB_NAME}.Save WHERE (${DB_NAME}.Save.VideoId = ${DB_NAME}.Video.id) AND (${DB_NAME}.Save.UserId = ${user}))`,
+            ),
+            "isSave",
+          ],
         ],
         include: [
           {
@@ -471,14 +477,15 @@ module.exports = {
             attributes: ["id", "name"],
             through: { attributes: [] },
           },
+
         ],
       });
+
       const toptenView = toptenVideos.map((item) => item.dataValues.viewCount);
       const toptenLike = toptenVideos.map((item) => item.dataValues.likeCnt);
-
       const orderCnt = [];
       for (i = 0; i < toptenVideos.length; i++) {
-        orderCnt.push(toptenView[i] + Math.pow(toptenLike[i], 2));
+        orderCnt.push([i] + Math.pow(toptenLike[i], 2));
       };
 
       for (i = 0; i < toptenVideos.length; i++) {
@@ -516,7 +523,7 @@ module.exports = {
       const mostView = await View.findAll({
         group: ["VideoId"],
         where: {
-          createdAt: {
+          updatedAt: {
             [Op.and]: [{ [Op.lte]: today }, { [Op.gte]: yesterday }],
           },
         },
@@ -557,10 +564,11 @@ module.exports = {
         },
         attributes: ["VideoId", [sequelize.fn("Count", "VideoId"), "likeCnt"]],
         order: [[sequelize.literal("likeCnt"), "DESC"]],
-        limit: 2,
       });
+
       const mostLikeIds = mostLike.map((item) => item.dataValues.VideoId);
       let mostLikeId = [];
+      console.log(mostLikeIds);
 
       // 좋아요와 조회수 값이 일치하는 경우도 처리해야함
       if (mostViewId == mostLikeIds) {
@@ -590,11 +598,35 @@ module.exports = {
         ],
       });
 
+      // 3번째 배너 비디오 임의값 넣기
+      const thirdVideos = await Video.findOne({
+        where: { id: '15' },
+        attributes: [
+          "id",
+          "title",
+          "description",
+          "thumbnailImageUrl",
+          "videoLength",
+          "videoGif",
+        ],
+        include: [
+          {
+            model: Tag,
+            as: "VideoTags",
+            attributes: ["id", "name"],
+            through: { attributes: [] },
+          },
+        ],
+      });
+
+
+
       return res.status(sc.OK).send(
         ut.success(sc.OK, rm.GET_ALL_POST_SUCCESS, {
           toptenVideo,
           mostViewVideo,
           mostLikeVideo,
+          thirdVideos
         }),
       );
     } catch (err) {
@@ -768,6 +800,8 @@ module.exports = {
   getCategory: async (req, res) => {
     const DB_NAME =
       process.env.NODE_ENV === "production" ? "MOTIIV_PROD" : "MOTIIV_DEV"
+
+    const { id: user } = req.user;
     const keyword = req.params.keyword;
     const filter = req.params.filters;
 
@@ -813,6 +847,12 @@ module.exports = {
           group: ["id"],
           where: { id: getFilterVideoId },
           attributes: ['id', 'title', 'videoLength', 'thumbnailImageUrl', 'viewCount', 'channelName', "videoGif", 'createdAt',
+            [
+              Sequelize.literal(
+                `(SELECT COUNT(*) FROM ${DB_NAME}.Save WHERE (${DB_NAME}.Save.VideoId = ${DB_NAME}.Video.id) AND (${DB_NAME}.Save.UserId = ${user}))`,
+              ),
+              "isSave",
+            ],
           ],
           include: [
             {
@@ -823,6 +863,7 @@ module.exports = {
             }
           ],
           order: [[sequelize.literal("createdAt"), "DESC"]],
+
         });
         const calCnt = filteredVideo.map((item) => item.dataValues.id);
         const videoCnt = calCnt.length;
@@ -851,6 +892,12 @@ module.exports = {
                 `(SELECT COUNT(*) FROM ${DB_NAME}.Like WHERE ${DB_NAME}.Like.VideoId = ${DB_NAME}.Video.id)`,
               ),
               "LikeCount",
+            ],
+            [
+              Sequelize.literal(
+                `(SELECT COUNT(*) FROM ${DB_NAME}.Save WHERE (${DB_NAME}.Save.VideoId = ${DB_NAME}.Video.id) AND (${DB_NAME}.Save.UserId = ${user}))`,
+              ),
+              "isSave",
             ],
           ],
           order: [[Sequelize.literal("LikeCount"), "DESC"]],
@@ -892,6 +939,12 @@ module.exports = {
               ),
               "SaveCount",
             ],
+            [
+              Sequelize.literal(
+                `(SELECT COUNT(*) FROM ${DB_NAME}.Save WHERE (${DB_NAME}.Save.VideoId = ${DB_NAME}.Video.id) AND (${DB_NAME}.Save.UserId = ${user}))`,
+              ),
+              "isSave",
+            ],
           ],
           order: [[Sequelize.literal("SaveCount"), "DESC"]],
           include: [
@@ -915,6 +968,12 @@ module.exports = {
         const filteredVideo = await Video.findAll({
           where: { id: getFilterVideoId },
           attributes: ['id', 'title', 'videoLength', 'thumbnailImageUrl', 'viewCount', 'channelName', "videoGif", 'createdAt',
+            [
+              Sequelize.literal(
+                `(SELECT COUNT(*) FROM ${DB_NAME}.Save WHERE (${DB_NAME}.Save.VideoId = ${DB_NAME}.Video.id) AND (${DB_NAME}.Save.UserId = ${user}))`,
+              ),
+              "isSave",
+            ],
           ],
           include: [
             {
@@ -1126,7 +1185,7 @@ module.exports = {
               ],
             },
           },
-          attributes: ["id", "title", "videoUrl", "thumbnailImageUrl", "videoLength", "videoGif",],
+          attributes: ["id", "title", "videoUrl", "thumbnailImageUrl", "videoLength", "videoGif", "channelName"],
           include: [
             {
               model: Tag,
@@ -1153,7 +1212,7 @@ module.exports = {
                 ],
               },
             },
-            attributes: ["id", "title", "videoUrl", "thumbnailImageUrl", "videoLength", "videoGif"],
+            attributes: ["id", "title", "videoUrl", "thumbnailImageUrl", "videoLength", "videoGif", "channelName"],
             include: [
               {
                 model: Tag,
@@ -1174,7 +1233,7 @@ module.exports = {
 
         if (recommandVideosLength < 6) {
           const otherVideo = await Video.findAll({
-            attributes: ["id", "title", "videoUrl", "thumbnailImageUrl", "videoLength", "videoGif"],
+            attributes: ["id", "title", "videoUrl", "thumbnailImageUrl", "videoLength", "videoGif", "channelName"],
             include: [
               {
                 model: Tag,
@@ -1203,7 +1262,7 @@ module.exports = {
               [Op.not]: video
             }
           },
-          attributes: ["id", "title", "videoUrl", "thumbnailImageUrl", "videoLength", "videoGif"],
+          attributes: ["id", "title", "videoUrl", "thumbnailImageUrl", "videoLength", "videoGif", "channelName"],
           include: [
             {
               model: Tag,
