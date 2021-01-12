@@ -74,6 +74,8 @@ module.exports = {
   },
   recommanVideos: async (req, res) => {
     const { id: user } = req.user;
+    const DB_NAME =
+      process.env.NODE_ENV === "production" ? "MOTIIV_PROD" : "MOTIIV_DEV"
     try {
 
       const sectiononeId = [1, 2, 3, 4, 5, 6];
@@ -104,6 +106,12 @@ module.exports = {
           },
         },
         attributes: ["id", "title", "thumbnailImageUrl", "viewCount", "videoLength", "channelName", "videoLength", "videoGif", "createdAt",
+          [
+            Sequelize.literal(
+              `(SELECT COUNT(*) FROM ${DB_NAME}.Save WHERE (${DB_NAME}.Save.VideoId = ${DB_NAME}.Video.id) AND (${DB_NAME}.Save.UserId = ${user}))`,
+            ),
+            "isSave",
+          ],
         ],
         include: [
           {
@@ -113,6 +121,7 @@ module.exports = {
             through: { attributes: [] },
           }
         ],
+
       });
 
       const sectionOne = { sectionOnes, sectiononeName, sectiononeNameSub };
@@ -126,6 +135,12 @@ module.exports = {
           },
         },
         attributes: ["id", "title", "thumbnailImageUrl", "viewCount", "videoLength", "channelName", "videoLength", "videoGif", "createdAt",
+          [
+            Sequelize.literal(
+              `(SELECT COUNT(*) FROM ${DB_NAME}.Save WHERE (${DB_NAME}.Save.VideoId = ${DB_NAME}.Video.id) AND (${DB_NAME}.Save.UserId = ${user}))`,
+            ),
+            "isSave",
+          ],
         ],
         include: [
           {
@@ -147,6 +162,12 @@ module.exports = {
           },
         },
         attributes: ["id", "title", "thumbnailImageUrl", "viewCount", "videoLength", "channelName", "videoLength", "videoGif", "createdAt",
+          [
+            Sequelize.literal(
+              `(SELECT COUNT(*) FROM ${DB_NAME}.Save WHERE (${DB_NAME}.Save.VideoId = ${DB_NAME}.Video.id) AND (${DB_NAME}.Save.UserId = ${user}))`,
+            ),
+            "isSave",
+          ],
         ],
         include: [
           {
@@ -168,6 +189,12 @@ module.exports = {
           },
         },
         attributes: ["id", "title", "thumbnailImageUrl", "viewCount", "videoLength", "channelName", "videoLength", "videoGif", "createdAt",
+          [
+            Sequelize.literal(
+              `(SELECT COUNT(*) FROM ${DB_NAME}.Save WHERE (${DB_NAME}.Save.VideoId = ${DB_NAME}.Video.id) AND (${DB_NAME}.Save.UserId = ${user}))`,
+            ),
+            "isSave",
+          ],
         ],
         include: [
           {
@@ -189,6 +216,12 @@ module.exports = {
           },
         },
         attributes: ["id", "title", "thumbnailImageUrl", "viewCount", "videoLength", "channelName", "videoLength", "videoGif", "createdAt",
+          [
+            Sequelize.literal(
+              `(SELECT COUNT(*) FROM ${DB_NAME}.Save WHERE (${DB_NAME}.Save.VideoId = ${DB_NAME}.Video.id) AND (${DB_NAME}.Save.UserId = ${user}))`,
+            ),
+            "isSave",
+          ],
         ],
         include: [
           {
@@ -210,6 +243,12 @@ module.exports = {
           },
         },
         attributes: ["id", "title", "thumbnailImageUrl", "viewCount", "videoLength", "channelName", "videoLength", "videoGif", "createdAt",
+          [
+            Sequelize.literal(
+              `(SELECT COUNT(*) FROM ${DB_NAME}.Save WHERE (${DB_NAME}.Save.VideoId = ${DB_NAME}.Video.id) AND (${DB_NAME}.Save.UserId = ${user}))`,
+            ),
+            "isSave",
+          ],
         ],
         include: [
           {
@@ -512,16 +551,6 @@ module.exports = {
       for (i = 0; i < 10; i++) {
         toptenVideo.push(toptenVideos[i]);
       };
-
-      //어제 날짜 포맷 변경 함수
-      function getFormatDate(date) {
-        var year = date.getFullYear(); //yyyy
-        var month = 1 + date.getMonth(); //M
-        month = month >= 10 ? month : "0" + month; //month 두자리로 저장
-        var day = date.getDate(); //d
-        day = day >= 10 ? day : "0" + day; //day 두자리로 저장
-        return year + "-" + month + "-" + day; //'-' 추가하여 yyyy-mm-dd 형태 생성 가능
-      }
 
       const yesterday = ((d) => new Date(d.setDate(d.getDate() - 1)))(
         new Date(),
