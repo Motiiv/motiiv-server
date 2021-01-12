@@ -20,6 +20,7 @@ const {
 const { Sequelize } = require("sequelize");
 const { STRING } = require("sequelize");
 const Op = sequelize.Op;
+const dayjs = require("dayjs");
 
 module.exports = {
   //비디오 추가하기
@@ -477,9 +478,20 @@ module.exports = {
             attributes: ["id", "name"],
             through: { attributes: [] },
           },
-
         ],
       });
+
+      const top_map = new Map();
+      toptenVideos.map((view) => {
+        top_map.set(view.VideoId, view.createdAt);
+      });
+      const toptensId = toptenVideos.map((item) => item.dataValues.VideoId)
+
+      toptenVideos.map((tops, i) => {
+        const createdAt = top_map.get(tops.dataValues.id);
+        toptenVideos[i].dataValues.createdAt = dayjs(createdAt).format('YYYY.MM.DD');
+      });
+
 
       const toptenView = toptenVideos.map((item) => item.dataValues.viewCount);
       const toptenLike = toptenVideos.map((item) => item.dataValues.likeCnt);
