@@ -450,7 +450,7 @@ module.exports = {
             id: {
               [Op.and]: [
                 { [Op.in]: similarTags },
-                { [Op.ne]: alreadyWatchedId },
+                { [Op.notIn]: alreadyWatchedId },
               ],
             },
           },
@@ -506,12 +506,46 @@ module.exports = {
             order: sequelize.literal("rand()"),
             limit: 10 - recommandsLength,
           });
-
-
+          const otherVideosId = otherVideos.map((item) => item.dataValues.id);
           //여기서도 동영상 수가 적으면 이미 본 영상에서 가져와야 하는 로직 추가
-          sectionTwoVideos.push(...otherVideos);
-          sectionTwo = sectionTwoVideos;
-          sectionTwo.push(titleTwo);
+          const noVideos = recommandsLength + otherVideosId.length;
+          if (noVideos < 10) {
+            const randomVideos = await Video.findAll({
+              where: {
+                id: {
+                  [Op.and]: {
+                    [Op.notIn]: similarTags
+                  }
+                }
+              },
+              attributes: ["id", "title", "videoLength", "thumbnailImageUrl", "viewCount", "videoGif", "channelName",
+                [
+                  Sequelize.literal(
+                    `(SELECT COUNT(*) FROM ${DB_NAME}.Save WHERE (${DB_NAME}.Save.VideoId = ${DB_NAME}.Video.id) AND (${DB_NAME}.Save.UserId = ${user}))`,
+                  ),
+                  "isSave",
+                ],
+              ],
+              include: [
+                {
+                  model: Tag,
+                  as: "VideoTags",
+                  attributes: ["id", "name"],
+                  through: { attributes: [] },
+                }
+              ],
+              order: sequelize.literal("rand()"),
+              limit: 10 - noVideos,
+            });
+            sectionTwoVideos.push(...randomVideos);
+            sectionTwo = sectionTwoVideos;
+            sectionTwo.push(titleTwo);
+
+          } else {
+            sectionTwoVideos.push(...otherVideos);
+            sectionTwo = sectionTwoVideos;
+            sectionTwo.push(titleTwo);
+          };
 
         } else {
           sectionTwo = sectionTwoVideos;
