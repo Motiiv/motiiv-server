@@ -22,7 +22,6 @@ sequelize.query("SET FOREIGN_KEY_CHECKS = 0").then(() =>
 );
 
 var app = express();
-app.use(cors());
 
 // view engine setup
 app.set("views", path.join(__dirname, "views"));
