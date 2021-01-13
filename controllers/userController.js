@@ -263,13 +263,8 @@ module.exports = {
         if (socialType === "naver") {
         }
         return res
-          .status(statusCode.NO_CONTENT)
-          .send(
-            util.fail(
-              statusCode.NO_CONTENT,
-              responseMessage.PROCEED_WITH_SIGNUP,
-            ),
-          );
+          .status(statusCode.OK)
+          .send(util.fail(statusCode.OK, responseMessage.PROCEED_WITH_SIGNUP));
       }
       const { accessToken } = await jwt.sign(user);
       res.status(statusCode.OK).send(
