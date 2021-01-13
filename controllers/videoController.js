@@ -286,7 +286,6 @@ module.exports = {
       let sectionFour;
       let sectionFive;
       let sectionSix;
-      let checkHomeSection;
 
       if (user) {
         /*
@@ -350,6 +349,9 @@ module.exports = {
         });
 
         const sectionOnesId = sectionOneVideo.map((item) => item.dataValues.id);
+        console.log('\n\n\n');
+        console.log("1군dasdasd");
+        console.log(sectionOnesId);
 
         if (sectionOnesId.length < 10) {
           const randomVideos = await Video.findAll({
@@ -380,11 +382,11 @@ module.exports = {
           })
           sectionOneVideo.push(...randomVideos);
           sectionOne = sectionOneVideo;
-          sectionOne.push(titleOne);
+          //sectionOne.push(titleOne);
 
         } else {
           sectionOne = sectionOneVideo;
-          sectionOne.push(titleOne);
+          //sectionOne.push(titleOne);
         };
 
 
@@ -544,12 +546,12 @@ module.exports = {
           } else {
             sectionTwoVideos.push(...otherVideos);
             sectionTwo = sectionTwoVideos;
-            sectionTwo.push(titleTwo);
+            //sectionTwo.push(titleTwo);
           };
 
         } else {
           sectionTwo = sectionTwoVideos;
-          sectionTwo.push(titleTwo);
+          //sectionTwo.push(titleTwo);
         }
 
 
@@ -611,7 +613,7 @@ module.exports = {
           ]
         });
         sectionThree = sectionThreeVideo.map((item) => item.dataValues.Video);
-        sectionThree.push(getSectionThreeTitle);
+        //sectionThree.push(getSectionThreeTitle);
 
         // Section 4번째
         const getSectionFourTitle = await Section.findOne({
@@ -648,7 +650,7 @@ module.exports = {
           ]
         });
         sectionFour = sectionFourVideo.map((item) => item.dataValues.Video);
-        sectionFour.push(getSectionFourTitle);
+        //sectionFour.push(getSectionFourTitle);
 
         // Section 5번째
         const getSectionFiveTitle = await Section.findOne({
@@ -685,18 +687,18 @@ module.exports = {
           ]
         });
         sectionFive = sectionFiveVideo.map((item) => item.dataValues.Video);
-        sectionFive.push(getSectionFiveTitle);
+        //sectionFive.push(getSectionFiveTitle);
 
         // Section 6번째
         const getSectionSixTitle = await Section.findOne({
-          where: { id: sectionList[2] },
+          where: { id: sectionList[3] },
           attributes: ["title", "subtitle"],
           raw: true
         });
 
         const sectionSixVideo = await Video_Section.findAll({
           where: {
-            SectionId: sectionList[2]
+            SectionId: sectionList[3]
           },
           attributes: ["SectionId"],
           include: [
@@ -722,21 +724,29 @@ module.exports = {
           ]
         });
         sectionSix = sectionSixVideo.map((item) => item.dataValues.Video);
-        sectionSix.push(getSectionSixTitle);
+        //sectionSix.push(getSectionSixTitle);
 
 
         // Json to array
-        const data = { sectionOne, sectionTwo, sectionThree, sectionFour, sectionFive, sectionSix };
-        const arr = []
-        for (i in data) {
-          arr.push(data[i])
+        const sectionVideoResult = { sectionOne, sectionTwo, sectionThree, sectionFour, sectionFive, sectionSix };
+        const result = []
+        for (i in sectionVideoResult) {
+          result.push(sectionVideoResult[i])
         }
+
+        const titleList = { titleOne, titleTwo, getSectionThreeTitle, getSectionFourTitle, getSectionFiveTitle, getSectionSixTitle };
+        const titleResult = []
+        for (i in titleList) {
+          titleResult.push(titleList[i])
+        }
+
+        const finalresult = result;
+        finalresult.push(titleResult);
 
         return res
           .status(sc.OK)
-          .send(ut.success(sc.OK, rm.GET_VIDEO_RECOMMAND_SUCCESS, arr));
+          .send(ut.success(sc.OK, rm.GET_VIDEO_RECOMMAND_SUCCESS, finalresult));
       } else {
-
 
         const unhidedSection = await Section.findAll({
           where: { hide: "0" },
@@ -783,14 +793,11 @@ module.exports = {
                 ],
               ],
             },
-            {
-              model: Section,
-              attributes: ["title", "subtitle"]
-            }
           ]
         });
         sectionOne = getSecionOne.map((item) => item.dataValues.Video);
-        sectionOne.push(getSectionOneTitle);
+        //sectionOne.push(getSectionOneTitle);
+
 
         // Section 2번째
         const getSectionTwoTitle = await Section.findOne({
@@ -816,14 +823,10 @@ module.exports = {
                 ],
               ],
             },
-            {
-              model: Section,
-              attributes: ["title", "subtitle"]
-            }
           ]
         });
         sectionTwo = getSectionTwo.map((item) => item.dataValues.Video);
-        sectionTwo.push(getSectionTwoTitle);
+        //sectionTwo.push(getSectionTwoTitle);
 
 
 
@@ -851,14 +854,10 @@ module.exports = {
                 ],
               ],
             },
-            {
-              model: Section,
-              attributes: ["title", "subtitle"]
-            }
           ]
         });
         sectionThree = getSectionThree.map((item) => item.dataValues.Video);
-        sectionThree.push(getSectionThreeTitle);
+        //sectionThree.push(getSectionThreeTitle);
 
         // Section 4번째
         const getSectionFourTitle = await Section.findOne({
@@ -884,14 +883,10 @@ module.exports = {
                 ],
               ],
             },
-            {
-              model: Section,
-              attributes: ["title", "subtitle"]
-            }
           ]
         });
         sectionFour = getSectionFour.map((item) => item.dataValues.Video);
-        sectionFour.push(getSectionFourTitle);
+        //sectionFour.push(getSectionFourTitle);
 
 
         // Section 5번째
@@ -918,14 +913,10 @@ module.exports = {
                 ],
               ],
             },
-            {
-              model: Section,
-              attributes: ["title", "subtitle"]
-            }
           ]
         });
         sectionFive = getSectionFive.map((item) => item.dataValues.Video);
-        sectionFive = { sectionFive, ...getSectionFiveTitle };
+        //sectionFive = { sectionFive, ...getSectionFiveTitle };
 
 
         // Section 6번째
@@ -952,19 +943,29 @@ module.exports = {
                 ],
               ],
             },
-            {
-              model: Section,
-              attributes: ["title", "subtitle"]
-            }
           ],
         });
         sectionSix = getSectionSix.map((item) => item.dataValues.Video);
-        sectionSix = { sectionSix, ...getSectionSixTitle };
+        //sectionSix = { sectionSix, ...getSectionSixTitle };
 
+        const sectionListUp = { sectionOne, sectionTwo, sectionThree, sectionFour, sectionFive, sectionSix };
+        const sectionResult = []
+        for (i in sectionListUp) {
+          sectionResult.push(sectionListUp[i])
+        }
+
+        const titleList = { getSectionOneTitle, getSectionTwoTitle, getSectionThreeTitle, getSectionFourTitle, getSectionFiveTitle, getSectionSixTitle };
+        const titleResult = []
+        for (i in titleList) {
+          titleResult.push(titleList[i])
+        }
+
+        const finalResult = sectionResult;
+        finalResult.push(titleResult);
 
         return res
           .status(sc.OK)
-          .send(ut.success(sc.OK, rm.GET_VIDEO_RECOMMAND_SUCCESS, { sectionOne, sectionTwo, sectionThree, sectionFour, sectionFive, sectionSix }));
+          .send(ut.success(sc.OK, rm.GET_VIDEO_RECOMMAND_SUCCESS, finalResult));
       };
 
 
