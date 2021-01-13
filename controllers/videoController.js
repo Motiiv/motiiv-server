@@ -433,7 +433,6 @@ module.exports = {
         const alreadyWatchedId = alreadyWatched.map((item) => item.dataValues.VideoId)
 
 
-
         // 유사 태그 동영상 불러오기
         const similarTag = await Video_Tag.findAll({
           where: {
@@ -451,7 +450,7 @@ module.exports = {
             id: {
               [Op.and]: [
                 { [Op.in]: similarTags },
-                { [Op.notIn]: alreadyWatchedId },
+                { [Op.ne]: alreadyWatchedId },
               ],
             },
           },
@@ -475,7 +474,6 @@ module.exports = {
           limit: 10
         });
         const recommands = sectionTwoVideos.map((item) => item.dataValues.id);
-
 
         recommandsLength = recommands.length;
 
@@ -508,10 +506,13 @@ module.exports = {
             order: sequelize.literal("rand()"),
             limit: 10 - recommandsLength,
           });
+
+
           //여기서도 동영상 수가 적으면 이미 본 영상에서 가져와야 하는 로직 추가
           sectionTwoVideos.push(...otherVideos);
           sectionTwo = sectionTwoVideos;
           sectionTwo.push(titleTwo);
+
         } else {
           sectionTwo = sectionTwoVideos;
           sectionTwo.push(titleTwo);
