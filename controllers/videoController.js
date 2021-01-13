@@ -446,7 +446,7 @@ module.exports = {
         const similarTags = similarTag.map((item) => item.dataValues.VideoId);
 
         // Case1,2를 제외한 추천 영상 불러오기 (제외:현재 동영상, 이미 본 영상, 추가: 유사 태그)
-        sectionTwo = await Video.findAll({
+        const sectionTwoVideos = await Video.findAll({
           where: {
             id: {
               [Op.and]: [
@@ -472,12 +472,10 @@ module.exports = {
             }
           ],
           order: sequelize.literal("rand()"),
-          limit: 30
+          limit: 10
         });
+        const recommands = sectionTwoVideos.map((item) => item.dataValues.id);
 
-
-        const recommands = sectionTwo.map((item) => item.dataValues.id);
-        console.log(recommands);
 
         recommandsLength = recommands.length;
 
@@ -511,11 +509,13 @@ module.exports = {
             limit: 10 - recommandsLength,
           });
           //여기서도 동영상 수가 적으면 이미 본 영상에서 가져와야 하는 로직 추가
-          sectionTwo.push(...otherVideos);
+          sectionTwoVideos.push(...otherVideos);
+          sectionTwo = sectionTwoVideos;
           sectionTwo.push(titleTwo);
         } else {
           sectionTwo.push(titleTwo);
         }
+
 
         //3군 섹션 4개 랜덤하게 불러오기 
         const unhidedSection = await Section.findAll({
