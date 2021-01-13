@@ -729,16 +729,16 @@ module.exports = {
 
         // Json to array
         const sectionVideoResult = { sectionOne, sectionTwo, sectionThree, sectionFour, sectionFive, sectionSix };
-        const result = []
+        const result = [];
         for (i in sectionVideoResult) {
           result.push(sectionVideoResult[i])
-        }
+        };
 
         const titleList = { titleOne, titleTwo, getSectionThreeTitle, getSectionFourTitle, getSectionFiveTitle, getSectionSixTitle };
-        const titleResult = []
+        const titleResult = [];
         for (i in titleList) {
           titleResult.push(titleList[i])
-        }
+        };
 
         const finalresult = result;
         finalresult.push(titleResult);
@@ -1759,30 +1759,71 @@ module.exports = {
   // 태그 비디오 불러오기
 
   TagVideo: async (req, res) => {
+    const DB_NAME =
+      process.env.NODE_ENV === "production" ? "MOTIIV_PROD" : "MOTIIV_DEV";
+    const { id: user } = req.user
+    const tag = req.params.tagId;
+    let findTagVideo;
+
     try {
-      const tag = req.params.tagId;
-      const findTagVideo = await Tag.findAll({
-        attributes: { exclude: ["createdAt", "updatedAt", "KeywordId"] },
-        include: [{
-          model: Video,
-          as: "TaggedVideos",
-          attributes: ['id', 'title', 'videoLength', 'thumbnailImageUrl', 'viewCount', 'channelName', "videoGif", 'createdAt',],
-          through: { attributes: [] },
+      if (user) {
+        findTagVideo = await Tag.findAll({
+          attributes: { exclude: ["createdAt", "updatedAt", "KeywordId"] },
           include: [{
-            model: Tag,
-            as: "VideoTags",
-            attributes: ["id", "name"],
+            model: Video,
+            as: "TaggedVideos",
+            attributes: ['id', 'title', 'videoLength', 'thumbnailImageUrl', 'viewCount', 'channelName', "videoGif", 'createdAt',
+              [
+                Sequelize.literal(
+                  `(SELECT COUNT(*) FROM ${DB_NAME}.Save WHERE (${DB_NAME}.Save.VideoId = ${DB_NAME}.TaggedVideos.id) AND (${DB_NAME}.Save.UserId = ${user}))`,
+                ),
+                "isSave",
+              ],
+            ],
             through: { attributes: [] },
-          }]
-        }],
-        where: { id: tag },
-        through: { attributes: [] },
-      });
-      return res
-        .status(sc.OK)
-        .send(
-          ut.success(sc.OK, rm.GET_CATEGORY_TAGS_SUCCESS, ...findTagVideo),
-        );
+            include: [{
+              model: Tag,
+              as: "VideoTags",
+              attributes: ["id", "name"],
+              through: { attributes: [] },
+            }]
+          }],
+          where: { id: tag },
+          through: { attributes: [] },
+        });
+        //const findTagVideoId = findTagVideo.map((item) => item.VideoTags.id);
+        //console.log(findTagVideoId)
+
+        return res
+          .status(sc.OK)
+          .send(
+            ut.success(sc.OK, rm.GET_CATEGORY_TAGS_SUCCESS, findTagVideo),
+          );
+      } else {
+        findTagVideo = await Tag.findAll({
+          attributes: { exclude: ["createdAt", "updatedAt", "KeywordId"] },
+          include: [{
+            model: Video,
+            as: "TaggedVideos",
+            attributes: ['id', 'title', 'videoLength', 'thumbnailImageUrl', 'viewCount', 'channelName', "videoGif", 'createdAt'],
+            through: { attributes: [] },
+            include: [{
+              model: Tag,
+              as: "VideoTags",
+              attributes: ["id", "name"],
+              through: { attributes: [] },
+            }]
+          }],
+          where: { id: tag },
+          through: { attributes: [] },
+        });
+        return res
+          .status(sc.OK)
+          .send(
+            ut.success(sc.OK, rm.GET_CATEGORY_TAGS_SUCCESS, ...findTagVideo),
+          );
+      };
+
     } catch (err) {
       console.log(err)
       return res
