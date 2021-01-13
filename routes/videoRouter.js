@@ -26,7 +26,10 @@ videoRouter.get("/category/:keyword/:filters",
   videoController.getCategory);
 
 //카테고리뷰 특정 태그값 검색하기
-videoRouter.get("/category/:tagId", videoController.TagVideo);
+videoRouter.get("/category/:tagId",
+  authMiddleware.handleRequestWithoutUserToken,
+  authMiddleware.checkToken("user"),
+  videoController.TagVideo);
 
 //비디오 업로드
 videoRouter.post("/postVideo", videoController.postVideo);
