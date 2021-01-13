@@ -513,6 +513,7 @@ module.exports = {
           sectionTwo = sectionTwoVideos;
           sectionTwo.push(titleTwo);
         } else {
+          sectionTwo = sectionTwoVideos;
           sectionTwo.push(titleTwo);
         }
 
