@@ -42,7 +42,7 @@ videoRouter.get(
   "/getRecommand",
   authMiddleware.handleRequestWithoutUserToken,
   authMiddleware.checkToken("user"),
-  videoController.recommanVideos);
+  videoController.recommendVideos);
 
 //디테일뷰 정보 불러오기
 videoRouter.get("/:videoId",

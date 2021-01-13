@@ -81,6 +81,15 @@ db.Section.belongsToMany(db.Video, {
   as: "SectionVideos",
 });
 
+// 1 : M    Video : Video_Section
+db.Video.hasMany(db.Video_Section);
+db.Video_Section.belongsTo(db.Video);
+
+// 1 : M    Section : Video_Section
+db.Section.hasMany(db.Video_Section);
+db.Video_Section.belongsTo(db.Section);
+
+
 // 1 : N    Keyword : Tag
 db.Keyword.hasMany(db.Tag, { onDelete: "SET NULL" });
 db.Tag.belongsTo(db.Keyword);

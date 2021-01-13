@@ -72,209 +72,209 @@ module.exports = {
         .send(ut.fail(sc.INTERNAL_SERVER_ERROR, rm.POST_VIDEO_FAIL));
     }
   },
-
-  recommanVideos: async (req, res) => {
-    const { id: user } = req.user;
-    const DB_NAME =
-      process.env.NODE_ENV === "production" ? "MOTIIV_PROD" : "MOTIIV_DEV"
-    try {
-
-      const sectiononeId = [1, 2, 3, 4, 5, 6];
-      const sectiononeName = "이영진 바보";
-      const sectiononeNameSub = "이영진 바보";
-      const sectiontwoId = [7, 8, 9, 10, 11, 12];
-      const sectionTwoName = "메종L안맞음";
-      const sectionTwoNameSub = "메종L안맞음 부우";
-      const sectionthreeId = [13, 14, 15, 16, 17, 18];
-      const sectionThreeName = "허허 돼지 이영진";
-      const sectionThreeNameSub = "돼에지";
-      const sectionFourId = [19, 20, 21, 22, 23, 24];
-      const sectionFourName = "정신차려 이영진";
-      const sectionFourNameSub = "이 각박한 세상 속에서";
-      const sectionFiveId = [4, 12, 17, 14, 7, 28];
-      const sectionFiveName = "정차영";
-      const sectionFiveNameSub = "정신 차려이 영진";
-      const sectionSixId = [5, 26, 18, 19, 21, 1];
-      const sectionSixName = "부우~ 부부부우~";
-      const sectionSixNameSub = "뿌우우우~"
-
-      const sectionOnes = await Video.findAll({
-        where: {
-          id: {
-            [Op.and]: [
-              { [Op.in]: sectiononeId }
-            ],
+  /*
+    recommanVideos: async (req, res) => {
+      const { id: user } = req.user;
+      const DB_NAME =
+        process.env.NODE_ENV === "production" ? "MOTIIV_PROD" : "MOTIIV_DEV"
+      try {
+  
+        const sectiononeId = [1, 2, 3, 4, 5, 6];
+        const sectiononeName = "이영진 바보";
+        const sectiononeNameSub = "이영진 바보";
+        const sectiontwoId = [7, 8, 9, 10, 11, 12];
+        const sectionTwoName = "메종L안맞음";
+        const sectionTwoNameSub = "메종L안맞음 부우";
+        const sectionthreeId = [13, 14, 15, 16, 17, 18];
+        const sectionThreeName = "허허 돼지 이영진";
+        const sectionThreeNameSub = "돼에지";
+        const sectionFourId = [19, 20, 21, 22, 23, 24];
+        const sectionFourName = "정신차려 이영진";
+        const sectionFourNameSub = "이 각박한 세상 속에서";
+        const sectionFiveId = [4, 12, 17, 14, 7, 28];
+        const sectionFiveName = "정차영";
+        const sectionFiveNameSub = "정신 차려이 영진";
+        const sectionSixId = [5, 26, 18, 19, 21, 1];
+        const sectionSixName = "부우~ 부부부우~";
+        const sectionSixNameSub = "뿌우우우~"
+  
+        const sectionOnes = await Video.findAll({
+          where: {
+            id: {
+              [Op.and]: [
+                { [Op.in]: sectiononeId }
+              ],
+            },
           },
-        },
-        attributes: ["id", "title", "thumbnailImageUrl", "viewCount", "videoLength", "channelName", "videoLength", "videoGif", "createdAt",
-          [
-            Sequelize.literal(
-              `(SELECT COUNT(*) FROM ${DB_NAME}.Save WHERE (${DB_NAME}.Save.VideoId = ${DB_NAME}.Video.id) AND (${DB_NAME}.Save.UserId = ${user}))`,
-            ),
-            "isSave",
-          ],
-        ],
-        include: [
-          {
-            model: Tag,
-            as: "VideoTags",
-            attributes: ["id", "name"],
-            through: { attributes: [] },
-          }
-        ],
-
-      });
-
-      const sectionOne = { sectionOnes, sectiononeName, sectiononeNameSub };
-
-      const sectionTwos = await Video.findAll({
-        where: {
-          id: {
-            [Op.and]: [
-              { [Op.in]: sectiontwoId }
+          attributes: ["id", "title", "thumbnailImageUrl", "viewCount", "videoLength", "channelName", "videoLength", "videoGif", "createdAt",
+            [
+              Sequelize.literal(
+                `(SELECT COUNT(*) FROM ${DB_NAME}.Save WHERE (${DB_NAME}.Save.VideoId = ${DB_NAME}.Video.id) AND (${DB_NAME}.Save.UserId = ${user}))`,
+              ),
+              "isSave",
             ],
-          },
-        },
-        attributes: ["id", "title", "thumbnailImageUrl", "viewCount", "videoLength", "channelName", "videoLength", "videoGif", "createdAt",
-          [
-            Sequelize.literal(
-              `(SELECT COUNT(*) FROM ${DB_NAME}.Save WHERE (${DB_NAME}.Save.VideoId = ${DB_NAME}.Video.id) AND (${DB_NAME}.Save.UserId = ${user}))`,
-            ),
-            "isSave",
           ],
-        ],
-        include: [
-          {
-            model: Tag,
-            as: "VideoTags",
-            attributes: ["id", "name"],
-            through: { attributes: [] },
-          }
-        ],
-      });
-
-      const sectionTwo = { sectionTwos, sectionTwoName, sectionTwoNameSub };
-      const sectionThrees = await Video.findAll({
-        where: {
-          id: {
-            [Op.and]: [
-              { [Op.in]: sectionthreeId }
+          include: [
+            {
+              model: Tag,
+              as: "VideoTags",
+              attributes: ["id", "name"],
+              through: { attributes: [] },
+            }
+          ],
+  
+        });
+  
+        const sectionOne = { sectionOnes, sectiononeName, sectiononeNameSub };
+  
+        const sectionTwos = await Video.findAll({
+          where: {
+            id: {
+              [Op.and]: [
+                { [Op.in]: sectiontwoId }
+              ],
+            },
+          },
+          attributes: ["id", "title", "thumbnailImageUrl", "viewCount", "videoLength", "channelName", "videoLength", "videoGif", "createdAt",
+            [
+              Sequelize.literal(
+                `(SELECT COUNT(*) FROM ${DB_NAME}.Save WHERE (${DB_NAME}.Save.VideoId = ${DB_NAME}.Video.id) AND (${DB_NAME}.Save.UserId = ${user}))`,
+              ),
+              "isSave",
             ],
-          },
-        },
-        attributes: ["id", "title", "thumbnailImageUrl", "viewCount", "videoLength", "channelName", "videoLength", "videoGif", "createdAt",
-          [
-            Sequelize.literal(
-              `(SELECT COUNT(*) FROM ${DB_NAME}.Save WHERE (${DB_NAME}.Save.VideoId = ${DB_NAME}.Video.id) AND (${DB_NAME}.Save.UserId = ${user}))`,
-            ),
-            "isSave",
           ],
-        ],
-        include: [
-          {
-            model: Tag,
-            as: "VideoTags",
-            attributes: ["id", "name"],
-            through: { attributes: [] },
-          }
-        ],
-      });
-      const sectionThree = { sectionThrees, sectionThreeName, sectionThreeNameSub };
-
-      const sectionFours = await Video.findAll({
-        where: {
-          id: {
-            [Op.and]: [
-              { [Op.in]: sectionFourId }
+          include: [
+            {
+              model: Tag,
+              as: "VideoTags",
+              attributes: ["id", "name"],
+              through: { attributes: [] },
+            }
+          ],
+        });
+  
+        const sectionTwo = { sectionTwos, sectionTwoName, sectionTwoNameSub };
+        const sectionThrees = await Video.findAll({
+          where: {
+            id: {
+              [Op.and]: [
+                { [Op.in]: sectionthreeId }
+              ],
+            },
+          },
+          attributes: ["id", "title", "thumbnailImageUrl", "viewCount", "videoLength", "channelName", "videoLength", "videoGif", "createdAt",
+            [
+              Sequelize.literal(
+                `(SELECT COUNT(*) FROM ${DB_NAME}.Save WHERE (${DB_NAME}.Save.VideoId = ${DB_NAME}.Video.id) AND (${DB_NAME}.Save.UserId = ${user}))`,
+              ),
+              "isSave",
             ],
-          },
-        },
-        attributes: ["id", "title", "thumbnailImageUrl", "viewCount", "videoLength", "channelName", "videoLength", "videoGif", "createdAt",
-          [
-            Sequelize.literal(
-              `(SELECT COUNT(*) FROM ${DB_NAME}.Save WHERE (${DB_NAME}.Save.VideoId = ${DB_NAME}.Video.id) AND (${DB_NAME}.Save.UserId = ${user}))`,
-            ),
-            "isSave",
           ],
-        ],
-        include: [
-          {
-            model: Tag,
-            as: "VideoTags",
-            attributes: ["id", "name"],
-            through: { attributes: [] },
-          }
-        ],
-      });
-      const sectionFour = { sectionFours, sectionFourName, sectionFourNameSub };
-
-      const sectionFives = await Video.findAll({
-        where: {
-          id: {
-            [Op.and]: [
-              { [Op.in]: sectionFiveId }
+          include: [
+            {
+              model: Tag,
+              as: "VideoTags",
+              attributes: ["id", "name"],
+              through: { attributes: [] },
+            }
+          ],
+        });
+        const sectionThree = { sectionThrees, sectionThreeName, sectionThreeNameSub };
+  
+        const sectionFours = await Video.findAll({
+          where: {
+            id: {
+              [Op.and]: [
+                { [Op.in]: sectionFourId }
+              ],
+            },
+          },
+          attributes: ["id", "title", "thumbnailImageUrl", "viewCount", "videoLength", "channelName", "videoLength", "videoGif", "createdAt",
+            [
+              Sequelize.literal(
+                `(SELECT COUNT(*) FROM ${DB_NAME}.Save WHERE (${DB_NAME}.Save.VideoId = ${DB_NAME}.Video.id) AND (${DB_NAME}.Save.UserId = ${user}))`,
+              ),
+              "isSave",
             ],
-          },
-        },
-        attributes: ["id", "title", "thumbnailImageUrl", "viewCount", "videoLength", "channelName", "videoLength", "videoGif", "createdAt",
-          [
-            Sequelize.literal(
-              `(SELECT COUNT(*) FROM ${DB_NAME}.Save WHERE (${DB_NAME}.Save.VideoId = ${DB_NAME}.Video.id) AND (${DB_NAME}.Save.UserId = ${user}))`,
-            ),
-            "isSave",
           ],
-        ],
-        include: [
-          {
-            model: Tag,
-            as: "VideoTags",
-            attributes: ["id", "name"],
-            through: { attributes: [] },
-          }
-        ],
-      });
-      const sectionFive = { sectionFives, sectionFiveName, sectionFiveNameSub };
-
-      const sectionSixs = await Video.findAll({
-        where: {
-          id: {
-            [Op.and]: [
-              { [Op.in]: sectionSixId }
+          include: [
+            {
+              model: Tag,
+              as: "VideoTags",
+              attributes: ["id", "name"],
+              through: { attributes: [] },
+            }
+          ],
+        });
+        const sectionFour = { sectionFours, sectionFourName, sectionFourNameSub };
+  
+        const sectionFives = await Video.findAll({
+          where: {
+            id: {
+              [Op.and]: [
+                { [Op.in]: sectionFiveId }
+              ],
+            },
+          },
+          attributes: ["id", "title", "thumbnailImageUrl", "viewCount", "videoLength", "channelName", "videoLength", "videoGif", "createdAt",
+            [
+              Sequelize.literal(
+                `(SELECT COUNT(*) FROM ${DB_NAME}.Save WHERE (${DB_NAME}.Save.VideoId = ${DB_NAME}.Video.id) AND (${DB_NAME}.Save.UserId = ${user}))`,
+              ),
+              "isSave",
             ],
-          },
-        },
-        attributes: ["id", "title", "thumbnailImageUrl", "viewCount", "videoLength", "channelName", "videoLength", "videoGif", "createdAt",
-          [
-            Sequelize.literal(
-              `(SELECT COUNT(*) FROM ${DB_NAME}.Save WHERE (${DB_NAME}.Save.VideoId = ${DB_NAME}.Video.id) AND (${DB_NAME}.Save.UserId = ${user}))`,
-            ),
-            "isSave",
           ],
-        ],
-        include: [
-          {
-            model: Tag,
-            as: "VideoTags",
-            attributes: ["id", "name"],
-            through: { attributes: [] },
-          }
-        ],
-      });
-      const sectionSix = { sectionSixs, sectionSixName, sectionSixNameSub };
+          include: [
+            {
+              model: Tag,
+              as: "VideoTags",
+              attributes: ["id", "name"],
+              through: { attributes: [] },
+            }
+          ],
+        });
+        const sectionFive = { sectionFives, sectionFiveName, sectionFiveNameSub };
+  
+        const sectionSixs = await Video.findAll({
+          where: {
+            id: {
+              [Op.and]: [
+                { [Op.in]: sectionSixId }
+              ],
+            },
+          },
+          attributes: ["id", "title", "thumbnailImageUrl", "viewCount", "videoLength", "channelName", "videoLength", "videoGif", "createdAt",
+            [
+              Sequelize.literal(
+                `(SELECT COUNT(*) FROM ${DB_NAME}.Save WHERE (${DB_NAME}.Save.VideoId = ${DB_NAME}.Video.id) AND (${DB_NAME}.Save.UserId = ${user}))`,
+              ),
+              "isSave",
+            ],
+          ],
+          include: [
+            {
+              model: Tag,
+              as: "VideoTags",
+              attributes: ["id", "name"],
+              through: { attributes: [] },
+            }
+          ],
+        });
+        const sectionSix = { sectionSixs, sectionSixName, sectionSixNameSub };
+  
+        return res
+          .status(sc.OK)
+          .send(ut.success(sc.OK, rm.GET_VIDEO_RECOMMAND_SUCCESS, { sectionOne, sectionTwo, sectionThree, sectionFour, sectionFive, sectionSix }));
+  
+      } catch (err) {
+        return res
+          .status(sc.INTERNAL_SERVER_ERROR)
+          .send(ut.fail(sc.INTERNAL_SERVER_ERROR, rm.GET_VIDEO_RECOMMAND_FAIL));
+      }
+    },
+  
+  */
 
-      return res
-        .status(sc.OK)
-        .send(ut.success(sc.OK, rm.GET_VIDEO_RECOMMAND_SUCCESS, { sectionOne, sectionTwo, sectionThree, sectionFour, sectionFive, sectionSix }));
-
-    } catch (err) {
-      return res
-        .status(sc.INTERNAL_SERVER_ERROR)
-        .send(ut.fail(sc.INTERNAL_SERVER_ERROR, rm.GET_VIDEO_RECOMMAND_FAIL));
-    }
-  },
-
-
-  /* 작성중
   recommendVideos: async (req, res) => {
     const { id: user } = req.user;
     const DB_NAME =
@@ -282,6 +282,11 @@ module.exports = {
     try {
       let sectionOne;
       let sectionTwo;
+      let sectionThree;
+      let sectionFour;
+      let sectionFive;
+      let sectionSix;
+      let checkHomeSection;
 
       if (user) {
         /*
@@ -289,175 +294,652 @@ module.exports = {
         return sectionOne
         2-1군
         */
-  /*
-  // 1. user 직군 불러오기
-  const userJob = await User.findOne({
-    where: { id: user }
-  });
-  const userJobId = userJob.JobId;
 
-  // 2. 해당 직권의 태그 id값 검색
-  const findJobName = await Job.findOne({
-    where: { id: userJobId },
-    attributes: ["name"]
-  });
-  const jobName = findJobName.dataValues.name;
+        // 1. user 직군 불러오기
+        const userJob = await User.findOne({
+          where: { id: user }
+        });
+        const userJobId = userJob.JobId;
 
-  // 3. 직군의 TagId값 찾기
-  const jobTag = await Tag.findOne({
-    where: { name: jobName }
-  });
-  const jobTagId = jobTag.dataValues.id;
-  console.log(jobTagId);
+        // 2. 해당 직권의 태그 id값 검색
+        const findJobName = await Job.findOne({
+          where: { id: userJobId },
+          attributes: ["name"]
+        });
+        const jobName = findJobName.dataValues.name;
 
-  // 3-1. 해당 태그를 가진 비디오 id찾기
-  const tagedVideos = await Video_Tag.findAll({
-    where: { TagId: jobTagId },
-  });
-  const tagedVideosId = tagedVideos.map((item) => item.dataValues.VideoId);
+        // 3. 직군의 TagId값 찾기
+        const jobTag = await Tag.findOne({
+          where: { name: jobName }
+        });
+        const jobTagId = jobTag.dataValues.id;
+        console.log(jobTagId);
+
+        // 3-1. 해당 태그를 가진 비디오 id찾기
+        const tagedVideos = await Video_Tag.findAll({
+          where: { TagId: jobTagId },
+        });
+        const tagedVideosId = tagedVideos.map((item) => item.dataValues.VideoId);
+
+        // Section 1번째
+        const titleOne = {};
+        titleOne['title'] = "직군 기반 추천";
+        titleOne['subtitle'] = "직군을 기반으로 추천드려요";
 
 
-  const sectionOneVideo = await Video.findAll({
-    where: { id: tagedVideosId },
-    attributes: ["id", "title", "videoLength", "thumbnailImageUrl", "viewCount", "videoGif", "channelName",
-      [
-        Sequelize.literal(
-          `(SELECT COUNT(*) FROM ${DB_NAME}.Save WHERE (${DB_NAME}.Save.VideoId = ${DB_NAME}.Video.id) AND (${DB_NAME}.Save.UserId = ${user}))`,
-        ),
-        "isSave",
-      ],
-    ],
-    include: [
-      {
-        model: Tag,
-        as: "VideoTags",
-        attributes: ["id", "name"],
-        through: { attributes: [] },
-      }
-    ],
-    order: sequelize.literal("rand()"),
-    limit: 10
-  });
-
-  const sectionOnesId = sectionOneVideo.map((item) => item.dataValues.id);
-  console.log(sectionOnesId);
-  if (sectionOnesId.length < 10) {
-    const randomVideos = await Video.findAll({
-      where: {
-        id: {
-          [Op.and]: [
-            { [Op.notIn]: sectionOnesId },
+        const sectionOneVideo = await Video.findAll({
+          where: { id: tagedVideosId },
+          attributes: ["id", "title", "videoLength", "thumbnailImageUrl", "viewCount", "videoGif", "channelName",
+            [
+              Sequelize.literal(
+                `(SELECT COUNT(*) FROM ${DB_NAME}.Save WHERE (${DB_NAME}.Save.VideoId = ${DB_NAME}.Video.id) AND (${DB_NAME}.Save.UserId = ${user}))`,
+              ),
+              "isSave",
+            ],
           ],
-        },
-      },
-      attributes: ["id", "title", "videoLength", "thumbnailImageUrl", "viewCount", "videoGif", "channelName",
-        [
-          Sequelize.literal(
-            `(SELECT COUNT(*) FROM ${DB_NAME}.Save WHERE (${DB_NAME}.Save.VideoId = ${DB_NAME}.Video.id) AND (${DB_NAME}.Save.UserId = ${user}))`,
-          ),
-          "isSave",
-        ],],
-      include: [
-        {
-          model: Tag,
-          as: "VideoTags",
-          attributes: ["id", "name"],
-          through: { attributes: [] },
-        }
-      ],
-      order: sequelize.literal("rand()"),
-      limit: 10 - sectionOnesId.length
-    })
-    sectionOneVideo.push(...randomVideos);
-
-    sectionOne = { sectionOne, sectionOneVideo };
-  } else {
-    sectionOne = { sectionOne, sectionOneVideo };
-  };
-  /*
-  관심사 기반 추천하기
-  return sectionTwo
-  2-2군
-  */
-  /*
-  // 사용자가 이미 시청한 영상
-  const alreadyWatched = await View.findAll({
-    where: {
-      UserId: user,
-    },
-    attributes: ["VideoId"],
-  });
-  const alreadyWatchedId = alreadyWatched.map((item) => item.dataValues.VideoId)
-  console.log(alreadyWatchedId);
-
-  // 유사 태그 동영상 불러오기
-  const similarTag = await Video_Tag.findAll({
-    where: {
-      TagId: getTagsId,
-    },
-    attributes: [sequelize.fn("DISTINCT", "Video_Tag.VideoId"), "VideoId"],
-    order: sequelize.literal("rand()"),
-    limit: 8,
-  });
-  const similarTags = similarTag.map((item) => item.dataValues.VideoId);
-
-  console.log("비슷한 태그의 비디오들");
-  console.log(similarTags);
-
-
-  // Case1,2를 제외한 추천 영상 불러오기 (제외:현재 동영상, 이미 본 영상, 추가: 유사 태그)
-  const recommandVideos = await Video.findAll({
-    where: {
-      id: {
-        [Op.and]: [
-          { [Op.in]: similarTags },
-          { [Op.notIn]: alreadyWatchedId },
-        ],
-      },
-    },
-    attributes: ["id", "title", "videoLength", "thumbnailImageUrl", "viewCount", "videoGif", "channelName"],
-    order: sequelize.literal("rand()"),
-  });
-  const recommands = recommandVideos.map((item) => item.dataValues.id);
-  console.log(recommands);
-
-  recommandsLength = recommands.length;
-
-  if (recommandsLength < 7) {
-    const otherVideos = await Video.findAll({
-      where: {
-        id: {
-          [Op.and]: [
-            { [Op.notIn]: alreadyWatchedId },
-            { [Op.notIn]: recommands },
+          include: [
+            {
+              model: Tag,
+              as: "VideoTags",
+              attributes: ["id", "name"],
+              through: { attributes: [] },
+            }
           ],
-        },
-      },
-      attributes: ["id", "title", "videoLength", "thumbnailImageUrl", "viewCount", "videoGif", "channelName"],
-      order: sequelize.literal("rand()"),
-      limit: 7 - recommandsLength,
-    });
-    //여기서도 동영상 수가 적으면 이미 본 영상에서 가져와야 하는 로직 추가
-    recommandVideos.push(...otherVideos);
-  };
-  */
-  /*
+          order: sequelize.literal("rand()"),
+          limit: 10
+        });
+
+        const sectionOnesId = sectionOneVideo.map((item) => item.dataValues.id);
+
+        if (sectionOnesId.length < 10) {
+          const randomVideos = await Video.findAll({
+            where: {
+              id: {
+                [Op.and]: [
+                  { [Op.notIn]: sectionOnesId },
+                ],
+              },
+            },
+            attributes: ["id", "title", "videoLength", "thumbnailImageUrl", "viewCount", "videoGif", "channelName",
+              [
+                Sequelize.literal(
+                  `(SELECT COUNT(*) FROM ${DB_NAME}.Save WHERE (${DB_NAME}.Save.VideoId = ${DB_NAME}.Video.id) AND (${DB_NAME}.Save.UserId = ${user}))`,
+                ),
+                "isSave",
+              ],],
+            include: [
+              {
+                model: Tag,
+                as: "VideoTags",
+                attributes: ["id", "name"],
+                through: { attributes: [] },
+              }
+            ],
+            order: sequelize.literal("rand()"),
+            limit: 10 - sectionOnesId.length
+          })
+          sectionOneVideo.push(...randomVideos);
+          sectionOne = sectionOneVideo;
+          sectionOne.push(titleOne);
+
         } else {
-  
-  
+          sectionOne = sectionOneVideo;
+          sectionOne.push(titleOne);
         };
-  
+
+
+
+        /*
+        관심사 기반 추천하기
+        return sectionTwo
+        2-2군
+        */
+        // 사용자 관심사 불러오기
+        const titleTwo = {};
+        titleTwo['title'] = "관심사 기반 추천";
+        titleTwo['subtitle'] = "관심사를 기반으로 추천드려요";
+
+        const userInterst = await User_Keyword.findAll({
+          where: {
+            UserId: user
+          },
+          attributes: ["keywordId"],
+          through: { attributes: [] }
+        });
+        const userInterestId = userInterst.map((item) => item.dataValues.keywordId);
+
+
+        //관심사 id가 가진 태그 불러오기
+        const getTags = await Tag.findAll({
+          where: {
+            keywordId: {
+              [Op.and]: [
+                { [Op.in]: userInterestId }
+              ],
+            }
+          },
+          attributes: ["id"]
+        });
+        const getTagsId = getTags.map((item) => item.dataValues.id);
+
+
+        // 사용자가 이미 시청한 영상
+        const alreadyWatched = await View.findAll({
+          where: {
+            UserId: user,
+          },
+          attributes: ["VideoId"],
+        });
+        const alreadyWatchedId = alreadyWatched.map((item) => item.dataValues.VideoId)
+
+
+
+        // 유사 태그 동영상 불러오기
+        const similarTag = await Video_Tag.findAll({
+          where: {
+            TagId: getTagsId,
+          },
+          attributes: [sequelize.fn("DISTINCT", "Video_Tag.VideoId"), "VideoId"],
+          order: sequelize.literal("rand()"),
+          limit: 10,
+        });
+        const similarTags = similarTag.map((item) => item.dataValues.VideoId);
+
+        // Case1,2를 제외한 추천 영상 불러오기 (제외:현재 동영상, 이미 본 영상, 추가: 유사 태그)
+        sectionTwo = await Video.findAll({
+          where: {
+            id: {
+              [Op.and]: [
+                { [Op.in]: similarTags },
+                { [Op.notIn]: alreadyWatchedId },
+              ],
+            },
+          },
+          attributes: ["id", "title", "videoLength", "thumbnailImageUrl", "viewCount", "videoGif", "channelName",
+            [
+              Sequelize.literal(
+                `(SELECT COUNT(*) FROM ${DB_NAME}.Save WHERE (${DB_NAME}.Save.VideoId = ${DB_NAME}.Video.id) AND (${DB_NAME}.Save.UserId = ${user}))`,
+              ),
+              "isSave",
+            ],
+          ],
+          include: [
+            {
+              model: Tag,
+              as: "VideoTags",
+              attributes: ["id", "name"],
+              through: { attributes: [] },
+            }
+          ],
+          order: sequelize.literal("rand()"),
+          limit: 30
+        });
+
+
+        const recommands = sectionTwo.map((item) => item.dataValues.id);
+        console.log(recommands);
+
+        recommandsLength = recommands.length;
+
+        if (recommandsLength < 10) {
+          const otherVideos = await Video.findAll({
+            where: {
+              id: {
+                [Op.and]: [
+                  { [Op.notIn]: alreadyWatchedId },
+                  { [Op.notIn]: recommands },
+                ],
+              },
+            },
+            attributes: ["id", "title", "videoLength", "thumbnailImageUrl", "viewCount", "videoGif", "channelName",
+              [
+                Sequelize.literal(
+                  `(SELECT COUNT(*) FROM ${DB_NAME}.Save WHERE (${DB_NAME}.Save.VideoId = ${DB_NAME}.Video.id) AND (${DB_NAME}.Save.UserId = ${user}))`,
+                ),
+                "isSave",
+              ],
+            ],
+            include: [
+              {
+                model: Tag,
+                as: "VideoTags",
+                attributes: ["id", "name"],
+                through: { attributes: [] },
+              }
+            ],
+            order: sequelize.literal("rand()"),
+            limit: 10 - recommandsLength,
+          });
+          //여기서도 동영상 수가 적으면 이미 본 영상에서 가져와야 하는 로직 추가
+          sectionTwo.push(...otherVideos);
+          sectionTwo.push(titleTwo);
+        } else {
+          sectionTwo.push(titleTwo);
+        }
+
+        //3군 섹션 4개 랜덤하게 불러오기 
+        const unhidedSection = await Section.findAll({
+          where: { hide: "0" },
+          order: sequelize.literal("rand()"),
+          limit: 4
+        });
+
+        const unhidedSectionId = unhidedSection.map((item) => item.dataValues.id);
+
+        const videoSections = await Video_Section.findAll({
+          where: {
+            SectionId: {
+              [Op.and]: [
+                { [Op.in]: unhidedSectionId },
+              ],
+            },
+          },
+        });
+
+        const sectionSet = new Set(videoSections.map(item => item.dataValues.SectionId));
+        const sectionList = [...sectionSet.values()]
+
+        // Secion 3번째 
+        const getSectionThreeTitle = await Section.findOne({
+          where: { id: sectionList[0] },
+          attributes: ["title", "subtitle"],
+          raw: true
+        });
+
+        const sectionThreeVideo = await Video_Section.findAll({
+          where: {
+            SectionId: sectionList[0]
+          },
+          attributes: ["SectionId"],
+          include: [
+            {
+              model: Video,
+              attributes: ["id", "title", "videoLength", "thumbnailImageUrl", "viewCount", "videoGif", "channelName",
+                [
+                  Sequelize.literal(
+                    `(SELECT COUNT(*) FROM ${DB_NAME}.Save WHERE (${DB_NAME}.Save.VideoId = ${DB_NAME}.Video.id) AND (${DB_NAME}.Save.UserId = ${user}))`,
+                  ),
+                  "isSave",
+                ],
+              ],
+              include: [
+                {
+                  model: Tag,
+                  as: "VideoTags",
+                  attributes: ["id", "name"],
+                  through: { attributes: [] },
+                }
+              ]
+            },
+
+          ]
+        });
+        sectionThree = sectionThreeVideo.map((item) => item.dataValues.Video);
+        sectionThree.push(getSectionThreeTitle);
+
+        // Section 4번째
+        const getSectionFourTitle = await Section.findOne({
+          where: { id: sectionList[1] },
+          attributes: ["title", "subtitle"],
+          raw: true
+        });
+
+        const sectionFourVideo = await Video_Section.findAll({
+          where: {
+            SectionId: sectionList[1]
+          },
+          attributes: ["SectionId"],
+          include: [
+            {
+              model: Video,
+              attributes: ["id", "title", "videoLength", "thumbnailImageUrl", "viewCount", "videoGif", "channelName",
+                [
+                  Sequelize.literal(
+                    `(SELECT COUNT(*) FROM ${DB_NAME}.Save WHERE (${DB_NAME}.Save.VideoId = ${DB_NAME}.Video.id) AND (${DB_NAME}.Save.UserId = ${user}))`,
+                  ),
+                  "isSave",
+                ],
+              ],
+              include: [
+                {
+                  model: Tag,
+                  as: "VideoTags",
+                  attributes: ["id", "name"],
+                  through: { attributes: [] },
+                }
+              ]
+            },
+          ]
+        });
+        sectionFour = sectionFourVideo.map((item) => item.dataValues.Video);
+        sectionFour.push(getSectionFourTitle);
+
+        // Section 5번째
+        const getSectionFiveTitle = await Section.findOne({
+          where: { id: sectionList[2] },
+          attributes: ["title", "subtitle"],
+          raw: true
+        });
+
+        const sectionFiveVideo = await Video_Section.findAll({
+          where: {
+            SectionId: sectionList[2]
+          },
+          attributes: ["SectionId"],
+          include: [
+            {
+              model: Video,
+              attributes: ["id", "title", "videoLength", "thumbnailImageUrl", "viewCount", "videoGif", "channelName",
+                [
+                  Sequelize.literal(
+                    `(SELECT COUNT(*) FROM ${DB_NAME}.Save WHERE (${DB_NAME}.Save.VideoId = ${DB_NAME}.Video.id) AND (${DB_NAME}.Save.UserId = ${user}))`,
+                  ),
+                  "isSave",
+                ],
+              ],
+              include: [
+                {
+                  model: Tag,
+                  as: "VideoTags",
+                  attributes: ["id", "name"],
+                  through: { attributes: [] },
+                }
+              ]
+            },
+          ]
+        });
+        sectionFive = sectionFiveVideo.map((item) => item.dataValues.Video);
+        sectionFive.push(getSectionFiveTitle);
+
+        // Section 6번째
+        const getSectionSixTitle = await Section.findOne({
+          where: { id: sectionList[2] },
+          attributes: ["title", "subtitle"],
+          raw: true
+        });
+
+        const sectionSixVideo = await Video_Section.findAll({
+          where: {
+            SectionId: sectionList[2]
+          },
+          attributes: ["SectionId"],
+          include: [
+            {
+              model: Video,
+              attributes: ["id", "title", "videoLength", "thumbnailImageUrl", "viewCount", "videoGif", "channelName",
+                [
+                  Sequelize.literal(
+                    `(SELECT COUNT(*) FROM ${DB_NAME}.Save WHERE (${DB_NAME}.Save.VideoId = ${DB_NAME}.Video.id) AND (${DB_NAME}.Save.UserId = ${user}))`,
+                  ),
+                  "isSave",
+                ],
+              ],
+              include: [
+                {
+                  model: Tag,
+                  as: "VideoTags",
+                  attributes: ["id", "name"],
+                  through: { attributes: [] },
+                }
+              ]
+            },
+          ]
+        });
+        sectionSix = sectionSixVideo.map((item) => item.dataValues.Video);
+        sectionSix.push(getSectionSixTitle);
+
+
+        // Json to array
+        const data = { sectionOne, sectionTwo, sectionThree, sectionFour, sectionFive, sectionSix };
+        const arr = []
+        for (i in data) {
+          arr.push(data[i])
+        }
+
         return res
           .status(sc.OK)
-          .send(ut.success(sc.OK, rm.GET_VIDEO_RECOMMAND_SUCCESS, sectionOne));
-      } catch (err) {
-        console.log(err);
+          .send(ut.success(sc.OK, rm.GET_VIDEO_RECOMMAND_SUCCESS, arr));
+      } else {
+
+
+        const unhidedSection = await Section.findAll({
+          where: { hide: "0" },
+          order: sequelize.literal("rand()"),
+          limit: 6
+        });
+
+        const unhidedSectionId = unhidedSection.map((item) => item.dataValues.id);
+
+        const videoSections = await Video_Section.findAll({
+          where: {
+            SectionId: {
+              [Op.and]: [
+                { [Op.in]: unhidedSectionId },
+              ],
+            },
+          },
+        });
+        const sectionSet = new Set(videoSections.map(item => item.dataValues.SectionId));
+        const sectionList = [...sectionSet.values()]
+
+
+        // Secion 1번째
+        const getSectionOneTitle = await Section.findOne({
+          where: { id: sectionList[0] },
+          attributes: ["title", "subtitle"],
+          raw: true
+        });
+
+        const getSecionOne = await Video_Section.findAll({
+          where: {
+            SectionId: sectionList[0]
+          },
+          attributes: ["SectionId"],
+          include: [
+            {
+              model: Video,
+              attributes: ["id", "title", "videoLength", "thumbnailImageUrl", "viewCount", "videoGif", "channelName",
+                [
+                  Sequelize.literal(
+                    `(SELECT COUNT(*) FROM ${DB_NAME}.Save WHERE (${DB_NAME}.Save.VideoId = ${DB_NAME}.Video.id) AND (${DB_NAME}.Save.UserId = ${user}))`,
+                  ),
+                  "isSave",
+                ],
+              ],
+            },
+            {
+              model: Section,
+              attributes: ["title", "subtitle"]
+            }
+          ]
+        });
+        sectionOne = getSecionOne.map((item) => item.dataValues.Video);
+        sectionOne.push(getSectionOneTitle);
+
+        // Section 2번째
+        const getSectionTwoTitle = await Section.findOne({
+          where: { id: sectionList[1] },
+          attributes: ["title", "subtitle"],
+          raw: true
+        });
+
+        const getSectionTwo = await Video_Section.findAll({
+          where: {
+            SectionId: sectionList[1]
+          },
+          attributes: ["SectionId"],
+          include: [
+            {
+              model: Video,
+              attributes: ["id", "title", "videoLength", "thumbnailImageUrl", "viewCount", "videoGif", "channelName",
+                [
+                  Sequelize.literal(
+                    `(SELECT COUNT(*) FROM ${DB_NAME}.Save WHERE (${DB_NAME}.Save.VideoId = ${DB_NAME}.Video.id) AND (${DB_NAME}.Save.UserId = ${user}))`,
+                  ),
+                  "isSave",
+                ],
+              ],
+            },
+            {
+              model: Section,
+              attributes: ["title", "subtitle"]
+            }
+          ]
+        });
+        sectionTwo = getSectionTwo.map((item) => item.dataValues.Video);
+        sectionTwo.push(getSectionTwoTitle);
+
+
+
+        // Secion 3번째 
+        const getSectionThreeTitle = await Section.findOne({
+          where: { id: sectionList[2] },
+          attributes: ["title", "subtitle"],
+          raw: true
+        });
+
+        const getSectionThree = await Video_Section.findAll({
+          where: {
+            SectionId: sectionList[2]
+          },
+          attributes: ["SectionId"],
+          include: [
+            {
+              model: Video,
+              attributes: ["id", "title", "videoLength", "thumbnailImageUrl", "viewCount", "videoGif", "channelName",
+                [
+                  Sequelize.literal(
+                    `(SELECT COUNT(*) FROM ${DB_NAME}.Save WHERE (${DB_NAME}.Save.VideoId = ${DB_NAME}.Video.id) AND (${DB_NAME}.Save.UserId = ${user}))`,
+                  ),
+                  "isSave",
+                ],
+              ],
+            },
+            {
+              model: Section,
+              attributes: ["title", "subtitle"]
+            }
+          ]
+        });
+        sectionThree = getSectionThree.map((item) => item.dataValues.Video);
+        sectionThree.push(getSectionThreeTitle);
+
+        // Section 4번째
+        const getSectionFourTitle = await Section.findOne({
+          where: { id: sectionList[3] },
+          attributes: ["title", "subtitle"],
+          raw: true
+        });
+
+        const getSectionFour = await Video_Section.findAll({
+          where: {
+            SectionId: sectionList[3]
+          },
+          attributes: ["SectionId"],
+          include: [
+            {
+              model: Video,
+              attributes: ["id", "title", "videoLength", "thumbnailImageUrl", "viewCount", "videoGif", "channelName",
+                [
+                  Sequelize.literal(
+                    `(SELECT COUNT(*) FROM ${DB_NAME}.Save WHERE (${DB_NAME}.Save.VideoId = ${DB_NAME}.Video.id) AND (${DB_NAME}.Save.UserId = ${user}))`,
+                  ),
+                  "isSave",
+                ],
+              ],
+            },
+            {
+              model: Section,
+              attributes: ["title", "subtitle"]
+            }
+          ]
+        });
+        sectionFour = getSectionFour.map((item) => item.dataValues.Video);
+        sectionFour.push(getSectionFourTitle);
+
+
+        // Section 5번째
+        const getSectionFiveTitle = await Section.findOne({
+          where: { id: sectionList[4] },
+          attributes: ["title", "subtitle"],
+          raw: true
+        });
+
+        const getSectionFive = await Video_Section.findAll({
+          where: {
+            SectionId: sectionList[4]
+          },
+          attributes: ["SectionId"],
+          include: [
+            {
+              model: Video,
+              attributes: ["id", "title", "videoLength", "thumbnailImageUrl", "viewCount", "videoGif", "channelName",
+                [
+                  Sequelize.literal(
+                    `(SELECT COUNT(*) FROM ${DB_NAME}.Save WHERE (${DB_NAME}.Save.VideoId = ${DB_NAME}.Video.id) AND (${DB_NAME}.Save.UserId = ${user}))`,
+                  ),
+                  "isSave",
+                ],
+              ],
+            },
+            {
+              model: Section,
+              attributes: ["title", "subtitle"]
+            }
+          ]
+        });
+        sectionFive = getSectionFive.map((item) => item.dataValues.Video);
+        sectionFive = { sectionFive, ...getSectionFiveTitle };
+
+
+        // Section 6번째
+        const getSectionSixTitle = await Section.findOne({
+          where: { id: sectionList[5] },
+          attributes: ["title", "subtitle"],
+          raw: true
+        });
+
+        const getSectionSix = await Video_Section.findAll({
+          where: {
+            SectionId: sectionList[5]
+          },
+          attributes: ["SectionId"],
+          include: [
+            {
+              model: Video,
+              attributes: ["id", "title", "videoLength", "thumbnailImageUrl", "viewCount", "videoGif", "channelName",
+                [
+                  Sequelize.literal(
+                    `(SELECT COUNT(*) FROM ${DB_NAME}.Save WHERE (${DB_NAME}.Save.VideoId = ${DB_NAME}.Video.id) AND (${DB_NAME}.Save.UserId = ${user}))`,
+                  ),
+                  "isSave",
+                ],
+              ],
+            },
+            {
+              model: Section,
+              attributes: ["title", "subtitle"]
+            }
+          ],
+        });
+        sectionSix = getSectionSix.map((item) => item.dataValues.Video);
+        sectionSix = { sectionSix, ...getSectionSixTitle };
+
+
         return res
-          .status(sc.INTERNAL_SERVER_ERROR)
-          .send(ut.fail(sc.INTERNAL_SERVER_ERROR, rm.GET_VIDEO_RECOMMAND_FAIL));
-      }
-    },
-  */
+          .status(sc.OK)
+          .send(ut.success(sc.OK, rm.GET_VIDEO_RECOMMAND_SUCCESS, { sectionOne, sectionTwo, sectionThree, sectionFour, sectionFive, sectionSix }));
+      };
+
+
+    } catch (err) {
+      console.log(err);
+      return res
+        .status(sc.INTERNAL_SERVER_ERROR)
+        .send(ut.fail(sc.INTERNAL_SERVER_ERROR, rm.GET_VIDEO_RECOMMAND_FAIL));
+    }
+  },
+
 
   /*
   // 2군 세션 추천하기 (관심사 / 직군 기반)
