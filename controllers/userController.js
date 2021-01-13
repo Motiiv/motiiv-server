@@ -263,10 +263,10 @@ module.exports = {
         if (socialType === "naver") {
         }
         return res
-          .status(statusCode.NOT_FOUND)
+          .status(statusCode.NO_CONTENT)
           .send(
             util.fail(
-              statusCode.NOT_FOUND,
+              statusCode.NO_CONTENT,
               responseMessage.PROCEED_WITH_SIGNUP,
             ),
           );
