@@ -53,7 +53,7 @@ module.exports = {
   getAllSections: async (req, res) => {
     try {
       const sections = await Section.findAll({
-        attributes: ["id", "title", "subtitle"],
+        attributes: ["id", "title", "subtitle", "hide"],
       });
       res
         .status(statusCode.OK)
@@ -82,7 +82,7 @@ module.exports = {
     try {
       const section = await Section.findOne({
         where: { id: sectionId },
-        attributes: ["id", "title", "subtitle"],
+        attributes: ["id", "title", "subtitle", "hide"],
         include: [
           {
             model: Video,

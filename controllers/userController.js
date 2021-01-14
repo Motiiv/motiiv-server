@@ -262,18 +262,16 @@ module.exports = {
       if (!user) {
         if (socialType === "naver") {
         }
-        return res
-          .status(statusCode.NOT_FOUND)
-          .send(
-            util.fail(
-              statusCode.NOT_FOUND,
-              responseMessage.PROCEED_WITH_SIGNUP,
-            ),
-          );
+        return res.status(statusCode.OK).send(
+          util.success(statusCode.OK, responseMessage.PROCEED_WITH_SIGNUP, {
+            isSignedUp: false,
+          }),
+        );
       }
       const { accessToken } = await jwt.sign(user);
       res.status(statusCode.OK).send(
         util.success(statusCode.OK, responseMessage.LOGIN_SUCCESS, {
+          isSignedUp: true,
           ...user.dataValues,
           userToken: accessToken,
         }),
@@ -318,7 +316,7 @@ module.exports = {
       if (alreadyUser) {
         return res
           .status(statusCode.CONFLICT)
-          .send(util.fail(statusCode.OK, responseMessage.ALREADY_USER));
+          .send(util.fail(statusCode.CONFLICT, responseMessage.ALREADY_USER));
       }
       const keywordIds = [];
       if (keywordNames) {
@@ -514,6 +512,20 @@ module.exports = {
       .send(util.success(statusCode.OK, responseMessage.LOGOUT_SUCCESS));
   },
 
+  checkIfTokenExpired: async (req, res) => {
+    const { id } = req.user;
+    if (id) {
+      return res
+        .status(statusCode.OK)
+        .send(util.success(statusCode.OK, responseMessage.LOGGED_IN));
+    } else {
+      return res
+        .status(statusCode.UNAUTHORIZED)
+        .send(
+          util.fail(statusCode.UNAUTHORIZED, responseMessage.LOGIN_REQUIRED),
+        );
+    }
+  },
   getUserProfile: async (req, res) => {
     const { id: userId } = req.user;
     try {
