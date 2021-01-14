@@ -9,7 +9,7 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: true,
       },
       title: {
-        type: DataTypes.STRING(30),
+        type: DataTypes.STRING(200),
         allowNull: false,
       },
       description: {
@@ -17,7 +17,7 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: true,
       },
       thumbnailImageUrl: {
-        type: DataTypes.STRING(100),
+        type: DataTypes.STRING(200),
         allowNull: true,
       },
       viewCount: {
@@ -28,7 +28,7 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: true,
       },
       channelName: {
-        type: DataTypes.STRING(100),
+        type: DataTypes.STRING(200),
         allowNull: true,
       },
       videoGif: {
