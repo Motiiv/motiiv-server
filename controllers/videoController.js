@@ -389,8 +389,6 @@ module.exports = {
           //sectionOne.push(titleOne);
         };
 
-
-
         /*
         관심사 기반 추천하기
         return sectionTwo
@@ -511,6 +509,7 @@ module.exports = {
           const otherVideosId = otherVideos.map((item) => item.dataValues.id);
           //여기서도 동영상 수가 적으면 이미 본 영상에서 가져와야 하는 로직 추가
           const noVideos = recommandsLength + otherVideosId.length;
+
           if (noVideos < 10) {
             const randomVideos = await Video.findAll({
               where: {
@@ -1346,7 +1345,7 @@ module.exports = {
 
       // 3번째 배너 비디오 임의값 넣기
       const thirdVideos = await Video.findOne({
-        where: { id: '15' },
+        where: { id: '2' },
         attributes: [
           "id",
           "title",
