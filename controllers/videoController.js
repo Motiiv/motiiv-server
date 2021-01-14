@@ -1789,6 +1789,7 @@ module.exports = {
           }],
           where: { id: tag },
           through: { attributes: [] },
+          plain: true
         });
         //const findTagVideoId = findTagVideo.map((item) => item.VideoTags.id);
         //console.log(findTagVideoId)
