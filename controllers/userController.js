@@ -298,13 +298,7 @@ module.exports = {
       jobName,
       keywordNames,
     } = req.body;
-    if (
-      !username ||
-      !profileImageUrl ||
-      !snsId ||
-      !socialType ||
-      !keywordNames
-    ) {
+    if (!username || !snsId || !socialType || !keywordNames) {
       return res
         .status(statusCode.BAD_REQUEST)
         .send(util.fail(statusCode.BAD_REQUEST, responseMessage.NULL_VALUE));
