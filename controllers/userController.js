@@ -264,11 +264,16 @@ module.exports = {
         }
         return res
           .status(statusCode.OK)
-          .send(util.fail(statusCode.OK, responseMessage.PROCEED_WITH_SIGNUP));
+          .send(
+            util.success(statusCode.OK, responseMessage.PROCEED_WITH_SIGNUP, {
+              isSignedUp: false,
+            }),
+          );
       }
       const { accessToken } = await jwt.sign(user);
       res.status(statusCode.OK).send(
         util.success(statusCode.OK, responseMessage.LOGIN_SUCCESS, {
+          isSignedUp: true,
           ...user.dataValues,
           userToken: accessToken,
         }),
