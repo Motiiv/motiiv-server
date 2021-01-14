@@ -12,6 +12,7 @@ module.exports = {
   PROCEED_WITH_SIGNUP:
     "해당 snsId와 socialType를 가진 유저가 없습니다. 회원가입을 진행해 주세요",
   LOGOUT_SUCCESS: "유저 로그아웃 성공",
+  LOGGED_IN: "로그인된 상태입니다",
 
   // 인증
   EMPTY_TOKEN: "토큰 값이 없습니다.",

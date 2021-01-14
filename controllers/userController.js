@@ -512,6 +512,20 @@ module.exports = {
       .send(util.success(statusCode.OK, responseMessage.LOGOUT_SUCCESS));
   },
 
+  checkIfTokenExpired: async (req, res) => {
+    const { id } = req.user;
+    if (id) {
+      return res
+        .status(statusCode.OK)
+        .send(util.success(statusCode.OK, responseMessage.LOGGED_IN));
+    } else {
+      return res
+        .status(statusCode.UNAUTHORIZED)
+        .send(
+          util.fail(statusCode.UNAUTHORIZED, responseMessage.LOGIN_REQUIRED),
+        );
+    }
+  },
   getUserProfile: async (req, res) => {
     const { id: userId } = req.user;
     try {

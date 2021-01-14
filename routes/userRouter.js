@@ -36,6 +36,12 @@ userRouter.get(
   userController.getUserProfile,
 );
 
+userRouter.post(
+  "/token",
+  authMiddleware.checkToken("user"),
+  userController.checkIfTokenExpired,
+);
+
 // Read all users
 userRouter.get("/", userController.getAllUsers);
 
