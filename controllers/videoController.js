@@ -15,7 +15,8 @@ const {
   View,
   Job,
   User_Keyword,
-  Keyword
+  Keyword,
+  Viewhistory
 } = require("../models");
 const { Sequelize } = require("sequelize");
 const { STRING } = require("sequelize");
@@ -1335,6 +1336,7 @@ module.exports = {
       /* 배너 동영상 */
       // 어제 조회수가 가장 높았던 동영상 => View에서 어제 동영상 목록 가져오기 => 동영상 갯수가 가장 많은것 순서대로 sort
 
+      /*
       const mostView = await View.findAll({
         group: ["VideoId"],
         where: {
@@ -1347,11 +1349,23 @@ module.exports = {
         limit: 1,
       });
       const mostViewId = mostView.map((item) => item.dataValues.VideoId);
+      */
+      const mostView = await Viewhistory.findAll({
+        group: ["VideoId"],
+        where: {
+          createdAt: {
+            [Op.and]: [{ [Op.lte]: today }, { [Op.gte]: yesterday }],
+          },
+        },
+        attributes: ["VideoId", [sequelize.fn("Count", "VideoId"), "viewCnt"]],
+        order: [[sequelize.literal("viewCnt"), "DESC"]],
+        limit: 1,
+      });
+      const mostViewId = mostView.map((item) => item.dataValues.VideoId);
 
-
-
+      let mostViewVideo
       // 어제 조회수가 가장 높았던 영상 추출
-      const mostViewVideo = await Video.findOne({
+      mostViewVideo = await Video.findOne({
         where: { id: mostViewId },
         attributes: [
           "id",
@@ -1370,6 +1384,29 @@ module.exports = {
           },
         ],
       });
+
+      if (!mostViewVideo) {
+        mostViewVideo = await Video.findOne({
+          where: { id: '3' },
+          attributes: [
+            "id",
+            "title",
+            "description",
+            "thumbnailImageUrl",
+            "videoLength",
+            "videoGif",
+          ],
+          include: [
+            {
+              model: Tag,
+              as: "VideoTags",
+              attributes: ["id", "name"],
+              through: { attributes: [] },
+            },
+          ],
+        });
+      };
+
 
       // 어제 좋아요가 가장 높았던 영상
       const mostLike = await Like.findAll({
@@ -1395,7 +1432,7 @@ module.exports = {
       };
 
 
-      const mostLikeVideo = await Video.findOne({
+      mostLikeVideo = await Video.findOne({
         where: { id: mostLikeId },
         attributes: [
           "id",
@@ -1414,6 +1451,27 @@ module.exports = {
           },
         ],
       });
+      if (!mostLikeVideo) {
+        mostLikeVideo = await Video.findOne({
+          where: { id: '3' },
+          attributes: [
+            "id",
+            "title",
+            "description",
+            "thumbnailImageUrl",
+            "videoLength",
+            "videoGif",
+          ],
+          include: [
+            {
+              model: Tag,
+              as: "VideoTags",
+              attributes: ["id", "name"],
+              through: { attributes: [] },
+            },
+          ],
+        });
+      };
 
       // 3번째 배너 비디오 임의값 넣기
       const thirdVideos = await Video.findOne({
@@ -1978,6 +2036,12 @@ module.exports = {
         },
         { where: { id: video } },
       );
+
+      // Viewhistory 테이블 조회수 증가
+      await Viewhistory.create({
+        videoId: video,
+        userId: user
+      })
 
       if (user) {
         // View 테이블 사용자별 비디오 조회수 저장

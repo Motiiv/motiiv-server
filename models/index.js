@@ -27,6 +27,7 @@ db.Workspace = require("./Workspace")(sequelize, Sequelize);
 db.Admin = require("./Admin")(sequelize, Sequelize);
 db.Keyword = require("./Keyword")(sequelize, Sequelize);
 db.Job = require("./Job")(sequelize, Sequelize);
+db.Viewhistory = require('./Viewhistory')(sequelize, Sequelize);
 
 // Junction Tables
 db.Save = require("./Save")(sequelize, Sequelize);
@@ -34,8 +35,9 @@ db.Like = require("./Like")(sequelize, Sequelize);
 db.View = require("./View")(sequelize, Sequelize);
 
 db.Video_Tag = require("./Video_Tag")(sequelize, Sequelize);
-db.Video_Section = require("./Video_Section")(sequelize, Sequelize);
 db.User_Keyword = require("./User_Keyword")(sequelize, Sequelize);
+db.Video_Section = require("./Video_Section")(sequelize, Sequelize);
+
 
 // N : M    User : Video => View
 db.User.belongsToMany(db.Video, { through: "View", as: "ViewedVideos" });
