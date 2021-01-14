@@ -780,13 +780,15 @@ module.exports = {
 
 
         // Json to array
-        const sectionVideoResult = { sectionOne, sectionTwo, sectionThree, sectionFour, sectionFive, sectionSix, sectionSevens };
+        //const sectionVideoResult = { sectionOne, sectionTwo, sectionThree, sectionFour, sectionFive, sectionSix, sectionSevens };
+        const sectionVideoResult = { sectionOne, sectionTwo, sectionThree, sectionFour, sectionFive, sectionSix };
         const result = [];
         for (i in sectionVideoResult) {
           result.push(sectionVideoResult[i])
         };
 
-        const titleList = { titleOne, titleTwo, getSectionThreeTitle, getSectionFourTitle, getSectionFiveTitle, getSectionSixTitle, titleSeven };
+        //const titleList = { titleOne, titleTwo, getSectionThreeTitle, getSectionFourTitle, getSectionFiveTitle, getSectionSixTitle, titleSeven };
+        const titleList = { titleOne, titleTwo, getSectionThreeTitle, getSectionFourTitle, getSectionFiveTitle, getSectionSixTitle }
         const titleResult = [];
         for (i in titleList) {
           titleResult.push(titleList[i])
@@ -1013,13 +1015,15 @@ module.exports = {
         const sectionSevens = [];
         sectionSevens.push(sectionSeven);
 
-        const sectionListUp = { sectionOne, sectionTwo, sectionThree, sectionFour, sectionFive, sectionSevens };
+        //const sectionListUp = { sectionOne, sectionTwo, sectionThree, sectionFour, sectionFive, sectionSix, sectionSevens };
+        const sectionListUp = { sectionOne, sectionTwo, sectionThree, sectionFour, sectionFive, sectionSix };
         const sectionResult = []
         for (i in sectionListUp) {
           sectionResult.push(sectionListUp[i])
         }
 
-        const titleList = { getSectionOneTitle, getSectionTwoTitle, getSectionThreeTitle, getSectionFourTitle, getSectionFiveTitle, getSectionSixTitle, titleSeven };
+        //const titleList = { getSectionOneTitle, getSectionTwoTitle, getSectionThreeTitle, getSectionFourTitle, getSectionFiveTitle, getSectionSixTitle, titleSeven };
+        const titleList = { getSectionOneTitle, getSectionTwoTitle, getSectionThreeTitle, getSectionFourTitle, getSectionFiveTitle, getSectionSixTitle };
         const titleResult = []
         for (i in titleList) {
           titleResult.push(titleList[i])
