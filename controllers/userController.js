@@ -262,13 +262,11 @@ module.exports = {
       if (!user) {
         if (socialType === "naver") {
         }
-        return res
-          .status(statusCode.OK)
-          .send(
-            util.success(statusCode.OK, responseMessage.PROCEED_WITH_SIGNUP, {
-              isSignedUp: false,
-            }),
-          );
+        return res.status(statusCode.OK).send(
+          util.success(statusCode.OK, responseMessage.PROCEED_WITH_SIGNUP, {
+            isSignedUp: false,
+          }),
+        );
       }
       const { accessToken } = await jwt.sign(user);
       res.status(statusCode.OK).send(
@@ -318,7 +316,7 @@ module.exports = {
       if (alreadyUser) {
         return res
           .status(statusCode.CONFLICT)
-          .send(util.fail(statusCode.OK, responseMessage.ALREADY_USER));
+          .send(util.fail(statusCode.CONFLICT, responseMessage.ALREADY_USER));
       }
       const keywordIds = [];
       if (keywordNames) {
