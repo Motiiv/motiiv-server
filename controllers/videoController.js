@@ -1719,7 +1719,7 @@ module.exports = {
 
       if (filter == 'new') {
         const filteredVideo = await Video.findAll({
-          group: ["id"],
+          //group: ["id"],
           where: { id: getFilterVideoId },
           attributes: ['id', 'title', 'videoLength', 'thumbnailImageUrl', 'viewCount', 'channelName', "videoGif", 'createdAt',
             [
@@ -1738,7 +1738,6 @@ module.exports = {
             }
           ],
           order: [[sequelize.literal("createdAt"), "DESC"]],
-
         });
         const calCnt = filteredVideo.map((item) => item.dataValues.id);
         const videoCnt = calCnt.length;
@@ -1859,14 +1858,6 @@ module.exports = {
             }
           ],
           order: [[sequelize.literal("viewCount"), "DESC"]],
-          include: [
-            {
-              model: Tag,
-              as: "VideoTags",
-              attributes: ["id", "name"],
-              through: { attributes: [] },
-            }
-          ],
         });
         const calCnt = filteredVideo.map((item) => item.dataValues.id);
         const videoCnt = calCnt.length;
