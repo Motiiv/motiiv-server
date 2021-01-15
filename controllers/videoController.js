@@ -607,7 +607,6 @@ module.exports = {
         //3군 섹션 4개 랜덤하게 불러오기 
         const unhidedSection = await Section.findAll({
           where: { hide: "0" },
-          order: sequelize.literal("rand()"),
           limit: 4
         });
 
@@ -816,7 +815,7 @@ module.exports = {
         const unhidedSection = await Section.findAll({
           where: { hide: "0" },
           order: sequelize.literal("rand()"),
-          limit: 6
+          limit: 4
         });
 
         const unhidedSectionId = unhidedSection.map((item) => item.dataValues.id);
@@ -1193,14 +1192,14 @@ module.exports = {
 
         // Secion 3번째 
         const getSectionThreeTitle = await Section.findOne({
-          where: { id: sectionList[2] },
+          where: { id: sectionList[0] },
           attributes: ["title", "subtitle"],
           raw: true
         });
 
         const getSectionThree = await Video_Section.findAll({
           where: {
-            SectionId: sectionList[2]
+            SectionId: sectionList[0]
           },
           attributes: ["SectionId"],
           include: [
@@ -1233,14 +1232,14 @@ module.exports = {
 
         // Section 4번째
         const getSectionFourTitle = await Section.findOne({
-          where: { id: sectionList[3] },
+          where: { id: sectionList[1] },
           attributes: ["title", "subtitle"],
           raw: true
         });
 
         const getSectionFour = await Video_Section.findAll({
           where: {
-            SectionId: sectionList[3]
+            SectionId: sectionList[1]
           },
           attributes: ["SectionId"],
           include: [
@@ -1274,14 +1273,14 @@ module.exports = {
 
         // Section 5번째
         const getSectionFiveTitle = await Section.findOne({
-          where: { id: sectionList[4] },
+          where: { id: sectionList[2] },
           attributes: ["title", "subtitle"],
           raw: true
         });
 
         const getSectionFive = await Video_Section.findAll({
           where: {
-            SectionId: sectionList[4]
+            SectionId: sectionList[2]
           },
           attributes: ["SectionId"],
           include: [
@@ -1315,14 +1314,14 @@ module.exports = {
 
         // Section 6번째
         const getSectionSixTitle = await Section.findOne({
-          where: { id: sectionList[5] },
+          where: { id: sectionList[3] },
           attributes: ["title", "subtitle"],
           raw: true
         });
 
         const getSectionSix = await Video_Section.findAll({
           where: {
-            SectionId: sectionList[5]
+            SectionId: sectionList[3]
           },
           attributes: ["SectionId"],
           include: [
