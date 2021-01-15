@@ -1363,7 +1363,7 @@ module.exports = {
       });
       const mostViewId = mostView.map((item) => item.dataValues.VideoId);
 
-      let mostViewVideo
+      let mostViewVideo;
       // 어제 조회수가 가장 높았던 영상 추출
       mostViewVideo = await Video.findOne({
         where: { id: mostViewId },
@@ -1384,6 +1384,7 @@ module.exports = {
           },
         ],
       });
+
 
       if (!mostViewVideo) {
         mostViewVideo = await Video.findOne({
@@ -1422,7 +1423,7 @@ module.exports = {
 
       const mostLikeIds = mostLike.map((item) => item.dataValues.VideoId);
       let mostLikeId = [];
-      console.log(mostLikeIds);
+
 
       // 좋아요와 조회수 값이 일치하는 경우도 처리해야함
       if (mostViewId == mostLikeIds) {
@@ -1431,29 +1432,11 @@ module.exports = {
         mostLikeId = mostLikeIds[0];
       };
 
+      let mostLikeVideo;
 
-      mostLikeVideo = await Video.findOne({
-        where: { id: mostLikeId },
-        attributes: [
-          "id",
-          "title",
-          "description",
-          "thumbnailImageUrl",
-          "videoLength",
-          "videoGif",
-        ],
-        include: [
-          {
-            model: Tag,
-            as: "VideoTags",
-            attributes: ["id", "name"],
-            through: { attributes: [] },
-          },
-        ],
-      });
-      if (!mostLikeVideo) {
+      if (mostLikeId) {
         mostLikeVideo = await Video.findOne({
-          where: { id: '3' },
+          where: { id: 'mostLikeId' },
           attributes: [
             "id",
             "title",
@@ -1471,11 +1454,32 @@ module.exports = {
             },
           ],
         });
-      };
+      } else {
+        mostLikeVideo = await Video.findOne({
+          where: { id: '20' },
+          attributes: [
+            "id",
+            "title",
+            "description",
+            "thumbnailImageUrl",
+            "videoLength",
+            "videoGif",
+          ],
+          include: [
+            {
+              model: Tag,
+              as: "VideoTags",
+              attributes: ["id", "name"],
+              through: { attributes: [] },
+            },
+          ],
+        });
+      }
+
 
       // 3번째 배너 비디오 임의값 넣기
       const thirdVideos = await Video.findOne({
-        where: { id: '2' },
+        where: { id: '4' },
         attributes: [
           "id",
           "title",
