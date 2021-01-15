@@ -21,7 +21,7 @@
 <br>
 
 ## ✔ 서버 아키텍처
-![image](https://user-images.githubusercontent.com/29723695/104671494-4c441680-5721-11eb-8368-5c65fd807d75.jpeg)
+![image](https://user-images.githubusercontent.com/29723695/104713338-16298580-5767-11eb-8f6a-ebf9e112224d.jpeg)
 &nbsp;
 <br>
 
