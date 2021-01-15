@@ -146,6 +146,9 @@ module.exports = {
   GET_KEYWORD_CATEGORY_SUCCESS: "키워드 불러오기 성공",
   GET_KEYWORD_CATEGORY_FAIL: "키워드 불러오기 실패",
 
+  /* 카테고리 필터 성공 */
+  GET_FILTER_KEYWORD_CATEGORY_SUCCESS: "카테고리 필터 성공",
+
   /* 카테고리 태그 검색 */
   GET_CATEGORY_TAGS_SUCCESS: "태그 검색하기 성공",
   GET_CATEGORY_TAGS_FAIL: "태그 검색하기 실패",
