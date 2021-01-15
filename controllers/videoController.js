@@ -309,6 +309,8 @@ module.exports = {
         });
         let jobName = findJobName.dataValues.name;
 
+
+
         // Section 1번째
         titleOne['title'] = "|" + jobName + "|" + '에게 추천하는 모티브';
         titleOne['subtitle'] = "직군에 맞는 영상을 가져왔어요.";
@@ -322,8 +324,8 @@ module.exports = {
         };
 
         if (jobName === "유노윤호") {
+
           sectionOne = await Video.findAll({
-            where: { id: tagedVideosId },
             attributes: ["id", "title", "videoLength", "thumbnailImageUrl", "viewCount", "videoGif", "channelName",
               [
                 Sequelize.literal(
@@ -447,13 +449,16 @@ module.exports = {
         titleTwo['title'] = "|" + keywordName + "|" + "에 관한 모티브";
         titleTwo['subtitle'] = "관심사를 기반으로 추천 영상을 보여드립니다.";
 
+        let deleteJobTags = ['15', '16', '17'];
+
         let getTags;
         //관심사 id가 가진 태그 불러오기
         getTags = await Tag.findAll({
           where: {
             keywordId: {
               [Op.and]: [
-                { [Op.in]: userInterestId }
+                { [Op.in]: userInterestId },
+                { [Op.notIn]: deleteJobTags },
               ],
             }
           },
@@ -831,19 +836,19 @@ module.exports = {
 
         /*
         직군 기반 랜덤 동영상 띄어주기 
-        부우 */
+        부우 
+        */
 
-
-        /*
         const findJobName = await Job.findOne({
-          where: { id: userJobId },
-          attributes: ["name"]
+          attributes: ["name"],
+          order: sequelize.literal("rand()"),
+          limit: 1
         });
         let jobName = findJobName.dataValues.name;
-
+        let getSectionOneTitle = {};
         // Section 1번째
-        titleOne['title'] = "|" + jobName + "|" + '에게 추천하는 모티브';
-        titleOne['subtitle'] = "직군에 맞는 영상을 가져왔어요.";
+        getSectionOneTitle['title'] = "|" + jobName + "|" + '에게 추천하는 모티브';
+        getSectionOneTitle['subtitle'] = "직군에 맞는 영상을 가져왔어요.";
 
         if (jobName === "기획자") {
           jobName = "기획";
@@ -855,7 +860,6 @@ module.exports = {
 
         if (jobName === "유노윤호") {
           sectionOne = await Video.findAll({
-            where: { id: tagedVideosId },
             attributes: ["id", "title", "videoLength", "thumbnailImageUrl", "viewCount", "videoGif", "channelName",
               [
                 Sequelize.literal(
@@ -949,12 +953,8 @@ module.exports = {
             //sectionOne.push(titleOne);
           };
         }
-        */
 
-
-
-
-
+        /*
         // Secion 1번째
         const getSectionOneTitle = await Section.findOne({
           where: { id: sectionList[0] },
@@ -994,8 +994,169 @@ module.exports = {
         });
         sectionOne = getSecionOne.map((item) => item.dataValues.Video);
         //sectionOne.push(getSectionOneTitle);
+        */
+
+        /* 
+        2번째 관심사 기반 영상 랜덤하게
+        뿌려오기이~~
+        */
+
+        const getkeywordName = await Keyword.findOne({
+          attributes: ["id", "name"],
+          order: sequelize.literal("rand()"),
+        });
+        const keywordName = getkeywordName.dataValues.name;
+        const keywordRandId = getkeywordName.dataValues.id;
+        let getSectionTwoTitle = {};
+        getSectionTwoTitle['title'] = "|" + keywordName + "|" + "에 관한 모티브";
+        getSectionTwoTitle['subtitle'] = "관심사를 기반으로 추천 영상을 보여드립니다.";
+
+        let getTags;
+        //관심사 id가 가진 태그 불러오기
+        getTags = await Tag.findAll({
+          where: {
+            keywordId: keywordRandId
+          },
+          attributes: ["id"]
+        });
+        if (!getTags) {
+          getTags = await Tag.findAll({
+            attributes: ["id"]
+          });
+        }
+        const getTagsId = getTags.map((item) => item.dataValues.id);
+
+        let deleteJobTags = ['15', '16', '17'];
+
+        // 유사 태그 동영상 불러오기
+        const similarTag = await Video_Tag.findAll({
+          where: {
+            TagId: {
+              [Op.and]: [
+                { [Op.in]: getTagsId },
+                { [Op.notIn]: deleteJobTags },
+              ]
+            }
+          },
+          attributes: [sequelize.fn("DISTINCT", "Video_Tag.VideoId"), "VideoId"],
+          order: sequelize.literal("rand()"),
+          limit: 10,
+        });
+        const similarTags = similarTag.map((item) => item.dataValues.VideoId);
 
 
+
+
+        // Case1,2를 제외한 추천 영상 불러오기 (제외:현재 동영상, 이미 본 영상, 추가: 유사 태그)
+        const sectionTwoVideos = await Video.findAll({
+          where: {
+            id: {
+              [Op.and]: [
+                { [Op.in]: similarTags },
+              ],
+            },
+          },
+          attributes: ["id", "title", "videoLength", "thumbnailImageUrl", "viewCount", "videoGif", "channelName",
+            [
+              Sequelize.literal(
+                `(SELECT COUNT(*) FROM ${DB_NAME}.Save WHERE (${DB_NAME}.Save.VideoId = ${DB_NAME}.Video.id) AND (${DB_NAME}.Save.UserId = ${user}))`,
+              ),
+              "isSave",
+            ],
+          ],
+          include: [
+            {
+              model: Tag,
+              as: "VideoTags",
+              attributes: ["id", "name"],
+              through: { attributes: [] },
+            }
+          ],
+          order: sequelize.literal("rand()"),
+          limit: 10
+        });
+        const recommands = sectionTwoVideos.map((item) => item.dataValues.id);
+
+        recommandsLength = recommands.length;
+
+        if (recommandsLength < 10) {
+          const otherVideos = await Video.findAll({
+            where: {
+              id: {
+                [Op.and]: [
+                  { [Op.notIn]: recommands },
+                ],
+              },
+            },
+            attributes: ["id", "title", "videoLength", "thumbnailImageUrl", "viewCount", "videoGif", "channelName",
+              [
+                Sequelize.literal(
+                  `(SELECT COUNT(*) FROM ${DB_NAME}.Save WHERE (${DB_NAME}.Save.VideoId = ${DB_NAME}.Video.id) AND (${DB_NAME}.Save.UserId = ${user}))`,
+                ),
+                "isSave",
+              ],
+            ],
+            include: [
+              {
+                model: Tag,
+                as: "VideoTags",
+                attributes: ["id", "name"],
+                through: { attributes: [] },
+              }
+            ],
+            order: sequelize.literal("rand()"),
+            limit: 10 - recommandsLength,
+          });
+          const otherVideosId = otherVideos.map((item) => item.dataValues.id);
+          //여기서도 동영상 수가 적으면 이미 본 영상에서 가져와야 하는 로직 추가
+          const noVideos = recommandsLength + otherVideosId.length;
+
+          if (noVideos < 10) {
+            const randomVideos = await Video.findAll({
+              where: {
+                id: {
+                  [Op.and]: {
+                    [Op.notIn]: similarTags
+                  }
+                }
+              },
+              attributes: ["id", "title", "videoLength", "thumbnailImageUrl", "viewCount", "videoGif", "channelName",
+                [
+                  Sequelize.literal(
+                    `(SELECT COUNT(*) FROM ${DB_NAME}.Save WHERE (${DB_NAME}.Save.VideoId = ${DB_NAME}.Video.id) AND (${DB_NAME}.Save.UserId = ${user}))`,
+                  ),
+                  "isSave",
+                ],
+              ],
+              include: [
+                {
+                  model: Tag,
+                  as: "VideoTags",
+                  attributes: ["id", "name"],
+                  through: { attributes: [] },
+                }
+              ],
+              order: sequelize.literal("rand()"),
+              limit: 10 - noVideos,
+            });
+            sectionTwoVideos.push(...randomVideos);
+            sectionTwo = sectionTwoVideos;
+            sectionTwo.push(titleTwo);
+
+          } else {
+            sectionTwoVideos.push(...otherVideos);
+            sectionTwo = sectionTwoVideos;
+            //sectionTwo.push(titleTwo);
+          };
+
+        } else {
+          sectionTwo = sectionTwoVideos;
+          //sectionTwo.push(titleTwo);
+        }
+
+
+
+        /*
         // Section 2번째
         const getSectionTwoTitle = await Section.findOne({
           where: { id: sectionList[1] },
@@ -1035,7 +1196,7 @@ module.exports = {
         });
         sectionTwo = getSectionTwo.map((item) => item.dataValues.Video);
         //sectionTwo.push(getSectionTwoTitle);
-
+        */
 
 
         // Secion 3번째 
@@ -1226,7 +1387,7 @@ module.exports = {
         for (i in titleList) {
           titleResult.push(titleList[i])
         }
-
+        titleOne
         const finalResult = sectionResult;
         finalResult.push(titleResult);
 
