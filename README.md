@@ -61,4 +61,4 @@
 <br>
 
 ## ✔모티브의 프론트
-* [Front](https://github.com/Motiiv/motiiv-front)
+* [💡모티브 최강 프론트💡](https://github.com/Motiiv/motiiv-front)
