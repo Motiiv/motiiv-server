@@ -848,7 +848,7 @@ module.exports = {
         let getSectionOneTitle = {};
         // Section 1번째
         getSectionOneTitle['title'] = "|" + jobName + "|" + '에게 추천하는 모티브';
-        getSectionOneTitle['subtitle'] = "직군에 맞는 영상을 가져왔어요.";
+        getSectionOneTitle['subtitle'] = "직군에 맞는 영상을 가져왔어요";
 
         if (jobName === "기획자") {
           jobName = "기획";
