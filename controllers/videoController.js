@@ -287,7 +287,7 @@ module.exports = {
       let sectionFour;
       let sectionFive;
       let sectionSix;
-      let sectionSeven;
+      ///let sectionSeven;
       let titleOne = {};
 
       if (user) {
@@ -296,7 +296,6 @@ module.exports = {
         return sectionOne
         2-1군
         */
-
         // 1. user 직군 불러오기
         const userJob = await User.findOne({
           where: { id: user }
@@ -309,6 +308,10 @@ module.exports = {
           attributes: ["name"]
         });
         let jobName = findJobName.dataValues.name;
+
+        // Section 1번째
+        titleOne['title'] = "|" + jobName + "|" + '에게 추천하는 모티브!!';
+        titleOne['subtitle'] = "직군에 맞는 영상을 가져왔어요.";
 
         if (jobName === "기획자") {
           jobName = "기획";
@@ -346,19 +349,12 @@ module.exports = {
             where: { name: jobName }
           });
           const jobTagId = jobTag.dataValues.id;
-          console.log("aaa");
-          console.log(jobTagId);
 
           // 3-1. 해당 태그를 가진 비디오 id찾기
           const tagedVideos = await Video_Tag.findAll({
             where: { TagId: jobTagId },
           });
           const tagedVideosId = tagedVideos.map((item) => item.dataValues.VideoId);
-
-          // Section 1번째
-          titleOne['title'] = "직군 기반 추천";
-          titleOne['subtitle'] = "직군을 기반으로 추천드려요";
-
 
           const sectionOneVideo = await Video.findAll({
             where: { id: tagedVideosId },
@@ -383,9 +379,7 @@ module.exports = {
           });
 
           const sectionOnesId = sectionOneVideo.map((item) => item.dataValues.id);
-          console.log('\n\n\n');
-          console.log("1군dasdasd");
-          console.log(sectionOnesId);
+
 
           if (sectionOnesId.length < 10) {
             const randomVideos = await Video.findAll({
@@ -431,9 +425,6 @@ module.exports = {
         2-2군
         */
         // 사용자 관심사 불러오기
-        const titleTwo = {};
-        titleTwo['title'] = "관심사 기반 추천";
-        titleTwo['subtitle'] = "관심사를 기반으로 추천드려요";
 
         const userInterst = await User_Keyword.findAll({
           where: {
@@ -443,6 +434,18 @@ module.exports = {
           through: { attributes: [] }
         });
         const userInterestId = userInterst.map((item) => item.dataValues.keywordId);
+
+        const getkeywordName = await Keyword.findOne({
+          where: {
+            id: userInterestId
+          },
+          attributes: ["name"]
+        });
+        const keywordName = getkeywordName.dataValues.name;
+
+        const titleTwo = {};
+        titleTwo['title'] = "|" + keywordName + "|" + "에 관한 모티브!!";
+        titleTwo['subtitle'] = "관심사를 기반으로 추천 영상을 보여드립니다.";
 
         let getTags;
         //관심사 id가 가진 태그 불러오기
@@ -766,6 +769,7 @@ module.exports = {
         });
         sectionSix = sectionSixVideo.map((item) => item.dataValues.Video);
         //sectionSix.push(getSectionSixTitle);
+        /*
         const titleSeven = {};
         titleSeven['title'] = "이 영상을 본 80%가 워크스페이스로 바로 이동했어요!";
 
@@ -778,6 +782,7 @@ module.exports = {
         });
         const sectionSevens = [];
         sectionSevens.push(sectionSeven);
+        */
 
 
         // Json to array
@@ -1480,7 +1485,7 @@ module.exports = {
 
       // 3번째 배너 비디오 임의값 넣기
       const thirdVideos = await Video.findOne({
-        where: { id: '4' },
+        where: { id: '83' },
         attributes: [
           "id",
           "title",
@@ -1499,16 +1504,31 @@ module.exports = {
         ],
       });
 
+      //광고 배너
+      const adTitle = {};
+      adTitle['title'] = "이 영상을 본 80%가 워크스페이스로 바로 이동했어요!";
 
+      const adBanner = await Video.findOne({
+        where: {
+          id: '3'
+        },
+        attributes: ["id", "thumbnailImageUrl"],
+        nest: true
+      });
+      const adBanners = [];
+      adBanners.push(adBanner);
+      adBanners.push(adTitle);
 
       return res.status(sc.OK).send(
         ut.success(sc.OK, rm.GET_ALL_POST_SUCCESS, {
           toptenVideo,
           mostViewVideo,
           mostLikeVideo,
-          thirdVideos
+          thirdVideos,
+          adBanners
         }),
       );
+
     } catch (err) {
       console.log(err);
       return res
