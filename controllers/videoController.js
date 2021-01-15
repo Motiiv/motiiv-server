@@ -1431,12 +1431,12 @@ module.exports = {
       } else {
         mostLikeId = mostLikeIds[0];
       };
-
+      console.log(mostLikeId);
       let mostLikeVideo;
 
       if (mostLikeId) {
         mostLikeVideo = await Video.findOne({
-          where: { id: 'mostLikeId' },
+          where: { id: mostLikeId },
           attributes: [
             "id",
             "title",
@@ -1454,6 +1454,7 @@ module.exports = {
             },
           ],
         });
+
       } else {
         mostLikeVideo = await Video.findOne({
           where: { id: '20' },
