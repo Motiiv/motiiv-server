@@ -313,7 +313,7 @@ module.exports = {
 
         // Section 1번째
         titleOne['title'] = "|" + jobName + "|" + '에게 추천하는 모티브';
-        titleOne['subtitle'] = "직군에 맞는 영상을 가져왔어요.";
+        titleOne['subtitle'] = "직군에 맞는 영상을 가져왔어요";
 
         if (jobName === "기획자") {
           jobName = "기획";
@@ -447,7 +447,7 @@ module.exports = {
 
         const titleTwo = {};
         titleTwo['title'] = "|" + keywordName + "|" + "에 관한 모티브";
-        titleTwo['subtitle'] = "관심사를 기반으로 추천 영상을 보여드립니다.";
+        titleTwo['subtitle'] = "관심사를 기반으로 추천 영상을 보여드립니다";
 
         let deleteJobTags = ['15', '16', '17'];
 
@@ -1009,7 +1009,7 @@ module.exports = {
         const keywordRandId = getkeywordName.dataValues.id;
         let getSectionTwoTitle = {};
         getSectionTwoTitle['title'] = "|" + keywordName + "|" + "에 관한 모티브";
-        getSectionTwoTitle['subtitle'] = "관심사를 기반으로 추천 영상을 보여드립니다.";
+        getSectionTwoTitle['subtitle'] = "관심사를 기반으로 추천 영상을 보여드립니다";
 
         let getTags;
         //관심사 id가 가진 태그 불러오기
@@ -1026,25 +1026,17 @@ module.exports = {
         }
         const getTagsId = getTags.map((item) => item.dataValues.id);
 
-        let deleteJobTags = ['15', '16', '17'];
 
         // 유사 태그 동영상 불러오기
         const similarTag = await Video_Tag.findAll({
           where: {
-            TagId: {
-              [Op.and]: [
-                { [Op.in]: getTagsId },
-                { [Op.notIn]: deleteJobTags },
-              ]
-            }
+            TagId: getTagsId,
           },
           attributes: [sequelize.fn("DISTINCT", "Video_Tag.VideoId"), "VideoId"],
           order: sequelize.literal("rand()"),
           limit: 10,
         });
         const similarTags = similarTag.map((item) => item.dataValues.VideoId);
-
-
 
 
         // Case1,2를 제외한 추천 영상 불러오기 (제외:현재 동영상, 이미 본 영상, 추가: 유사 태그)
