@@ -1770,7 +1770,7 @@ module.exports = {
         return res
           .status(sc.OK)
           .send(
-            ut.success(sc.OK, rm.GET_MYMOTIIV_VIDEOS_SUCCESS, { filteredVideo, videoCnt }),
+            ut.success(sc.OK, rm.GET_FILTER_KEYWORD_CATEGORY_SUCCESS, { filteredVideo, videoCnt }),
           );
       } else if (filter == 'like') {
         const filteredVideo = await Video.findAll({
@@ -1815,7 +1815,7 @@ module.exports = {
         return res
           .status(sc.OK)
           .send(
-            ut.success(sc.OK, rm.GET_MYMOTIIV_VIDEOS_SUCCESS, { filteredVideo, videoCnt }),
+            ut.success(sc.OK, rm.GET_FILTER_KEYWORD_CATEGORY_SUCCESS, { filteredVideo, videoCnt }),
           );
 
       } else if (filter == 'save') {
@@ -1861,7 +1861,7 @@ module.exports = {
         return res
           .status(sc.OK)
           .send(
-            ut.success(sc.OK, rm.GET_MYMOTIIV_VIDEOS_SUCCESS, { filteredVideo, videoCnt }),
+            ut.success(sc.OK, rm.GET_FILTER_KEYWORD_CATEGORY_SUCCESS, { filteredVideo, videoCnt }),
           );
       } else if (filter == 'view') {
         const filteredVideo = await Video.findAll({
@@ -1889,7 +1889,7 @@ module.exports = {
         return res
           .status(sc.OK)
           .send(
-            ut.success(sc.OK, rm.GET_MYMOTIIV_VIDEOS_SUCCESS, { filteredVideo, videoCnt }),
+            ut.success(sc.OK, rm.GET_FILTER_KEYWORD_CATEGORY_SUCCESS, { filteredVideo, videoCnt }),
           );
       }
     }
