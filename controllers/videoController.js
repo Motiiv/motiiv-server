@@ -853,6 +853,17 @@ module.exports = {
                 ],
               ],
             },
+            {
+              model: Video,
+              include: [
+                {
+                  model: Tag,
+                  as: "VideoTags",
+                  attributes: ["id", "name"],
+                  through: { attributes: [] },
+                }
+              ]
+            },
           ]
         });
         sectionOne = getSecionOne.map((item) => item.dataValues.Video);
@@ -882,6 +893,17 @@ module.exports = {
                   "isSave",
                 ],
               ],
+            },
+            {
+              model: Video,
+              include: [
+                {
+                  model: Tag,
+                  as: "VideoTags",
+                  attributes: ["id", "name"],
+                  through: { attributes: [] },
+                }
+              ]
             },
           ]
         });
@@ -914,6 +936,17 @@ module.exports = {
                 ],
               ],
             },
+            {
+              model: Video,
+              include: [
+                {
+                  model: Tag,
+                  as: "VideoTags",
+                  attributes: ["id", "name"],
+                  through: { attributes: [] },
+                }
+              ]
+            },
           ]
         });
         sectionThree = getSectionThree.map((item) => item.dataValues.Video);
@@ -942,6 +975,17 @@ module.exports = {
                   "isSave",
                 ],
               ],
+            },
+            {
+              model: Video,
+              include: [
+                {
+                  model: Tag,
+                  as: "VideoTags",
+                  attributes: ["id", "name"],
+                  through: { attributes: [] },
+                }
+              ]
             },
           ]
         });
@@ -973,6 +1017,17 @@ module.exports = {
                 ],
               ],
             },
+            {
+              model: Video,
+              include: [
+                {
+                  model: Tag,
+                  as: "VideoTags",
+                  attributes: ["id", "name"],
+                  through: { attributes: [] },
+                }
+              ]
+            },
           ]
         });
         sectionFive = getSectionFive.map((item) => item.dataValues.Video);
@@ -1002,6 +1057,17 @@ module.exports = {
                   "isSave",
                 ],
               ],
+            },
+            {
+              model: Video,
+              include: [
+                {
+                  model: Tag,
+                  as: "VideoTags",
+                  attributes: ["id", "name"],
+                  through: { attributes: [] },
+                }
+              ]
             },
           ],
         });
