@@ -2002,45 +2002,43 @@ module.exports = {
 
       details.dataValues.createdAt = dayjs(details.dataValues.createdAt).format('YYYY.MM.DD');
 
-
-      const like = await Like.findOne({
-        where: {
-          VideoId: video,
-          UserId: user
-        }
-      });
-
-      const save = await Save.findOne({
-        where: {
-          VideoId: video,
-          UserId: user
-        }
-      });
-
-      const isLiked = like ? true : false;
-      const isSaved = save ? true : false;
-
-      const videoDetailData = { ...details.dataValues, isLiked, isSaved };
-
-      /* 조회수 증가 */
-
-      // Video 테이블 조회수 증가
-      let cnt = details.viewCount + 1;
-      await Video.update(
-        {
-          viewCount: cnt,
-        },
-        { where: { id: video } },
-      );
-
-      // Viewhistory 테이블 조회수 증가
-      await Viewhistory.create({
-        videoId: video,
-        userId: user
-      })
-
       if (user) {
-        // View 테이블 사용자별 비디오 조회수 저장
+        const like = await Like.findOne({
+          where: {
+            VideoId: video,
+            UserId: user
+          }
+        });
+
+        const save = await Save.findOne({
+          where: {
+            VideoId: video,
+            UserId: user
+          }
+        });
+
+        const isLiked = like ? true : false;
+        const isSaved = save ? true : false;
+
+        const videoDetailData = { ...details.dataValues, isLiked, isSaved };
+
+        /* 조회수 증가 */
+
+        // Video 테이블 조회수 증가
+        let cnt = details.viewCount + 1;
+        await Video.update(
+          {
+            viewCount: cnt,
+          },
+          { where: { id: video } },
+        );
+
+        // Viewhistory 테이블 조회수 증가
+        await Viewhistory.create({
+          videoId: video,
+          userId: user
+        })
+
         const viewcount = await View.findOne({
           where: {
             VideoId: video,
@@ -2048,24 +2046,6 @@ module.exports = {
           },
           attributes: ["UserCnt"],
         });
-
-        // 테이블에 중복이 없을 경우 View에 비디오, 사용자 추가
-        if (!viewcount) {
-          const viewcount = await View.create({ VideoId: video, UserId: user });
-        } else {
-          const usercnts = viewcount.UserCnt + 1;
-          await View.update({
-            UserCnt: usercnts,
-          },
-            {
-              where: {
-                VideoId: video,
-                UserId: user
-              }
-            })
-        };
-
-
         /* 추천 영상 불러오기 */
 
         // Case1. 사용자가 이미 시청한 영상(제외)
@@ -2169,16 +2149,82 @@ module.exports = {
             limit: 6 - recommandVideosLength
           });
           recommandVideos.push(...otherVideo);
-        };
 
+          return res.status(sc.OK).send(
+            ut.success(sc.OK, rm.GET_VIDEO_DETAIL_SUCCESS, {
+              videoDetailData,
+              recommandVideos,
+            }),
+          );
+        } else {
+          const recommandVideos = await Video.findAll({
+            where: {
+              id: {
+                [Op.not]: video
+              }
+            },
+            attributes: ["id", "title", "videoUrl", "thumbnailImageUrl", "videoLength", "videoGif", "channelName"],
+            include: [
+              {
+                model: Tag,
+                as: "VideoTags",
+                attributes: ["id", "name"],
+                through: { attributes: [] },
+              },
+            ],
+            order: sequelize.literal("rand()"),
+            limit: 6
+          });
 
-        return res.status(sc.OK).send(
-          ut.success(sc.OK, rm.GET_VIDEO_DETAIL_SUCCESS, {
-            videoDetailData,
-            recommandVideos,
-          }),
-        );
+          return res.status(sc.OK).send(
+            ut.success(sc.OK, rm.GET_VIDEO_DETAIL_SUCCESS, {
+              videoDetailData,
+              recommandVideos,
+            }),
+          );
+        }
       } else {
+        /* 조회수 증가 */
+        // Video 테이블 조회수 증가
+
+        const details = await Video.findOne({
+          where: {
+            id: video,
+          },
+          attributes: [
+            "id",
+            "title",
+            "description",
+            "videoUrl",
+            "viewCount",
+            "channelName",
+            "videoGif",
+            "createdAt",
+          ],
+          include: [
+            {
+              model: Tag,
+              as: "VideoTags",
+              attributes: ["id", "name"],
+              through: { attributes: [] },
+            },
+          ],
+        });
+        let cnt = details.viewCount + 1;
+        await Video.update(
+          {
+            viewCount: cnt,
+          },
+          { where: { id: video } },
+        );
+
+        details.dataValues.createdAt = dayjs(details.dataValues.createdAt).format('YYYY.MM.DD');
+
+        const isLiked = false;
+        const isSaved = false;
+
+        const videoDetailData = { ...details.dataValues, isLiked, isSaved };
+
         const recommandVideos = await Video.findAll({
           where: {
             id: {
@@ -2197,13 +2243,13 @@ module.exports = {
           order: sequelize.literal("rand()"),
           limit: 6
         });
-
         return res.status(sc.OK).send(
           ut.success(sc.OK, rm.GET_VIDEO_DETAIL_SUCCESS, {
             videoDetailData,
             recommandVideos,
           }),
         );
+
       }
 
 
