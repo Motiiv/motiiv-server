@@ -34,7 +34,7 @@
 
 ## ✔서버 개발자
 | **🎩  [김우영](https://github.com/w00ing)** | **🐧  [김정재](https://github.com/Jeongggjae)** |
-| :------------------------------------------: | :--------------------------------------------: | :---------------------------------------------: | :-------------------------------------------: |
+| :------------------------------------------: | :--------------------------------------------: |
 | ![wy](https://user-images.githubusercontent.com/29723695/104669648-d68a7b80-571d-11eb-9d64-a413ffe5f9b0.png) | ![jj](https://user-images.githubusercontent.com/29723695/104669644-d4c0b800-571d-11eb-9dad-c30eed66fdc3.png)  |
 | users, workspaces, sections, admin, deployment(+github actions), https, test code | videos |
 
