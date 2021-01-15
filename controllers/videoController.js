@@ -2066,6 +2066,25 @@ module.exports = {
           },
           attributes: ["UserCnt"],
         });
+
+        if (viewcount) {
+          viewcounts = viewcount.dataValues.UserCnt;
+          viewcounts += 1;
+
+          await View.update(
+            {
+              UserCnt: viewcounts,
+            },
+            { where: { VideoId: video, UserId: user } },
+          );
+
+        } else {
+          await View.create({
+            VideoId: video,
+            UserId: user,
+            UserCnt: 1
+          });
+        };
         /* 추천 영상 불러오기 */
 
         // Case1. 사용자가 이미 시청한 영상(제외)
