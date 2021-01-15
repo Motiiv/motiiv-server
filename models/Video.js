@@ -1,5 +1,3 @@
-const { INTEGER } = require("sequelize");
-
 module.exports = (sequelize, DataTypes) => {
   return sequelize.define(
     "Video",
@@ -24,7 +22,7 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.INTEGER,
       },
       videoLength: {
-        type: DataTypes.INTEGER,
+        type: DataTypes.STRING(10),
         allowNull: true,
       },
       channelName: {
