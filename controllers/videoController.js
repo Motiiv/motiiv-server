@@ -829,6 +829,132 @@ module.exports = {
         const sectionList = [...sectionSet.values()]
 
 
+        /*
+        직군 기반 랜덤 동영상 띄어주기 
+        부우 */
+
+
+        /*
+        const findJobName = await Job.findOne({
+          where: { id: userJobId },
+          attributes: ["name"]
+        });
+        let jobName = findJobName.dataValues.name;
+
+        // Section 1번째
+        titleOne['title'] = "|" + jobName + "|" + '에게 추천하는 모티브';
+        titleOne['subtitle'] = "직군에 맞는 영상을 가져왔어요.";
+
+        if (jobName === "기획자") {
+          jobName = "기획";
+        } else if (jobName === "디자이너") {
+          jobName = "디자인"
+        } else if (jobName === "개발자") {
+          jobName = "개발"
+        };
+
+        if (jobName === "유노윤호") {
+          sectionOne = await Video.findAll({
+            where: { id: tagedVideosId },
+            attributes: ["id", "title", "videoLength", "thumbnailImageUrl", "viewCount", "videoGif", "channelName",
+              [
+                Sequelize.literal(
+                  `(SELECT COUNT(*) FROM ${DB_NAME}.Save WHERE (${DB_NAME}.Save.VideoId = ${DB_NAME}.Video.id) AND (${DB_NAME}.Save.UserId = ${user}))`,
+                ),
+                "isSave",
+              ],
+            ],
+            include: [
+              {
+                model: Tag,
+                as: "VideoTags",
+                attributes: ["id", "name"],
+                through: { attributes: [] },
+              }
+            ],
+            order: sequelize.literal("rand()"),
+            limit: 10
+          });
+        } else {
+          // 3. 직군의 TagId값 찾기
+          const jobTag = await Tag.findOne({
+            where: { name: jobName }
+          });
+          const jobTagId = jobTag.dataValues.id;
+
+          // 3-1. 해당 태그를 가진 비디오 id찾기
+          const tagedVideos = await Video_Tag.findAll({
+            where: { TagId: jobTagId },
+          });
+          const tagedVideosId = tagedVideos.map((item) => item.dataValues.VideoId);
+
+          const sectionOneVideo = await Video.findAll({
+            where: { id: tagedVideosId },
+            attributes: ["id", "title", "videoLength", "thumbnailImageUrl", "viewCount", "videoGif", "channelName",
+              [
+                Sequelize.literal(
+                  `(SELECT COUNT(*) FROM ${DB_NAME}.Save WHERE (${DB_NAME}.Save.VideoId = ${DB_NAME}.Video.id) AND (${DB_NAME}.Save.UserId = ${user}))`,
+                ),
+                "isSave",
+              ],
+            ],
+            include: [
+              {
+                model: Tag,
+                as: "VideoTags",
+                attributes: ["id", "name"],
+                through: { attributes: [] },
+              }
+            ],
+            order: sequelize.literal("rand()"),
+            limit: 10
+          });
+
+          const sectionOnesId = sectionOneVideo.map((item) => item.dataValues.id);
+
+
+          if (sectionOnesId.length < 10) {
+            const randomVideos = await Video.findAll({
+              where: {
+                id: {
+                  [Op.and]: [
+                    { [Op.notIn]: sectionOnesId },
+                  ],
+                },
+              },
+              attributes: ["id", "title", "videoLength", "thumbnailImageUrl", "viewCount", "videoGif", "channelName",
+                [
+                  Sequelize.literal(
+                    `(SELECT COUNT(*) FROM ${DB_NAME}.Save WHERE (${DB_NAME}.Save.VideoId = ${DB_NAME}.Video.id) AND (${DB_NAME}.Save.UserId = ${user}))`,
+                  ),
+                  "isSave",
+                ],],
+              include: [
+                {
+                  model: Tag,
+                  as: "VideoTags",
+                  attributes: ["id", "name"],
+                  through: { attributes: [] },
+                }
+              ],
+              order: sequelize.literal("rand()"),
+              limit: 10 - sectionOnesId.length
+            })
+            sectionOneVideo.push(...randomVideos);
+            sectionOne = sectionOneVideo;
+            //sectionOne.push(titleOne);
+
+          } else {
+            sectionOne = sectionOneVideo;
+            //sectionOne.push(titleOne);
+          };
+        }
+        */
+
+
+
+
+
         // Secion 1번째
         const getSectionOneTitle = await Section.findOne({
           where: { id: sectionList[0] },
@@ -1580,9 +1706,11 @@ module.exports = {
         },
         attributes: ["id", "thumbnailImageUrl"],
       });
-      adBanners = [];
-      adBanners.push(adBanner);
-      adBanners.push(adTitle);
+      //adBanners = [];
+      //adBanners.push(adBanner);
+      //adBanners.push(adTitle);
+
+      const adBanners = { ...adBanner.dataValues, ...adTitle };
 
       return res.status(sc.OK).send(
         ut.success(sc.OK, rm.GET_ALL_POST_SUCCESS, {
