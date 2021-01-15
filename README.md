@@ -1,13 +1,22 @@
 # 🔥Motiiv SERVER🔥
 ![logo_motion](https://user-images.githubusercontent.com/55133871/103452365-e5cafb80-4d11-11eb-8ff7-967f170daf4b.gif)
 
-#### 일을 시작하는 순간, Motiiv
+![npm_bedge](https://img.shields.io/badge/team-motiiv-EC6565)
+![node_badge](https://img.shields.io/badge/version-v1.0.0-F5CA6Eh)
+![npm_bedge](https://img.shields.io/badge/express-v6.22.0-866DC9)
+![npm_bedge](https://img.shields.io/badge/seqeulize-v4.16.1-866DC9)
+
+<br>
+
+
+### 일을 시작하는 순간, Motiiv
 > 일을 시작하기 직전, 부스트️⚡️를 얻고 싶다면? <br>
 나의 시선을 뺏는 많은 콘텐츠 속에서 내가 원하는 영상만 켜고 <br>
 영상을 본 뒤 나의 워크스페이스로 바로 이동하세요! <br><br>
 개발 기간 : ~2021-01-16
 
 <br>
+
 
 ## ✔ Dependencies Module
 ![image](https://user-images.githubusercontent.com/29723695/104671651-8a413a80-5721-11eb-9359-744a8caa8492.png)
