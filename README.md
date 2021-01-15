@@ -1,5 +1,5 @@
 # 🔥Motiiv SERVER🔥
-![logo_motion](https://user-images.githubusercontent.com/55133871/103452365-e5cafb80-4d11-11eb-8ff7-967f170daf4b.gif)
+![logo_motion](img/bright-dark.gif)
 
 ![npm_bedge](https://img.shields.io/badge/team-motiiv-EC6565)
 ![node_badge](https://img.shields.io/badge/version-v1.0.0-F5CA6Eh)
