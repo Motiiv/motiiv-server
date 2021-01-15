@@ -650,15 +650,23 @@ module.exports = {
 
   updateUser: async (req, res) => {
     const { user } = req;
-    const { newName, newJobName, newKeywordNames } = req.body;
+    const {
+      newName,
+      newJobName,
+      newKeywordNames: newKeyWordNamesString,
+    } = req.body;
+    console.log(newKeyWordNamesString);
+    const newKeywordNames = JSON.parse(newKeyWordNamesString);
+    console.log(newKeywordNames);
     try {
       const keywordIds = [];
       if (newKeywordNames) {
         for (let i = 0; i < newKeywordNames.length; i++) {
-          console.log(newKeywordNames[i]);
+          console.log(typeof newKeywordNames[i]);
           const keyword = await Keyword.findOne({
             where: { name: newKeywordNames[i] },
           });
+          console.log(keyword);
           if (!keyword) {
             return res
               .status(statusCode.BAD_REQUEST)
