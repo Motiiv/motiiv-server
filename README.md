@@ -1,8 +1,8 @@
 # 🔥Motiiv SERVER🔥
 ![logo_motion](img/bright-dark.gif)
 
-![npm_bedge](https://img.shields.io/badge/team-motiiv-EC6565)
-![node_badge](https://img.shields.io/badge/version-v1.0.0-F5CA6Eh)
+![npm_bedge](https://img.shields.io/badge/team-motiiv-F5CA6Eh)
+![node_badge](https://img.shields.io/badge/version-v1.0.0-EC6565)
 ![npm_bedge](https://img.shields.io/badge/express-v6.22.0-866DC9)
 ![npm_bedge](https://img.shields.io/badge/seqeulize-v4.16.1-866DC9)
 
