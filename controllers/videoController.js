@@ -1636,7 +1636,7 @@ module.exports = {
 
       const recentViewVideos = await Video.findAll({
         // 배열
-        attributes: ['id', 'title', 'videoLength', 'thumbnailImageUrl', 'viewCount', "videoGif", 'channelName'],
+        attributes: ['id', 'title', 'videoLength', 'thumbnailImageUrl', 'viewCount', "videoGif", 'channelName', 'updatedAt'],
         where: {
           id: recentViewId,
         },
@@ -1648,6 +1648,7 @@ module.exports = {
             through: { attributes: [] },
           }
         ],
+        order: [[sequelize.literal("updatedAt"), "DESC"]],
       });
 
       recentViewVideos.map((viewVideo, i) => {
