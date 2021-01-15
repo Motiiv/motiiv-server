@@ -287,7 +287,7 @@ module.exports = {
       let sectionFour;
       let sectionFive;
       let sectionSix;
-      let sectionSeven;
+      ///let sectionSeven;
       let titleOne = {};
 
       if (user) {
@@ -310,7 +310,7 @@ module.exports = {
         let jobName = findJobName.dataValues.name;
 
         // Section 1번째
-        titleOne['title'] = jobName + '에게 추천하는 모티브!!';
+        titleOne['title'] = "|" + jobName + "|" + '에게 추천하는 모티브!!';
         titleOne['subtitle'] = "직군에 맞는 영상을 가져왔어요.";
 
         if (jobName === "기획자") {
@@ -444,7 +444,7 @@ module.exports = {
         const keywordName = getkeywordName.dataValues.name;
 
         const titleTwo = {};
-        titleTwo['title'] = keywordName + "에 관한 모티브!!";
+        titleTwo['title'] = "|" + keywordName + "|" + "에 관한 모티브!!";
         titleTwo['subtitle'] = "관심사를 기반으로 추천 영상을 보여드립니다.";
 
         let getTags;
@@ -769,6 +769,7 @@ module.exports = {
         });
         sectionSix = sectionSixVideo.map((item) => item.dataValues.Video);
         //sectionSix.push(getSectionSixTitle);
+        /*
         const titleSeven = {};
         titleSeven['title'] = "이 영상을 본 80%가 워크스페이스로 바로 이동했어요!";
 
@@ -781,6 +782,7 @@ module.exports = {
         });
         const sectionSevens = [];
         sectionSevens.push(sectionSeven);
+        */
 
 
         // Json to array
@@ -1483,7 +1485,7 @@ module.exports = {
 
       // 3번째 배너 비디오 임의값 넣기
       const thirdVideos = await Video.findOne({
-        where: { id: '4' },
+        where: { id: '83' },
         attributes: [
           "id",
           "title",
@@ -1502,16 +1504,31 @@ module.exports = {
         ],
       });
 
+      //광고 배너
+      const adTitle = {};
+      adTitle['title'] = "이 영상을 본 80%가 워크스페이스로 바로 이동했어요!";
 
+      const adBanner = await Video.findOne({
+        where: {
+          id: '3'
+        },
+        attributes: ["id", "thumbnailImageUrl"],
+        nest: true
+      });
+      const adBanners = [];
+      adBanners.push(adBanner);
+      adBanners.push(adTitle);
 
       return res.status(sc.OK).send(
         ut.success(sc.OK, rm.GET_ALL_POST_SUCCESS, {
           toptenVideo,
           mostViewVideo,
           mostLikeVideo,
-          thirdVideos
+          thirdVideos,
+          adBanners
         }),
       );
+
     } catch (err) {
       console.log(err);
       return res
