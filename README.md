@@ -35,8 +35,7 @@
 ## ✔서버 개발자
 | **🎩  [김우영](https://github.com/w00ing)** | **🐧  [김정재](https://github.com/Jeongggjae)** |
 | :------------------------------------------: | :--------------------------------------------: |
-| ![wy](https://user-images.githubusercontent.com/29723695/104669648-d68a7b80-571d-11eb-9d64-a413ffe5f9b0.png) | ![jj](https://user-images.githubusercontent.com/29723695/104669644-d4c0b800-571d-11eb-9dad-c30eed66fdc3.png)  |
-| users, workspaces, sections, admin, deployment(+github actions), https, test code | videos |
+ ![wy](https://user-images.githubusercontent.com/29723695/104669648-d68a7b80-571d-11eb-9d64-a413ffe5f9b0.png) | ![jj](https://user-images.githubusercontent.com/29723695/104669644-d4c0b800-571d-11eb-9dad-c30eed66fdc3.png)  |
 
 <br>
 
@@ -46,8 +45,8 @@
   - 유저, 워크스페이스, 관리자, 섹션 관련: 김우영
   - 동영상 관련: 김정재
 - README 작성: 김우영
-- 
-- 배포: 김우영
+- 배포, SSL 인증서 연결 및 자동화: 김우영
+- 자동 테스트 환경 구축: 김우영
 
 <br>
 
