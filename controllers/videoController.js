@@ -310,7 +310,7 @@ module.exports = {
         let jobName = findJobName.dataValues.name;
 
         // Section 1번째
-        titleOne['title'] = "|" + jobName + "|" + '에게 추천하는 모티브!!';
+        titleOne['title'] = "|" + jobName + "|" + '에게 추천하는 모티브';
         titleOne['subtitle'] = "직군에 맞는 영상을 가져왔어요.";
 
         if (jobName === "기획자") {
@@ -444,7 +444,7 @@ module.exports = {
         const keywordName = getkeywordName.dataValues.name;
 
         const titleTwo = {};
-        titleTwo['title'] = "|" + keywordName + "|" + "에 관한 모티브!!";
+        titleTwo['title'] = "|" + keywordName + "|" + "에 관한 모티브";
         titleTwo['subtitle'] = "관심사를 기반으로 추천 영상을 보여드립니다.";
 
         let getTags;
@@ -1579,9 +1579,8 @@ module.exports = {
           id: '3'
         },
         attributes: ["id", "thumbnailImageUrl"],
-        nest: true
       });
-      const adBanners = [];
+      adBanners = [];
       adBanners.push(adBanner);
       adBanners.push(adTitle);
 
