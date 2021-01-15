@@ -65,6 +65,9 @@ module.exports = {
 
       const salt = admin.salt;
       const hashed = await encryptWithSalt(password, salt);
+      console.log(hashed);
+      console.log(admin.password);
+
       if (hashed === admin.password) {
         const { accessToken } = await jwt.sign(admin);
         return res.status(statusCode.OK).send(
